@@ -3,61 +3,52 @@ package pages
 import "binhvuongos/web/templates"
 
 templ InboxCreatePage() {
-	@templates.Layout("Tạo Inbox mới", "inbox") {
-		<div class="mb-8">
-			<a href="/inbox" class="text-xs text-muted hover:text-ink mono">← Quay lại Hộp thư đến</a>
-			<h1 class="display text-4xl md:text-5xl font-bold leading-none mt-4">Tạo <span class="accent">inbox</span> mới</h1>
-		</div>
-		<div class="max-w-2xl">
-			<div class="bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-lg p-6 space-y-5">
-				<div>
-					<label class="eyebrow mb-2 block">Nội dung <span class="text-rust">*</span></label>
-					<textarea rows="6" class="w-full p-4 border border-hairline dark:border-dark-border rounded-md bg-surface dark:bg-dark-surface text-sm" placeholder="Ghi nhanh ý tưởng, link, ghi chú..."></textarea>
-				</div>
-				<div>
-					<label class="eyebrow mb-2 block">URL (tuỳ chọn)</label>
-					<input type="text" class="w-full p-3 border border-hairline dark:border-dark-border rounded-md bg-surface dark:bg-dark-surface text-sm" placeholder="https://..."/>
-				</div>
-				<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-					<div>
-						<label class="eyebrow mb-2 block">Loại</label>
-						<select class="w-full p-3 border border-hairline dark:border-dark-border rounded-md bg-surface dark:bg-dark-surface text-sm">
-							<option>— Chọn —</option>
-							<option>Ý tưởng</option>
-							<option>Link</option>
-							<option>Ghi chú</option>
-							<option>Task</option>
-							<option>File</option>
-						</select>
-					</div>
-					<div>
-						<label class="eyebrow mb-2 block">Công ty (tuỳ chọn)</label>
-						<select class="w-full p-3 border border-hairline dark:border-dark-border rounded-md bg-surface dark:bg-dark-surface text-sm">
-							<option>— Chưa gắn —</option>
-							<option>ABC Education</option>
-							<option>XYZ Finance</option>
-							<option>EduPlus Academy</option>
-							<option>FinHub Vietnam</option>
-						</select>
-					</div>
-				</div>
-				<div>
-					<label class="eyebrow mb-2 block">Ghi chú chi tiết (tuỳ chọn)</label>
-					<textarea rows="4" class="w-full p-4 border border-hairline dark:border-dark-border rounded-md bg-surface dark:bg-dark-surface text-sm mono" placeholder="Markdown notes..."></textarea>
-				</div>
-				<div>
-					<label class="eyebrow mb-2 block">Đính kèm</label>
-					<div class="border-2 border-dashed border-hairline dark:border-dark-border rounded-md p-8 text-center text-muted">
-						<div class="text-2xl mb-2">📎</div>
-						<div class="text-sm">Kéo thả file hoặc click để chọn</div>
-						<div class="text-xs mono mt-1">Tối đa 5 file, mỗi file ≤ 5MB</div>
-					</div>
-				</div>
-				<div class="flex gap-3 pt-2">
-					<button class="flex-1 px-4 py-3 bg-forest text-white rounded-md text-sm font-semibold mono">TẠO INBOX</button>
-					<a href="/inbox" class="px-4 py-3 border border-hairline dark:border-dark-border rounded-md text-sm text-muted hover:text-ink text-center">Huỷ</a>
-				</div>
+	@templates.Layout("Tạo Inbox", "inbox") {
+		<div class="max-w-2xl mx-auto">
+			<div class="mb-8">
+				<a href="/inbox" class="text-xs text-muted hover:text-ink mono">← quay lại hộp thư</a>
+				<h1 class="display text-4xl font-bold mt-4">Ghi nhanh <span class="accent">vào inbox</span></h1>
+				<p class="text-muted text-sm mt-2">Ghi lại ý tưởng, link, ghi chú — triage sau.</p>
 			</div>
+			<form method="POST" action="/inbox" class="bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-lg p-8 space-y-5">
+				<div>
+					<label class="block text-sm font-medium mb-1">Nội dung *</label>
+					<textarea name="content" rows="4" required class="w-full px-3 py-2 border border-hairline dark:border-dark-border rounded bg-ivory dark:bg-dark-bg text-ink focus:outline-none focus:border-forest" placeholder="Ý tưởng, link, ghi chú..."></textarea>
+				</div>
+				<div>
+					<label class="block text-sm font-medium mb-1">URL (nếu có)</label>
+					<input type="url" name="url" class="w-full px-3 py-2 border border-hairline dark:border-dark-border rounded bg-ivory dark:bg-dark-bg text-ink focus:outline-none focus:border-forest" placeholder="https://..."/>
+				</div>
+				<div class="grid grid-cols-2 gap-4">
+					<div>
+						<label class="block text-sm font-medium mb-1">Nguồn</label>
+						<select name="source" class="w-full px-3 py-2 border border-hairline dark:border-dark-border rounded bg-ivory dark:bg-dark-bg text-ink focus:outline-none focus:border-forest">
+							<option value="manual">Thủ công</option>
+							<option value="telegram">Telegram</option>
+							<option value="zalo">Zalo</option>
+							<option value="web">Web</option>
+							<option value="email">Email</option>
+							<option value="tiktok">TikTok</option>
+							<option value="facebook">Facebook</option>
+						</select>
+					</div>
+					<div>
+						<label class="block text-sm font-medium mb-1">Loại</label>
+						<select name="item_type" class="w-full px-3 py-2 border border-hairline dark:border-dark-border rounded bg-ivory dark:bg-dark-bg text-ink focus:outline-none focus:border-forest">
+							<option value="">— Chưa phân loại —</option>
+							<option value="idea">Ý tưởng</option>
+							<option value="task">Công việc</option>
+							<option value="link">Link</option>
+							<option value="note">Ghi chú</option>
+							<option value="file">File</option>
+						</select>
+					</div>
+				</div>
+				<div class="flex gap-2 pt-2">
+					<button type="submit" class="flex-1 py-2.5 bg-forest text-white font-semibold rounded hover:bg-forest/90 mono">LƯU VÀO INBOX</button>
+					<a href="/inbox" class="px-6 py-2.5 border border-hairline rounded text-muted hover:text-ink text-center">Huỷ</a>
+				</div>
+			</form>
 		</div>
 	}
 }
