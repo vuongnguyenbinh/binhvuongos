@@ -15,12 +15,13 @@
 }
 
 /* Dark mode CSS variable overrides */
+/* Dark mode — brighter text for readability */
 .dark {
   --bg: #0F1117;
   --surface: #1A1D26;
-  --ink: #E8E6E3;
-  --muted: #8B8880;
-  --hairline: #2D3039;
+  --ink: #F0EEEB;
+  --muted: #A8A39B;
+  --hairline: #333840;
   --cream: #1F2229;
 }
 
@@ -35,6 +36,8 @@ html, body {
   font-family: 'Inter', system-ui, sans-serif;
   font-weight: 400;
   font-feature-settings: 'ss01', 'cv11';
+  font-size: 15px;
+  line-height: 1.6;
 }
 
 .display {
@@ -63,9 +66,9 @@ html, body {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 2px 8px;
+  padding: 3px 10px;
   border-radius: 4px;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 500;
   letter-spacing: 0.02em;
   white-space: nowrap;
@@ -74,7 +77,7 @@ html, body {
 
 .eyebrow {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 500;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -169,7 +172,26 @@ html, body {
   color: var(--forest);
 }
 .dark .accent {
-  color: #4A7C59;
+  color: #6ECF8E;
+}
+.dark .eyebrow {
+  color: #A8A39B;
+}
+.dark .data-label {
+  color: #A8A39B;
+}
+/* Rust/ember text brighter in dark mode */
+.dark .text-rust {
+  color: #E86B6B !important;
+}
+.dark .text-sage {
+  color: #6ECF8E !important;
+}
+.dark .text-forest {
+  color: #5FA87A !important;
+}
+.dark .text-muted {
+  color: #A8A39B !important;
 }
 
 .check {
@@ -198,7 +220,7 @@ html, body {
 
 .data-label {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 10px;
+  font-size: 11px;
   color: var(--muted);
   letter-spacing: 0.05em;
   text-transform: uppercase;
@@ -228,16 +250,12 @@ html, body {
   text-shadow: 0 1px 4px rgba(0,0,0,0.4);
 }
 
-/* Modal */
+/* Modal backdrop — no blur, just dim overlay */
 .modal-backdrop {
-  position: fixed;
-  inset: 0;
-  z-index: 50;
-  background: rgba(26,25,24,0.4);
-  backdrop-filter: blur(4px);
+  background: rgba(26,25,24,0.5);
 }
 .dark .modal-backdrop {
-  background: rgba(0,0,0,0.6);
+  background: rgba(0,0,0,0.7);
 }
 
 /* Select/input dark mode */

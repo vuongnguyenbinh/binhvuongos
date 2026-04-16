@@ -63,8 +63,8 @@ templ WorkLogsPage() {
 }
 
 templ wlRow(datetime string, person string, compCode string, compBg string, compName string, campaign string, icon string, workType string, qty string, unit string, needsCheck bool, sources string, notes string) {
-	<tr class={ "row-hover", templ.KV("bg-flame/5", needsCheck) }>
-		<td class="px-4 py-4"><div class="check"></div></td>
+	<tr class={ "row-hover cursor-pointer", templ.KV("bg-flame/5", needsCheck) } onclick="window.location='/work-logs/1'">
+		<td class="px-4 py-4"><div class="check" onclick="event.stopPropagation()"></div></td>
 		<td class="px-4 py-4">
 			<div class="text-xs text-muted mono">{ datetime }</div>
 			<div class="font-semibold mt-0.5">{ person }</div>

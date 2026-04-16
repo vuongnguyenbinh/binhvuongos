@@ -78,7 +78,6 @@ templ Header(activeTab string) {
 				@TabLink("/campaigns", "campaigns", "Chiến dịch", "", activeTab)
 				@TabLink("/knowledge", "knowledge", "Kho kiến thức", "", activeTab)
 				@TabLink("/bookmarks", "bookmarks", "🔖 Bookmark", "", activeTab)
-				@TabLink("/prompts", "prompts", "💬 Prompt", "", activeTab)
 			</nav>
 			<!-- Mobile nav (hidden by default) -->
 			<nav id="mobile-nav" class="hidden md:hidden py-3 space-y-1 border-t border-hairline dark:border-dark-border">
@@ -91,7 +90,6 @@ templ Header(activeTab string) {
 				@MobileNavLink("/campaigns", "🎯 Chiến dịch", activeTab == "campaigns")
 				@MobileNavLink("/knowledge", "📚 Kho kiến thức", activeTab == "knowledge")
 				@MobileNavLink("/bookmarks", "🔖 Bookmark", activeTab == "bookmarks")
-				@MobileNavLink("/prompts", "💬 Prompt", activeTab == "prompts")
 			</nav>
 		</div>
 	</header>

@@ -55,7 +55,7 @@ templ ContentPage() {
 }
 
 templ cRow(title string, subtitle string, company string, compBg string, cType string, platforms string, author string, status string, statusClass string, date string, rate string, metrics string) {
-	<tr class="row-hover">
+	<tr class="row-hover cursor-pointer" onclick="window.location='/content/1'">
 		<td class="px-4 py-4"><div class="font-semibold">{ title }</div><div class="text-xs text-muted mt-0.5 mono">{ subtitle }</div></td>
 		<td class="px-4 py-4"><div class="flex items-center gap-2"><span class={ "w-5 h-5 rounded text-white text-[9px] flex items-center justify-center mono font-bold", compBg }>{ company }</span><span class="text-xs">{ company }</span></div></td>
 		<td class="px-4 py-4"><div class="text-sm">{ cType }</div><div class="text-xs text-muted mt-0.5 mono">{ platforms }</div></td>

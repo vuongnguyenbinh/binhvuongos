@@ -95,7 +95,7 @@ templ TasksPage() {
 }
 
 templ kCard(priority string, pillClass string, company string, title string, subtitle string, progress int, dueDate string, avatar string, avatarBg string, hasBorder bool) {
-	<div class={ "kanban-card", templ.KV("border-l-[3px] border-l-ember", hasBorder) }>
+	<div class={ "kanban-card cursor-pointer", templ.KV("border-l-[3px] border-l-ember", hasBorder) } onclick="window.location='/tasks/1'">
 		<div class="flex items-center justify-between mb-2">
 			<span class={ "pill", pillClass }>{ priority }</span>
 			<span class="text-[10px] text-muted mono">{ company }</span>

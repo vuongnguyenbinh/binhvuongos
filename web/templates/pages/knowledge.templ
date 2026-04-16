@@ -30,6 +30,7 @@ templ KnowledgePage() {
 			<button class="px-3 py-1.5 bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-full text-muted mono whitespace-nowrap">🔗 Nguyên liệu <span class="ml-1">65</span></button>
 			<button class="px-3 py-1.5 bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-full text-muted mono whitespace-nowrap">📑 Nghiên cứu <span class="ml-1">12</span></button>
 			<button class="px-3 py-1.5 bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-full text-muted mono whitespace-nowrap">💡 Note/Idea <span class="ml-1">9</span></button>
+			<button class="px-3 py-1.5 bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-full text-muted mono whitespace-nowrap">💬 Prompt <span class="ml-1">18</span></button>
 		</div>
 		<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
 			<!-- Featured hero card -->
@@ -58,12 +59,14 @@ templ KnowledgePage() {
 			@kbCard("📖 BÀI GIẢNG", "bg-sage/20 text-forest-600", "", "MỚI", "Định giá dịch vụ cho freelancer", "Framework pricing — giá trị vs giá cả. Bao gồm case study thực tế.", "BUSINESS", "", "EDU")
 			@kbCard("📋 SOP", "bg-ember/10 text-ember", "v1", "", "Review content trước khi đăng", "Checklist 12 điểm cho editor. Bao gồm brand voice, SEO, CTA.", "CONTENT", "", "ABC, XYZ")
 			@kbCard("📑 NGHIÊN CỨU", "bg-muted/10 text-muted", "", "⭐⭐", "AI trong workflow SME 2026", "Survey 200 doanh nghiệp VN. Đã đọc, có insight cho EDU cohort 5.", "AI", "TRENDS", "McKinsey")
+			@kbCard("💬 PROMPT", "bg-ember/10 text-ember", "", "", "Viết meta description SEO", "Viết meta description cho trang [URL] với keyword chính [KEYWORD]. Dưới 155 ký tự, có CTA.", "SEO", "PROMPT", "Copy & paste")
+			@kbCard("💬 PROMPT", "bg-ember/10 text-ember", "", "", "Tạo outline bài blog", "Tạo outline chi tiết cho bài blog về [TOPIC] với target keyword [KEYWORD]. H1 + 5-7 H2.", "CONTENT", "PROMPT", "Copy & paste")
 		</div>
 	}
 }
 
 templ kbCard(tag string, tagClass string, extra string, stars string, title string, desc string, topic1 string, topic2 string, source string) {
-	<div class="bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-lg p-5 hover:border-forest cursor-pointer">
+	<a href="/knowledge/1" class="block bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-lg p-5 hover:border-forest cursor-pointer">
 		<div class="flex items-start justify-between mb-3">
 			<span class={ "pill", tagClass }>{ tag }</span>
 			if stars != "" {
@@ -83,5 +86,5 @@ templ kbCard(tag string, tagClass string, extra string, stars string, title stri
 			</div>
 			<span class="text-muted mono">{ source }</span>
 		</div>
-	</div>
+	</a>
 }
