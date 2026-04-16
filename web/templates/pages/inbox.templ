@@ -1,0 +1,114 @@
+package pages
+
+import "binhvuongos/web/templates"
+
+templ InboxPage() {
+	@templates.Layout("Hộp thư đến", "inbox") {
+		<div class="mb-10">
+			<p class="eyebrow mb-2">Hộp thư đến · triage thông minh</p>
+			<h1 class="display text-5xl md:text-6xl font-bold leading-none">Phân loại <span class="accent">12 mục</span> chưa xử lý</h1>
+			<p class="mt-4 text-muted max-w-2xl">Cổng vào duy nhất. Từ Telegram, Zalo, hoặc nhập tay. Triage 10 phút mỗi sáng.</p>
+		</div>
+		<div class="grid grid-cols-1 xl:grid-cols-12 gap-6">
+			<div class="xl:col-span-7 bg-surface border border-hairline rounded-lg divide-y divide-hairline">
+				<!-- Active item -->
+				<div class="p-5 bg-cream/30 border-l-2 border-forest">
+					<div class="flex items-start justify-between mb-2">
+						<div class="flex items-center gap-2 text-[11px]">
+							<span class="pill bg-forest text-white">TELEGRAM</span>
+							<span class="text-muted mono">2 giờ trước</span>
+						</div>
+						<span class="dot bg-ember"></span>
+					</div>
+					<div class="mb-2"><a class="text-sm text-forest underline decoration-dotted mono">tiktok.com/@tambui/video/7234...</a></div>
+					<p class="text-sm leading-snug">Link TikTok của Tâm Bùi về copywriting — phong cách storytelling rất hay, có thể áp dụng cho series XYZ</p>
+					<div class="mt-3 flex items-center gap-3 text-[11px] text-muted">
+						<span class="mono">📎 1 ảnh</span><span>·</span>
+						<span>gợi ý: <span class="text-ember mono">Kho kiến thức → curated</span></span>
+					</div>
+				</div>
+				@inboxItem("MANUAL", "bg-muted/10 text-muted", "4 giờ trước", "", "Ý tưởng: làm series video ngắn về cách xây SOP cho SME — 10 tập, 2–3 phút/tập", "", "Nội dung → ý tưởng", false)
+				@inboxItem("ZALO", "bg-sage text-white", "hôm qua · 17:23", "", "Brief từ CTV Hương — tuần tới muốn nhận thêm 1 campaign mới của ABC, cần align KPI", "📎 brief.pdf", "Công việc → ABC", false)
+				@inboxItem("TELEGRAM", "bg-forest text-white", "hôm qua · 21:44", "medium.com/@andrewchen/the-co...", "Bài viết hay về cold start problem — nên save làm tài liệu cho bài giảng growth tháng sau", "", "Kho kiến thức → nghiên cứu", false)
+				@inboxItem("WEB", "bg-ember text-white", "2 ngày trước", "", "Framework định giá mentorship — có thể dùng cho pitch EDU tháng 5", "", "Nội dung → bài giảng", false)
+				@inboxItem("EMAIL", "bg-muted/10 text-muted", "3 ngày trước", "", "Forward: Hợp đồng mới với FinHub Vietnam — cần review điều khoản bảo mật", "📎 contract.pdf · 3 ảnh", "", true)
+			</div>
+			<!-- Triage panel -->
+			<div class="xl:col-span-5">
+				<div class="bg-surface border border-hairline rounded-lg p-6 sticky top-32">
+					<div class="flex items-center gap-2 mb-6">
+						<span class="pill bg-forest text-white">TELEGRAM</span>
+						<span class="text-xs text-muted mono">inbox #a3f2</span>
+					</div>
+					<h3 class="display text-3xl font-bold mb-4">Triage <span class="accent">vào đâu?</span></h3>
+					<div class="bg-cream/40 rounded-md p-4 mb-6">
+						<a class="text-xs text-forest underline decoration-dotted block mb-2 mono">tiktok.com/@tambui/video/7234...</a>
+						<p class="text-sm leading-snug">Link TikTok của Tâm Bùi về copywriting — phong cách storytelling rất hay</p>
+						<div class="flex items-center gap-2 mt-3 text-[11px] text-muted mono"><span>📎 1 ảnh</span><span>·</span><span>2h trước</span></div>
+					</div>
+					<p class="eyebrow mb-3">Chuyển sang</p>
+					<div class="space-y-2 mb-6">
+						<label class="flex items-start gap-3 p-3 border border-hairline rounded-md hover:border-forest cursor-pointer transition-colors">
+							<input type="radio" name="dest" class="mt-0.5 accent-[#1F3D2E]" checked/>
+							<div class="flex-1">
+								<div class="flex items-center justify-between"><div class="font-semibold text-sm">Kho kiến thức</div><span class="text-[10px] text-ember mono font-semibold">GỢI Ý</span></div>
+								<div class="text-xs text-muted mt-0.5">Lưu làm curated content, tag "copywriting"</div>
+							</div>
+						</label>
+						<label class="flex items-start gap-3 p-3 border border-hairline rounded-md hover:border-forest cursor-pointer transition-colors">
+							<input type="radio" name="dest" class="mt-0.5 accent-[#1F3D2E]"/>
+							<div class="flex-1"><div class="font-semibold text-sm">Nội dung</div><div class="text-xs text-muted mt-0.5">Tạo ý tưởng content mới cho XYZ</div></div>
+						</label>
+						<label class="flex items-start gap-3 p-3 border border-hairline rounded-md hover:border-forest cursor-pointer transition-colors">
+							<input type="radio" name="dest" class="mt-0.5 accent-[#1F3D2E]"/>
+							<div class="flex-1"><div class="font-semibold text-sm">Công việc</div><div class="text-xs text-muted mt-0.5">Tạo task xem kỹ và note insights</div></div>
+						</label>
+						<label class="flex items-start gap-3 p-3 border border-hairline rounded-md hover:border-rust cursor-pointer transition-colors">
+							<input type="radio" name="dest" class="mt-0.5 accent-[#A64545]"/>
+							<div class="flex-1"><div class="font-semibold text-sm text-muted">Lưu trữ · Xoá</div><div class="text-xs text-muted mt-0.5">Không cần xử lý</div></div>
+						</label>
+					</div>
+					<p class="eyebrow mb-3">Gắn công ty (tuỳ chọn)</p>
+					<select class="w-full p-2.5 border border-hairline rounded-md bg-surface text-sm mb-6">
+						<option>— Chưa gắn —</option>
+						<option>ABC Education</option>
+						<option>XYZ Finance</option>
+						<option>EduPlus Academy</option>
+						<option>FinHub Vietnam</option>
+					</select>
+					<div class="flex gap-2">
+						<button class="flex-1 px-4 py-2.5 bg-forest text-white rounded-md text-sm font-semibold hover:bg-forest-900 mono">CHUYỂN &amp; TIẾP TỤC</button>
+						<button class="px-4 py-2.5 border border-hairline rounded-md text-sm text-muted hover:text-ink">Bỏ qua</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	}
+}
+
+templ inboxItem(source string, pillClass string, timeAgo string, url string, content string, attachments string, suggestion string, isFading bool) {
+	<div class={ "p-5 row-hover cursor-pointer", templ.KV("opacity-60", isFading) }>
+		<div class="flex items-start justify-between mb-2">
+			<div class="flex items-center gap-2 text-[11px]">
+				<span class={ "pill", pillClass }>{ source }</span>
+				<span class="text-muted mono">{ timeAgo }</span>
+			</div>
+			<span class="dot bg-ember"></span>
+		</div>
+		if url != "" {
+			<div class="mb-2"><a class="text-sm text-forest underline decoration-dotted mono">{ url }</a></div>
+		}
+		<p class="text-sm leading-snug">{ content }</p>
+		<div class="mt-3 flex items-center gap-3 text-[11px] text-muted">
+			if attachments != "" {
+				<span class="mono">{ attachments }</span><span>·</span>
+			}
+			if suggestion != "" {
+				<span>gợi ý: <span class="text-ember mono">{ suggestion }</span></span>
+			}
+			if isFading {
+				<span class="text-rust mono">⚠ sắp archive</span>
+			}
+		</div>
+	</div>
+}

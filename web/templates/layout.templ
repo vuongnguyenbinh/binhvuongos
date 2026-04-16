@@ -1,0 +1,109 @@
+package templates
+
+templ Layout(title string, activeTab string) {
+	<!DOCTYPE html>
+	<html lang="vi">
+	<head>
+		<meta charset="UTF-8"/>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+		<title>{ title } — Bình Vương OS</title>
+		<link rel="preconnect" href="https://fonts.googleapis.com"/>
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+		<link href="https://fonts.googleapis.com/css2?family=Phudu:wght@300;400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet"/>
+		<link rel="stylesheet" href="/static/css/output.css"/>
+	</head>
+	<body class="min-h-screen paper">
+		@Header(activeTab)
+		<main class="max-w-[1440px] mx-auto px-8 py-10">
+			{ children... }
+		</main>
+		@Footer()
+		<script src="/static/js/app.js"></script>
+	</body>
+	</html>
+}
+
+templ Header(activeTab string) {
+	<header class="border-b border-hairline bg-ivory/80 backdrop-blur-sm sticky top-0 z-40">
+		<div class="max-w-[1440px] mx-auto px-8">
+			<div class="flex items-center justify-between h-16">
+				<div class="flex items-center gap-8">
+					<div class="flex items-baseline gap-2">
+						<span class="display text-2xl font-bold text-forest">Bình Vương</span>
+						<span class="eyebrow">OS</span>
+					</div>
+					<div class="hidden md:flex items-center gap-2 text-xs text-muted">
+						<span class="mono">v1.0</span>
+						<span class="ornament">✦</span>
+						<span>Demo · Static UI</span>
+					</div>
+				</div>
+				<div class="flex items-center gap-5">
+					<div class="hidden md:flex items-center gap-2 text-muted text-sm bg-cream/60 border border-hairline rounded px-3 py-1.5">
+						<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+						<span>Tìm kiếm</span>
+						<span class="mono text-[10px] ml-6 text-muted/60">⌘K</span>
+					</div>
+					<button class="relative text-ink">
+						<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 01-3.46 0"></path></svg>
+						<span class="absolute -top-1 -right-1 bg-ember text-white text-[9px] mono rounded-full w-4 h-4 flex items-center justify-center">5</span>
+					</button>
+					<div class="flex items-center gap-2 pl-5 border-l border-hairline">
+						<div class="w-8 h-8 rounded-full bg-forest text-white flex items-center justify-center text-xs font-semibold">BV</div>
+						<div class="hidden md:block text-sm">
+							<div class="font-semibold leading-tight">Bình Vương</div>
+							<div class="text-xs text-muted mono">owner</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<nav class="flex items-center gap-7 h-12 overflow-x-auto text-sm">
+				@TabLink("/", "dashboard", "Tổng quan", "", activeTab)
+				@TabLink("/inbox", "inbox", "Hộp thư đến", "12", activeTab)
+				@TabLink("/work-logs", "worklogs", "Nhật ký công việc", "5", activeTab)
+				@TabLink("/tasks", "tasks", "Công việc", "", activeTab)
+				@TabLink("/content", "content", "Nội dung", "", activeTab)
+				@TabLink("/companies", "companies", "Công ty", "", activeTab)
+				@TabLink("/campaigns", "campaigns", "Chiến dịch", "", activeTab)
+				@TabLink("/knowledge", "knowledge", "Kho kiến thức", "", activeTab)
+			</nav>
+		</div>
+	</header>
+}
+
+templ TabLink(href string, tab string, label string, badge string, activeTab string) {
+	if tab == activeTab {
+		<a href={ templ.SafeURL(href) } class="tab-active whitespace-nowrap font-semibold">
+			{ label }
+			if badge != "" {
+				<span class="ml-1 text-[10px] text-ember mono">{ badge }</span>
+			}
+		</a>
+	} else {
+		<a href={ templ.SafeURL(href) } class="whitespace-nowrap text-muted hover:text-ink transition-colors">
+			{ label }
+			if badge != "" {
+				<span class="ml-1 text-[10px] text-ember mono">{ badge }</span>
+			}
+		</a>
+	}
+}
+
+templ Footer() {
+	<footer class="mt-20 border-t border-hairline py-8">
+		<div class="max-w-[1440px] mx-auto px-8 flex items-center justify-between text-xs text-muted">
+			<div class="flex items-center gap-3">
+				<span class="display font-bold text-base text-forest">Bình Vương OS</span>
+				<span>·</span>
+				<span class="mono">v1.0</span>
+				<span>·</span>
+				<span>Solo Founder Edition</span>
+			</div>
+			<div class="flex items-center gap-6 mono">
+				<span>Sync Notion: <span class="text-sage">✓ vừa xong · 09:00</span></span>
+				<span>DB: <span class="text-sage">●</span> online</span>
+				<span class="ornament">✦</span>
+			</div>
+		</div>
+	</footer>
+}

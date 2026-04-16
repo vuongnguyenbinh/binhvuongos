@@ -1,0 +1,192 @@
+package pages
+
+import "binhvuongos/web/templates"
+
+templ DashboardPage() {
+	@templates.Layout("Tổng quan", "dashboard") {
+		<div class="mb-10">
+			<div class="flex items-baseline justify-between mb-2">
+				<p class="eyebrow">Tổng quan · Tháng Tư 2026</p>
+				<p class="text-xs text-muted mono">cập nhật 09:32 · đang chạy</p>
+			</div>
+			<h1 class="display text-6xl font-bold leading-none text-ink">
+				Chào buổi sáng, <span class="accent">Bình Vương.</span>
+			</h1>
+			<p class="mt-4 text-muted max-w-2xl text-base">
+				Hôm nay có <span class="text-ink font-semibold">5 báo cáo</span> chờ duyệt,
+				<span class="text-ink font-semibold">3 nội dung</span> cần review, và
+				<span class="text-rust font-semibold">2 đầu việc</span> đã quá hạn.
+			</p>
+		</div>
+		<!-- Stat grid -->
+		<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-12 gap-px bg-hairline border border-hairline rounded-lg overflow-hidden mb-10">
+			<div class="xl:col-span-3 bg-surface p-6">
+				<p class="eyebrow mb-3">Output tháng này</p>
+				<div class="flex items-baseline gap-2 mb-1">
+					<span class="stat-hero text-5xl tnum">324</span>
+					<span class="text-muted text-sm mono">link</span>
+				</div>
+				<div class="flex items-center gap-3 text-xs">
+					<span class="text-sage mono">↑ 18%</span>
+					<span class="text-muted">so với tháng trước</span>
+				</div>
+				<div class="mt-4 flex items-end gap-px h-6">
+					<span class="spark-bar w-1 h-[40%]"></span>
+					<span class="spark-bar w-1 h-[55%]"></span>
+					<span class="spark-bar w-1 h-[35%]"></span>
+					<span class="spark-bar w-1 h-[60%]"></span>
+					<span class="spark-bar w-1 h-[70%]"></span>
+					<span class="spark-bar w-1 h-[45%]"></span>
+					<span class="spark-bar w-1 h-[80%]"></span>
+					<span class="spark-bar w-1 h-[65%]"></span>
+					<span class="spark-bar w-1 h-[90%]"></span>
+					<span class="spark-bar w-1 h-[75%]"></span>
+					<span class="spark-bar w-1 h-[85%]"></span>
+					<span class="spark-bar w-1 h-full bg-ember"></span>
+				</div>
+			</div>
+			<div class="xl:col-span-3 bg-surface p-6">
+				<p class="eyebrow mb-3">Nội dung đã đăng</p>
+				<div class="flex items-baseline gap-2 mb-1">
+					<span class="stat-hero text-5xl tnum">42</span>
+					<span class="text-muted text-sm mono">bài</span>
+				</div>
+				<div class="flex items-center gap-3 text-xs">
+					<span class="text-sage mono">↑ 7</span>
+					<span class="text-muted">tuần này</span>
+				</div>
+				<div class="mt-4 grid grid-cols-4 gap-1 text-[10px] mono">
+					<div class="text-center"><div class="h-8 bg-forest/10 rounded-sm flex items-end justify-center pb-0.5"><span class="text-forest font-semibold">18</span></div><div class="text-muted mt-1">Blog</div></div>
+					<div class="text-center"><div class="h-8 bg-forest/20 rounded-sm flex items-end justify-center pb-0.5"><span class="text-forest font-semibold">14</span></div><div class="text-muted mt-1">Social</div></div>
+					<div class="text-center"><div class="h-8 bg-forest/15 rounded-sm flex items-end justify-center pb-0.5"><span class="text-forest font-semibold">7</span></div><div class="text-muted mt-1">Video</div></div>
+					<div class="text-center"><div class="h-8 bg-forest/[0.08] rounded-sm flex items-end justify-center pb-0.5"><span class="text-forest font-semibold">3</span></div><div class="text-muted mt-1">Email</div></div>
+				</div>
+			</div>
+			<div class="xl:col-span-3 bg-surface p-6">
+				<p class="eyebrow mb-3">Công việc</p>
+				<div class="flex items-baseline gap-2 mb-1">
+					<span class="stat-hero text-5xl tnum">58</span>
+					<span class="text-muted text-sm mono">/ 72 xong</span>
+				</div>
+				<div class="flex items-center gap-3 text-xs">
+					<span class="text-rust mono">⚠ 3</span>
+					<span class="text-rust">quá hạn</span>
+					<span class="text-muted">· 11 trong tuần</span>
+				</div>
+				<div class="progress-track mt-4"><div class="progress-fill w-[80%]"></div></div>
+				<p class="text-[10px] text-muted mono mt-1">80% hoàn thành</p>
+			</div>
+			<!-- Chiến dịch — hero with stock image -->
+			<div class="xl:col-span-3 hero-bg text-white p-6">
+				<img src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=70" alt="" loading="lazy"/>
+				<div class="hero-overlay"></div>
+				<div class="hero-content">
+					<p class="eyebrow mb-3 text-white/50">Chiến dịch đang chạy</p>
+					<div class="flex items-baseline gap-2 mb-1">
+						<span class="stat-hero text-5xl tnum text-white">7</span>
+						<span class="text-sm mono text-white/60">chiến dịch</span>
+					</div>
+					<div class="text-xs text-white/60"><span>trên 4 công ty</span></div>
+					<div class="mt-4 text-xs text-white/70">
+						<div class="flex justify-between py-1 border-b border-white/10"><span>SEO Q2 · ABC</span><span class="mono">62%</span></div>
+						<div class="flex justify-between py-1 border-b border-white/10"><span>Ra mắt SP · XYZ</span><span class="mono">34%</span></div>
+						<div class="flex justify-between py-1"><span>Training Q2 · EDU</span><span class="mono">88%</span></div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- Company + Today -->
+		<div class="grid grid-cols-1 xl:grid-cols-12 gap-6">
+			<div class="xl:col-span-8">
+				<div class="flex items-baseline justify-between mb-4">
+					<h2 class="display text-3xl font-bold">Tình trạng <span class="accent">công ty</span></h2>
+					<a href="/companies" class="text-xs text-muted hover:text-ink mono">xem tất cả →</a>
+				</div>
+				<div class="bg-surface border border-hairline rounded-lg divide-y divide-hairline">
+					@companyRow("ABC", "bg-forest", "ABC Education", "OK", "bg-sage/20 text-forest", "Giáo dục", "SEO · Content · Training · 12 người", "18", "124", "93%", "text-sage")
+					@companyRow("XYZ", "bg-ember", "XYZ Finance", "CHÚ Ý", "bg-ember/10 text-ember", "Tài chính", "Content · Branding · 6 người", "23", "67", "71%", "text-flame")
+					@companyRow("EDU", "bg-sage", "EduPlus Academy", "OK", "bg-sage/20 text-forest", "Giáo dục", "Training · Mentor · 4 người", "8", "34", "100%", "text-sage")
+					@companyRow("FIN", "bg-rust", "FinHub Vietnam", "GẤP", "bg-rust/10 text-rust", "Tài chính", "Full Ops · 8 người · Launching 05/2026", "31", "89", "54%", "text-rust")
+					@companyRow("CR", "bg-muted", "Creative Studio", "PAUSE", "bg-muted/10 text-muted", "Thiết kế", "Consulting · 2 người", "—", "—", "—", "text-muted")
+				</div>
+			</div>
+			<div class="xl:col-span-4">
+				<div class="flex items-baseline justify-between mb-4">
+					<h2 class="display text-3xl font-bold">Hôm <span class="accent">nay</span></h2>
+					<span class="text-xs text-muted mono">8 việc</span>
+				</div>
+				<div class="bg-surface border border-hairline rounded-lg p-5 space-y-4">
+					@taskItem("Review nội dung blog SEO tháng 4", "GẤP", "bg-rust/10 text-rust", "ABC · 10:00")
+					@taskItem("Họp strategy với XYZ Finance", "CAO", "bg-ember/10 text-ember", "14:00")
+					@taskItem("Duyệt 5 work logs của CTV", "CAO", "bg-ember/10 text-ember", "chiều")
+					@taskItemDone("Check email sáng", "xong 09:15")
+					@taskItem("Viết brief campaign ra mắt SP tháng 5", "TB", "bg-forest-50 text-forest", "XYZ")
+					<div class="border-t border-hairline -mx-5 mt-5 pt-4 px-5">
+						<div class="flex items-center justify-between text-xs">
+							<span class="eyebrow">Quá hạn</span>
+							<span class="mono text-rust font-semibold">2</span>
+						</div>
+						<div class="mt-2 text-[11px] text-rust">⚠ Feedback bài giảng FinHub <span class="mono">· 2 ngày trễ</span></div>
+						<div class="mt-1 text-[11px] text-rust">⚠ Check ngân sách ads tháng 4 <span class="mono">· 1 ngày trễ</span></div>
+					</div>
+				</div>
+				<div class="mt-6 p-5 bg-cream/40 border border-hairline rounded-lg">
+					<div class="flex items-center justify-between mb-3">
+						<span class="eyebrow">📥 Hộp thư đến</span>
+						<span class="text-xs mono text-ember font-semibold">12 chưa xử lý</span>
+					</div>
+					<div class="space-y-2 text-xs">
+						<div class="flex items-start gap-2"><span class="dot mt-1.5 bg-ember"></span><div class="flex-1"><div class="truncate">Link TikTok về copywriting của Tâm Bùi</div><div class="text-muted text-[10px] mono">Telegram · 2 giờ trước</div></div></div>
+						<div class="flex items-start gap-2"><span class="dot mt-1.5 bg-ember"></span><div class="flex-1"><div class="truncate">Ý tưởng: series về xây SOP cho client</div><div class="text-muted text-[10px] mono">Manual · 4 giờ trước</div></div></div>
+						<div class="flex items-start gap-2"><span class="dot mt-1.5 bg-ember"></span><div class="flex-1"><div class="truncate">Brief CTV Hương gửi qua Zalo</div><div class="text-muted text-[10px] mono">Zalo · hôm qua</div></div></div>
+					</div>
+					<a href="/inbox" class="mt-3 block text-xs text-forest hover:text-ember mono">triage ngay →</a>
+				</div>
+			</div>
+		</div>
+	}
+}
+
+templ companyRow(code string, codeBg string, name string, status string, pillClass string, industry string, scope string, openTasks string, output string, ontime string, ontimeColor string) {
+	<div class="p-4 row-hover flex items-center gap-4">
+		<div class={ "w-10 h-10 rounded text-white flex items-center justify-center mono text-xs font-bold", codeBg }>{ code }</div>
+		<div class="flex-1 min-w-0">
+			<div class="flex items-center gap-2 flex-wrap">
+				<span class="font-semibold">{ name }</span>
+				<span class={ "pill", pillClass }>{ status }</span>
+				<span class="eyebrow">{ industry }</span>
+			</div>
+			<div class="text-xs text-muted mt-0.5">{ scope }</div>
+		</div>
+		<div class="hidden md:grid grid-cols-3 gap-6 text-right">
+			<div><div class="tnum text-lg font-semibold mono">{ openTasks }</div><div class="data-label">việc mở</div></div>
+			<div><div class="tnum text-lg font-semibold mono">{ output }</div><div class="data-label">output/th</div></div>
+			<div><div class={ "tnum text-lg font-semibold mono", ontimeColor }>{ ontime }</div><div class="data-label">ontime</div></div>
+		</div>
+	</div>
+}
+
+templ taskItem(title string, priority string, pillClass string, meta string) {
+	<div class="flex items-start gap-3">
+		<div class="check mt-0.5"></div>
+		<div class="flex-1 min-w-0">
+			<div class="text-sm leading-snug">{ title }</div>
+			<div class="flex items-center gap-2 mt-1 text-[11px]">
+				<span class={ "pill", pillClass }>{ priority }</span>
+				<span class="text-muted mono">{ meta }</span>
+			</div>
+		</div>
+	</div>
+}
+
+templ taskItemDone(title string, meta string) {
+	<div class="flex items-start gap-3 opacity-50">
+		<div class="check checked mt-0.5">
+			<svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><path d="M20 6L9 17l-5-5"></path></svg>
+		</div>
+		<div class="flex-1 min-w-0">
+			<div class="text-sm leading-snug line-through">{ title }</div>
+			<div class="flex items-center gap-2 mt-1 text-[11px]"><span class="text-muted mono">{ meta }</span></div>
+		</div>
+	</div>
+}

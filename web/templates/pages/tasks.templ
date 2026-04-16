@@ -1,0 +1,116 @@
+package pages
+
+import "binhvuongos/web/templates"
+
+templ TasksPage() {
+	@templates.Layout("Công việc", "tasks") {
+		<div class="mb-10 flex items-end justify-between">
+			<div>
+				<p class="eyebrow mb-2">Công việc · Kanban theo trạng thái</p>
+				<h1 class="display text-5xl md:text-6xl font-bold leading-none"><span class="accent">72</span> đầu việc đang chạy</h1>
+			</div>
+			<button class="px-4 py-2 bg-forest text-white rounded-md text-sm hover:bg-forest-900 mono font-semibold">+ TẠO CÔNG VIỆC</button>
+		</div>
+		<div class="flex items-center gap-3 mb-6 pb-4 border-b border-hairline text-xs overflow-x-auto">
+			<span class="eyebrow">Lọc:</span>
+			<button class="px-3 py-1.5 bg-surface border border-hairline rounded-full whitespace-nowrap">Tất cả công ty ▾</button>
+			<button class="px-3 py-1.5 bg-surface border border-hairline rounded-full whitespace-nowrap">Tất cả người ▾</button>
+			<button class="px-3 py-1.5 bg-surface border border-hairline rounded-full whitespace-nowrap">Nhóm việc ▾</button>
+			<button class="px-3 py-1.5 bg-surface border border-hairline rounded-full whitespace-nowrap">Ưu tiên ▾</button>
+			<div class="flex-1"></div>
+			<span class="eyebrow">View:</span>
+			<button class="px-3 py-1.5 bg-forest text-white rounded-full mono font-semibold">KANBAN</button>
+			<button class="px-3 py-1.5 bg-surface border border-hairline rounded-full text-muted mono">BẢNG</button>
+			<button class="px-3 py-1.5 bg-surface border border-hairline rounded-full text-muted mono">LỊCH</button>
+		</div>
+		<div class="flex gap-4 overflow-x-auto pb-4">
+			<!-- Cần làm -->
+			<div class="min-w-[240px] flex-1">
+				<div class="flex items-center gap-2 mb-3 pb-2 border-b border-hairline"><span class="dot bg-muted"></span><span class="text-sm font-semibold">Cần làm</span><span class="text-xs text-muted mono">14</span></div>
+				<div class="space-y-2">
+					@kCard("GẤP", "bg-rust/10 text-rust", "ABC", "Review bài SEO tháng 4 của CTV Minh", "", 0, "hôm nay", "BV", "bg-forest", false)
+					@kCard("CAO", "bg-ember/10 text-ember", "XYZ", "Viết brief campaign ra mắt SP tháng 5", "", 0, "17/04", "BV", "bg-forest", false)
+					@kCard("TB", "bg-forest-50 text-forest", "FIN", "Sắp xếp meeting tháng với FinHub", "", 0, "18/04", "H", "bg-ember", false)
+					@kCard("TB", "bg-forest-50 text-forest", "EDU", "Chuẩn bị slide bài giảng \"Growth Mindset\"", "", 0, "20/04", "L", "bg-sage", false)
+					@kCard("THẤP", "bg-muted/10 text-muted", "—", "Đọc sách \"Finite and Infinite Games\"", "", 0, "tuần sau", "BV", "bg-forest", false)
+				</div>
+			</div>
+			<!-- Đang làm -->
+			<div class="min-w-[240px] flex-1">
+				<div class="flex items-center gap-2 mb-3 pb-2 border-b border-hairline"><span class="dot bg-ember"></span><span class="text-sm font-semibold">Đang làm</span><span class="text-xs text-muted mono">8</span></div>
+				<div class="space-y-2">
+					@kCard("CAO", "bg-ember/10 text-ember", "ABC", "Xây 300 backlink cho SEO Q2", "SEO Q2 · 187/300 link", 62, "30/06", "Hg", "bg-ember", true)
+					@kCard("CAO", "bg-ember/10 text-ember", "XYZ", "Set up 10 ads campaign Facebook", "Ra mắt SP · 8/10 camp", 80, "22/04", "L", "bg-ember", true)
+					@kCard("TB", "bg-forest-50 text-forest", "EDU", "Record 8 video training Q2", "Training Q2 · 5/8 video", 63, "25/04", "H", "bg-sage", true)
+				</div>
+			</div>
+			<!-- Chờ -->
+			<div class="min-w-[240px] flex-1">
+				<div class="flex items-center gap-2 mb-3 pb-2 border-b border-hairline"><span class="dot bg-flame"></span><span class="text-sm font-semibold">Chờ</span><span class="text-xs text-muted mono">4</span></div>
+				<div class="space-y-2">
+					<div class="kanban-card opacity-80">
+						<div class="flex items-center justify-between mb-2"><span class="pill bg-ember/10 text-ember">CAO</span><span class="text-[10px] text-muted mono">FIN</span></div>
+						<div class="text-sm leading-snug mb-2">Chờ feedback từ FinHub về bài giảng risk mgmt</div>
+						<div class="text-xs text-flame mono">⏳ 4 ngày rồi</div>
+					</div>
+					<div class="kanban-card opacity-80">
+						<div class="flex items-center justify-between mb-2"><span class="pill bg-forest-50 text-forest">TB</span><span class="text-[10px] text-muted mono">ABC</span></div>
+						<div class="text-sm leading-snug mb-2">Chờ thiết kế thumbnail từ CTV Tú</div>
+						<div class="text-xs text-muted mono">⏳ 2 ngày</div>
+					</div>
+				</div>
+			</div>
+			<!-- Cần duyệt -->
+			<div class="min-w-[240px] flex-1">
+				<div class="flex items-center gap-2 mb-3 pb-2 border-b border-hairline"><span class="dot bg-sage"></span><span class="text-sm font-semibold">Cần duyệt</span><span class="text-xs text-muted mono">5</span></div>
+				<div class="space-y-2">
+					<div class="kanban-card border-l-[3px] border-l-sage">
+						<div class="flex items-center justify-between mb-2"><span class="pill bg-sage/20 text-forest-600">REVIEW</span><span class="text-[10px] text-muted mono">ABC</span></div>
+						<div class="text-sm leading-snug mb-2">3 bài blog SEO của CTV Minh</div>
+						<div class="flex items-center justify-between text-[11px] text-muted mono mt-2"><span>cần feedback</span><div class="w-5 h-5 rounded-full bg-forest text-white flex items-center justify-center text-[9px] font-bold">BV</div></div>
+					</div>
+					<div class="kanban-card border-l-[3px] border-l-sage">
+						<div class="flex items-center justify-between mb-2"><span class="pill bg-sage/20 text-forest-600">REVIEW</span><span class="text-[10px] text-muted mono">XYZ</span></div>
+						<div class="text-sm leading-snug mb-2">Thiết kế landing page ra mắt SP</div>
+						<div class="flex items-center justify-between text-[11px] text-muted mono mt-2"><span>cần duyệt UI</span><div class="w-5 h-5 rounded-full bg-forest text-white flex items-center justify-center text-[9px] font-bold">BV</div></div>
+					</div>
+				</div>
+			</div>
+			<!-- Hoàn thành -->
+			<div class="min-w-[240px] flex-1">
+				<div class="flex items-center gap-2 mb-3 pb-2 border-b border-hairline"><span class="dot bg-forest"></span><span class="text-sm font-semibold">Hoàn thành</span><span class="text-xs text-muted mono">41</span></div>
+				<div class="space-y-2">
+					@kDone("15/04", "EDU", "Xong training onboard CTV mới")
+					@kDone("14/04", "ABC", "Audit SEO website ABC")
+					@kDone("13/04", "FIN", "Xây content plan tháng 4")
+					<div class="text-center text-xs text-muted py-3 mono">...và 38 việc khác</div>
+				</div>
+			</div>
+		</div>
+	}
+}
+
+templ kCard(priority string, pillClass string, company string, title string, subtitle string, progress int, dueDate string, avatar string, avatarBg string, hasBorder bool) {
+	<div class={ "kanban-card", templ.KV("border-l-[3px] border-l-ember", hasBorder) }>
+		<div class="flex items-center justify-between mb-2">
+			<span class={ "pill", pillClass }>{ priority }</span>
+			<span class="text-[10px] text-muted mono">{ company }</span>
+		</div>
+		<div class="text-sm leading-snug mb-2">{ title }</div>
+		if subtitle != "" {
+			<div class="text-xs text-muted mb-2 mono">{ subtitle }</div>
+			<div class="progress-track mb-2"><div class="progress-fill" { templates.WidthStyle(progress)... }></div></div>
+		}
+		<div class="flex items-center justify-between text-[11px] text-muted mono">
+			<span>{ dueDate }</span>
+			<div class={ "w-5 h-5 rounded-full text-white flex items-center justify-center text-[9px] font-bold", avatarBg }>{ avatar }</div>
+		</div>
+	</div>
+}
+
+templ kDone(date string, company string, title string) {
+	<div class="kanban-card opacity-70">
+		<div class="flex items-center justify-between mb-2"><span class="text-[10px] text-sage mono">✓ { date }</span><span class="text-[10px] text-muted mono">{ company }</span></div>
+		<div class="text-sm leading-snug line-through text-muted">{ title }</div>
+	</div>
+}

@@ -1,0 +1,125 @@
+package pages
+
+import (
+	"binhvuongos/web/templates"
+	"fmt"
+)
+
+templ CampaignsPage() {
+	@templates.Layout("Chiến dịch", "campaigns") {
+		<div class="mb-10">
+			<p class="eyebrow mb-2">Chiến dịch · tiến độ &amp; output</p>
+			<div class="flex items-end justify-between">
+				<h1 class="display text-5xl md:text-6xl font-bold leading-none"><span class="accent">7</span> chiến dịch đang chạy</h1>
+				<button class="px-4 py-2 bg-forest text-white rounded-md text-sm mono font-semibold">+ TẠO CHIẾN DỊCH</button>
+			</div>
+		</div>
+		<!-- Featured -->
+		<div class="bg-surface border border-hairline rounded-lg p-8 mb-8">
+			<div class="flex items-start justify-between mb-6">
+				<div>
+					<div class="flex items-center gap-3 mb-2">
+						<span class="w-8 h-8 rounded bg-forest text-white flex items-center justify-center mono text-xs font-bold">ABC</span>
+						<span class="eyebrow">ABC Education</span>
+						<span class="ornament">✦</span>
+						<span class="text-xs text-muted mono">SEO · Content</span>
+					</div>
+					<h2 class="display text-4xl md:text-5xl font-bold">SEO Quý 2 · 2026</h2>
+					<p class="text-sm text-muted mt-3 mono">01/04 — 30/06 · 75 ngày còn lại · chủ trì bởi Bình Vương</p>
+				</div>
+				<div class="text-right hidden md:block">
+					<div class="eyebrow mb-1">Tiến độ tổng</div>
+					<div class="stat-hero text-6xl tnum text-forest">62<span class="text-3xl">%</span></div>
+				</div>
+			</div>
+			<div class="space-y-5 mb-8">
+				@campBar("🔗", "Xây backlink", "DẪN ĐẦU", "text-sage", "187", "300 link", 62, false)
+				@campBar("📝", "Viết bài", "", "", "32", "50 bài", 64, false)
+				@campBar("📱", "Đăng MXH", "", "", "48", "80 post", 60, false)
+				@campBar("🎥", "Video", "CẦN TĂNG TỐC", "text-flame", "5", "15 video", 33, true)
+			</div>
+			<div class="flex items-center justify-between pt-6 border-t border-hairline">
+				<div>
+					<span class="eyebrow">Đội ngũ tham gia</span>
+					<div class="flex items-center gap-1 mt-2">
+						<div class="w-8 h-8 rounded-full bg-ember text-white text-xs flex items-center justify-center ring-2 ring-surface font-bold">Hg</div>
+						<div class="w-8 h-8 rounded-full bg-sage text-white text-xs flex items-center justify-center ring-2 ring-surface -ml-2 font-bold">Mh</div>
+						<div class="w-8 h-8 rounded-full bg-rust text-white text-xs flex items-center justify-center ring-2 ring-surface -ml-2 font-bold">T</div>
+						<div class="w-8 h-8 rounded-full bg-forest text-white text-xs flex items-center justify-center ring-2 ring-surface -ml-2 font-bold">BV</div>
+						<span class="text-xs text-muted ml-3 mono">+ 3 CTV</span>
+					</div>
+				</div>
+				<div class="text-right">
+					<span class="eyebrow">Ngân sách</span>
+					<div class="tnum stat-hero text-2xl mt-1">18.4M <span class="text-muted text-sm mono font-normal">/ 30M VND</span></div>
+				</div>
+			</div>
+		</div>
+		<!-- Grid -->
+		<div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+			@campCard("XYZ", "bg-ember", "XYZ Finance", "Ra mắt SP · tháng 5", "15/04 — 15/05 · 29 ngày", 34, "", "📢 8/10 camp · 📝 6/20 bài · 🎥 1/5 video")
+			@campCard("EDU", "bg-sage", "EduPlus Academy", "Training Q2 · Cohort 4", "01/04 — 30/06 · 75 ngày", 88, "text-sage", "🎥 14/16 video · 📝 8/10 SOP")
+			@campCard("FIN", "bg-rust", "FinHub Vietnam", "Full Launch · Q2", "15/03 — 20/05 · URGENT", 23, "text-rust", "📝 12/40 bài · 📢 5/15 camp · ⚠ chậm lịch")
+			@campCard("ABC", "bg-forest", "ABC Education", "Content Pillar · H1", "01/01 — 30/06 · 75 ngày còn", 41, "", "📝 18/40 bài · 🎥 4/12 video")
+		</div>
+	}
+}
+
+templ campBar(icon string, name string, badge string, badgeColor string, actual string, target string, pct int, isWarning bool) {
+	<div>
+		<div class="flex items-center justify-between mb-2">
+			<div class="flex items-center gap-2">
+				<span>{ icon }</span>
+				<span class="font-semibold">{ name }</span>
+				if badge != "" {
+					<span class={ "text-xs mono", badgeColor }>{ badge }</span>
+				}
+			</div>
+			<div class="tnum text-sm mono">
+				<span class="font-semibold">{ actual }</span>
+				<span class="text-muted">/ { target }</span>
+				if badgeColor != "" {
+					<span class={ "ml-2 font-semibold", badgeColor }>{ fmt.Sprintf("%d%%", pct) }</span>
+				} else {
+					<span class="ml-2 font-semibold text-sage">{ fmt.Sprintf("%d%%", pct) }</span>
+				}
+			</div>
+		</div>
+		<div class="progress-track h-2">
+			if isWarning {
+				<div class="h-full rounded-full bg-gradient-to-r from-flame to-ember" { templates.WidthStyle(pct)... }></div>
+			} else {
+				<div class="h-full rounded-full bg-gradient-to-r from-forest to-sage" { templates.WidthStyle(pct)... }></div>
+			}
+		</div>
+	</div>
+}
+
+templ campCard(code string, codeBg string, compName string, campName string, dateLine string, pct int, pctColor string, metrics string) {
+	<div class="bg-surface border border-hairline rounded-lg p-5 hover:border-forest cursor-pointer">
+		<div class="flex items-center gap-2 mb-3">
+			<span class={ "w-6 h-6 rounded text-white text-[9px] flex items-center justify-center mono font-bold", codeBg }>{ code }</span>
+			<span class="eyebrow">{ compName }</span>
+		</div>
+		<h3 class="display text-2xl font-bold mb-1">{ campName }</h3>
+		<p class="text-xs text-muted mb-4 mono">{ dateLine }</p>
+		<div class="mb-3">
+			<div class="flex items-center justify-between text-xs mb-1 mono">
+				<span>Tiến độ tổng</span>
+				if pctColor != "" {
+					<span class={ "font-semibold", pctColor }>{ fmt.Sprintf("%d%%", pct) }</span>
+				} else {
+					<span class="font-semibold">{ fmt.Sprintf("%d%%", pct) }</span>
+				}
+			</div>
+			<div class="progress-track">
+				if pctColor == "text-rust" {
+					<div class="progress-fill bg-rust" { templates.WidthStyle(pct)... }></div>
+				} else {
+					<div class="progress-fill" { templates.WidthStyle(pct)... }></div>
+				}
+			</div>
+		</div>
+		<div class="text-[11px] text-muted mono">{ metrics }</div>
+	</div>
+}

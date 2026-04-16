@@ -1,0 +1,214 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg: #FAF8F3;
+  --surface: #FFFFFF;
+  --ink: #1A1918;
+  --forest: #1F3D2E;
+  --ember: #D94F30;
+  --flame: #E8623A;
+  --muted: #6B665E;
+  --hairline: #E8E4DB;
+  --cream: #F2EEE4;
+}
+
+* {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+html, body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: 'Inter', system-ui, sans-serif;
+  font-weight: 400;
+  font-feature-settings: 'ss01', 'cv11';
+}
+
+/* Display — Phudu for headlines */
+.display {
+  font-family: 'Phudu', sans-serif;
+  letter-spacing: -0.01em;
+}
+
+.mono { font-family: 'JetBrains Mono', monospace; }
+
+/* Tabular nums */
+.tnum {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum';
+}
+
+.border-hairline { border-color: var(--hairline); }
+
+.dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* Editorial eyebrow */
+.eyebrow {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.ornament {
+  font-family: 'Phudu', sans-serif;
+  color: var(--ember);
+  font-size: 14px;
+  font-weight: 900;
+}
+
+.tab-active {
+  color: var(--ink);
+  position: relative;
+  font-weight: 600;
+}
+.tab-active::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -17px;
+  height: 2px;
+  background: var(--forest);
+}
+
+.progress-track {
+  background: var(--cream);
+  height: 4px;
+  border-radius: 2px;
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  background: var(--forest);
+  transition: width 0.8s ease;
+}
+
+.row-hover:hover {
+  background: #FBF9F4;
+}
+
+.paper {
+  background-image:
+    radial-gradient(circle at 0.5px 0.5px, rgba(26,25,24,0.015) 0.5px, transparent 0);
+  background-size: 4px 4px;
+}
+
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: var(--hairline);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover { background: #D4CEC1; }
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.kanban-card {
+  background: var(--surface);
+  border: 1px solid var(--hairline);
+  border-radius: 6px;
+  padding: 12px;
+  transition: all 0.2s ease;
+}
+.kanban-card:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(26,25,24,0.06);
+}
+
+/* Hero stat — Phudu extra bold */
+.stat-hero {
+  font-family: 'Phudu', sans-serif;
+  font-weight: 700;
+  line-height: 0.95;
+  letter-spacing: -0.03em;
+}
+
+/* Display heading inline accent — light weight for contrast */
+.accent {
+  font-weight: 300;
+  color: var(--forest);
+}
+
+.check {
+  width: 14px;
+  height: 14px;
+  border: 1.5px solid var(--hairline);
+  border-radius: 3px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--surface);
+  cursor: pointer;
+}
+.check.checked {
+  background: var(--forest);
+  border-color: var(--forest);
+}
+
+.spark-bar {
+  display: inline-block;
+  background: var(--forest);
+  margin-right: 1px;
+  border-radius: 1px;
+  opacity: 0.7;
+}
+
+/* Data label — emphasize via mono */
+.data-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: var(--muted);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+/* Hero section with stock image background */
+.hero-bg {
+  position: relative;
+  overflow: hidden;
+}
+.hero-bg > img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.hero-bg > .hero-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(31, 61, 46, 0.78);
+  backdrop-filter: blur(2px);
+}
+.hero-bg > .hero-content {
+  position: relative;
+  z-index: 10;
+}

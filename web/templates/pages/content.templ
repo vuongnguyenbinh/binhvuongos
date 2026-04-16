@@ -1,0 +1,69 @@
+package pages
+
+import "binhvuongos/web/templates"
+
+templ ContentPage() {
+	@templates.Layout("Nội dung", "content") {
+		<div class="mb-10 flex items-end justify-between">
+			<div>
+				<p class="eyebrow mb-2">Nội dung · từ ý tưởng đến phân phối</p>
+				<h1 class="display text-5xl md:text-6xl font-bold leading-none"><span class="accent">Pipeline</span> nội dung</h1>
+			</div>
+			<div class="hidden md:flex items-center gap-2">
+				<button class="px-3 py-1.5 bg-surface border border-hairline rounded text-xs text-muted mono">LỊCH ĐĂNG</button>
+				<button class="px-4 py-2 bg-forest text-white rounded-md text-sm mono font-semibold">+ TẠO NỘI DUNG</button>
+			</div>
+		</div>
+		<div class="grid grid-cols-3 md:grid-cols-7 gap-px bg-hairline border border-hairline rounded-lg overflow-hidden mb-8">
+			<div class="bg-surface p-4 text-center"><div class="stat-hero text-3xl tnum">14</div><div class="eyebrow mt-2">💡 Ý tưởng</div></div>
+			<div class="bg-surface p-4 text-center"><div class="stat-hero text-3xl tnum">8</div><div class="eyebrow mt-2">📝 Đang viết</div></div>
+			<div class="bg-surface p-4 text-center"><div class="stat-hero text-3xl tnum text-ember">3</div><div class="eyebrow mt-2">👀 Cần duyệt</div></div>
+			<div class="bg-surface p-4 text-center"><div class="stat-hero text-3xl tnum">2</div><div class="eyebrow mt-2">🔄 Sửa lại</div></div>
+			<div class="bg-surface p-4 text-center"><div class="stat-hero text-3xl tnum text-sage">5</div><div class="eyebrow mt-2">✓ Duyệt</div></div>
+			<div class="bg-surface p-4 text-center"><div class="stat-hero text-3xl tnum text-forest">42</div><div class="eyebrow mt-2">📤 Đã đăng</div></div>
+			<div class="bg-cream/40 p-4 text-center"><div class="stat-hero text-3xl tnum text-muted">74</div><div class="eyebrow mt-2">Tổng tháng</div></div>
+		</div>
+		<div class="bg-surface border border-hairline rounded-lg overflow-x-auto">
+			<table class="w-full text-sm min-w-[900px]">
+				<thead class="bg-cream/40 border-b border-hairline">
+					<tr class="text-left">
+						<th class="eyebrow px-4 py-3">Tiêu đề</th>
+						<th class="eyebrow px-4 py-3">Công ty</th>
+						<th class="eyebrow px-4 py-3">Loại · Nền tảng</th>
+						<th class="eyebrow px-4 py-3">Người viết</th>
+						<th class="eyebrow px-4 py-3">Trạng thái</th>
+						<th class="eyebrow px-4 py-3">Ngày đăng</th>
+						<th class="eyebrow px-4 py-3 text-right">Tương tác</th>
+					</tr>
+				</thead>
+				<tbody class="divide-y divide-hairline">
+					@cRow("10 mẹo SEO cho người mới bắt đầu 2026", "SEO Q2 · bài cornerstone", "ABC", "bg-forest", "Blog", "Website · Facebook", "CTV Minh", "DUYỆT", "bg-sage/20 text-forest-600", "20/04", "", "")
+					@cRow("Tại sao bạn nên đầu tư vào ETF", "Series tài chính cá nhân", "XYZ", "bg-ember", "Blog", "Website", "Bình Vương", "REVIEW", "bg-ember/10 text-ember", "22/04", "", "")
+					@cRow("5 sai lầm khi scale content team", "tips nhanh cho SME", "EDU", "bg-sage", "Reel", "TikTok · IG", "CTV Hà", "ĐĂNG", "bg-forest text-white", "12/04", "8.3%", "12.4K · 1.03K")
+					@cRow("Cách chọn platform phù hợp cho DN", "bài giảng training", "EDU", "bg-sage", "Video", "YouTube", "Bình Vương", "DRAFT", "bg-muted/10 text-muted", "28/04", "", "")
+					@cRow("Backlink từ báo chí lớn — case study", "SEO Q2 · deep dive", "ABC", "bg-forest", "Blog", "Web · LinkedIn", "CTV Minh", "ĐĂNG", "bg-forest text-white", "08/04", "6.1%", "3.2K · 195")
+					@cRow("Lãi kép hoạt động thế nào?", "explainer ngắn", "XYZ", "bg-ember", "Reel", "TikTok", "CTV Hà", "SỬA LẠI", "bg-sage/20 text-forest-600", "18/04", "", "")
+				</tbody>
+			</table>
+		</div>
+	}
+}
+
+templ cRow(title string, subtitle string, company string, compBg string, cType string, platforms string, author string, status string, statusClass string, date string, rate string, metrics string) {
+	<tr class="row-hover">
+		<td class="px-4 py-4"><div class="font-semibold">{ title }</div><div class="text-xs text-muted mt-0.5 mono">{ subtitle }</div></td>
+		<td class="px-4 py-4"><div class="flex items-center gap-2"><span class={ "w-5 h-5 rounded text-white text-[9px] flex items-center justify-center mono font-bold", compBg }>{ company }</span><span class="text-xs">{ company }</span></div></td>
+		<td class="px-4 py-4"><div class="text-sm">{ cType }</div><div class="text-xs text-muted mt-0.5 mono">{ platforms }</div></td>
+		<td class="px-4 py-4 text-xs">{ author }</td>
+		<td class="px-4 py-4"><span class={ "pill", statusClass }>{ status }</span></td>
+		<td class="px-4 py-4 text-xs mono">{ date }</td>
+		<td class="px-4 py-4 text-right">
+			if rate != "" {
+				<div class="tnum font-semibold mono text-sage">{ rate }</div>
+				<div class="text-[10px] text-muted mono">{ metrics }</div>
+			} else {
+				<div class="tnum font-semibold mono">—</div>
+			}
+		</td>
+	</tr>
+}

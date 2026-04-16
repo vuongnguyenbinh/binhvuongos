@@ -1,0 +1,2376 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bình Vương OS — Demo</title>
+
+<!-- Fonts: Phudu (display) + Inter (body) + JetBrains Mono (accents) -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Phudu:wght@300;400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
+<!-- Tailwind -->
+<script src="https://cdn.tailwindcss.com"></script>
+
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        fontFamily: {
+          sans: ['Inter', 'system-ui', 'sans-serif'],
+          display: ['Phudu', 'sans-serif'],
+          mono: ['JetBrains Mono', 'monospace']
+        },
+        colors: {
+          ivory: '#FAF8F3',
+          surface: '#FFFFFF',
+          ink: '#1A1918',
+          forest: {
+            DEFAULT: '#1F3D2E',
+            50: '#E8EDE9',
+            100: '#C4D1C8',
+            600: '#2D5C44',
+            900: '#122419',
+          },
+          amber2: '#B8741F',
+          muted: '#6B665E',
+          hairline: '#E8E4DB',
+          cream: '#F2EEE4',
+          sage: '#4A7C59',
+          ochre: '#C89B3C',
+          rust: '#A64545',
+        }
+      }
+    }
+  }
+</script>
+
+<style>
+  :root {
+    --bg: #FAF8F3;
+    --surface: #FFFFFF;
+    --ink: #1A1918;
+    --forest: #1F3D2E;
+    --amber: #B8741F;
+    --muted: #6B665E;
+    --hairline: #E8E4DB;
+    --cream: #F2EEE4;
+  }
+
+  * {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  html, body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Inter', system-ui, sans-serif;
+    font-weight: 400;
+    font-feature-settings: 'ss01', 'cv11';
+  }
+
+  /* Display — Phudu for headlines */
+  .display {
+    font-family: 'Phudu', sans-serif;
+    letter-spacing: -0.01em;
+  }
+
+  .mono { font-family: 'JetBrains Mono', monospace; }
+
+  /* Tabular nums */
+  .tnum {
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: 'tnum';
+  }
+
+  .border-hairline { border-color: var(--hairline); }
+
+  .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    display: inline-block;
+    flex-shrink: 0;
+  }
+
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* Editorial eyebrow — mono adds precision */
+  .eyebrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .ornament {
+    font-family: 'Phudu', sans-serif;
+    color: var(--amber);
+    font-size: 14px;
+    font-weight: 900;
+  }
+
+  .tab-active {
+    color: var(--ink);
+    position: relative;
+    font-weight: 600;
+  }
+  .tab-active::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -17px;
+    height: 2px;
+    background: var(--forest);
+  }
+
+  .progress-track {
+    background: var(--cream);
+    height: 4px;
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: var(--forest);
+    transition: width 0.8s ease;
+  }
+
+  .row-hover:hover {
+    background: #FBF9F4;
+  }
+
+  .paper {
+    background-image:
+      radial-gradient(circle at 0.5px 0.5px, rgba(26,25,24,0.015) 0.5px, transparent 0);
+    background-size: 4px 4px;
+  }
+
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb {
+    background: var(--hairline);
+    border-radius: 4px;
+  }
+  ::-webkit-scrollbar-thumb:hover { background: #D4CEC1; }
+
+  .view {
+    display: none;
+    animation: fadeIn 0.4s ease;
+  }
+  .view.active { display: block; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .kanban-card {
+    background: var(--surface);
+    border: 1px solid var(--hairline);
+    border-radius: 6px;
+    padding: 12px;
+    transition: all 0.2s ease;
+  }
+  .kanban-card:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(26,25,24,0.06);
+  }
+
+  /* Hero stat — Phudu extra bold */
+  .stat-hero {
+    font-family: 'Phudu', sans-serif;
+    font-weight: 700;
+    line-height: 0.95;
+    letter-spacing: -0.03em;
+  }
+
+  /* Display heading inline accent — light weight for contrast */
+  .accent {
+    font-weight: 300;
+    color: var(--forest);
+  }
+
+  .check {
+    width: 14px;
+    height: 14px;
+    border: 1.5px solid var(--hairline);
+    border-radius: 3px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--surface);
+    cursor: pointer;
+  }
+  .check.checked {
+    background: var(--forest);
+    border-color: var(--forest);
+  }
+
+  .spark-bar {
+    display: inline-block;
+    background: var(--forest);
+    margin-right: 1px;
+    border-radius: 1px;
+    opacity: 0.7;
+  }
+
+  /* Data label — emphasize via mono */
+  .data-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+</style>
+</head>
+
+<body class="min-h-screen paper">
+
+<!-- =============== HEADER =============== -->
+<header class="border-b border-hairline bg-ivory/80 backdrop-blur-sm sticky top-0 z-40">
+  <div class="max-w-[1440px] mx-auto px-8">
+
+    <div class="flex items-center justify-between h-16">
+      <div class="flex items-center gap-8">
+        <div class="flex items-baseline gap-2">
+          <span class="display text-2xl font-bold text-forest">Bình Vương</span>
+          <span class="eyebrow">OS</span>
+        </div>
+        <div class="hidden md:flex items-center gap-2 text-xs text-muted">
+          <span class="mono">v1.0</span>
+          <span class="ornament">✦</span>
+          <span>Thứ Năm, 16 tháng 4 · 2026</span>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-5">
+        <div class="hidden md:flex items-center gap-2 text-muted text-sm bg-cream/60 border border-hairline rounded px-3 py-1.5">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <span>Tìm kiếm</span>
+          <span class="mono text-[10px] ml-6 text-muted/60">⌘K</span>
+        </div>
+
+        <button class="relative text-ink">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+          <span class="absolute -top-1 -right-1 bg-amber2 text-white text-[9px] mono rounded-full w-4 h-4 flex items-center justify-center">5</span>
+        </button>
+
+        <div class="flex items-center gap-2 pl-5 border-l border-hairline">
+          <div class="w-8 h-8 rounded-full bg-forest text-white flex items-center justify-center text-xs font-semibold">BV</div>
+          <div class="hidden md:block text-sm">
+            <div class="font-semibold leading-tight">Bình Vương</div>
+            <div class="text-xs text-muted mono">owner</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <nav class="flex items-center gap-7 h-12 overflow-x-auto text-sm">
+      <button onclick="switchView('dashboard')" data-tab="dashboard" class="tab-btn tab-active whitespace-nowrap">Tổng quan</button>
+      <button onclick="switchView('inbox')" data-tab="inbox" class="tab-btn whitespace-nowrap text-muted hover:text-ink">Hộp thư đến <span class="ml-1 text-[10px] text-amber2 mono">12</span></button>
+      <button onclick="switchView('worklogs')" data-tab="worklogs" class="tab-btn whitespace-nowrap text-muted hover:text-ink">Nhật ký công việc <span class="ml-1 text-[10px] text-amber2 mono">5</span></button>
+      <button onclick="switchView('tasks')" data-tab="tasks" class="tab-btn whitespace-nowrap text-muted hover:text-ink">Công việc</button>
+      <button onclick="switchView('content')" data-tab="content" class="tab-btn whitespace-nowrap text-muted hover:text-ink">Nội dung</button>
+      <button onclick="switchView('companies')" data-tab="companies" class="tab-btn whitespace-nowrap text-muted hover:text-ink">Công ty</button>
+      <button onclick="switchView('campaigns')" data-tab="campaigns" class="tab-btn whitespace-nowrap text-muted hover:text-ink">Chiến dịch</button>
+      <button onclick="switchView('knowledge')" data-tab="knowledge" class="tab-btn whitespace-nowrap text-muted hover:text-ink">Kho kiến thức</button>
+    </nav>
+
+  </div>
+</header>
+
+<main class="max-w-[1440px] mx-auto px-8 py-10">
+
+
+<!-- ============================================================ -->
+<!-- VIEW: DASHBOARD                                               -->
+<!-- ============================================================ -->
+<section class="view active" data-view="dashboard">
+
+  <div class="mb-10">
+    <div class="flex items-baseline justify-between mb-2">
+      <p class="eyebrow">Tổng quan · Tháng Tư 2026</p>
+      <p class="text-xs text-muted mono">cập nhật 09:32 · đang chạy</p>
+    </div>
+    <h1 class="display text-6xl font-bold leading-none text-ink">
+      Chào buổi sáng, <span class="accent">Bình Vương.</span>
+    </h1>
+    <p class="mt-4 text-muted max-w-2xl text-base">
+      Hôm nay có <span class="text-ink font-semibold">5 báo cáo</span> chờ duyệt,
+      <span class="text-ink font-semibold">3 nội dung</span> cần review, và
+      <span class="text-rust font-semibold">2 đầu việc</span> đã quá hạn.
+    </p>
+  </div>
+
+  <!-- Stat grid -->
+  <div class="grid grid-cols-12 gap-px bg-hairline border border-hairline rounded-lg overflow-hidden mb-10">
+    <div class="col-span-3 bg-surface p-6">
+      <p class="eyebrow mb-3">Output tháng này</p>
+      <div class="flex items-baseline gap-2 mb-1">
+        <span class="stat-hero text-5xl tnum">324</span>
+        <span class="text-muted text-sm mono">link</span>
+      </div>
+      <div class="flex items-center gap-3 text-xs">
+        <span class="text-sage mono">↑ 18%</span>
+        <span class="text-muted">so với tháng trước</span>
+      </div>
+      <div class="mt-4 flex items-end gap-px h-6">
+        <span class="spark-bar w-1" style="height:40%"></span>
+        <span class="spark-bar w-1" style="height:55%"></span>
+        <span class="spark-bar w-1" style="height:35%"></span>
+        <span class="spark-bar w-1" style="height:60%"></span>
+        <span class="spark-bar w-1" style="height:70%"></span>
+        <span class="spark-bar w-1" style="height:45%"></span>
+        <span class="spark-bar w-1" style="height:80%"></span>
+        <span class="spark-bar w-1" style="height:65%"></span>
+        <span class="spark-bar w-1" style="height:90%"></span>
+        <span class="spark-bar w-1" style="height:75%"></span>
+        <span class="spark-bar w-1" style="height:85%"></span>
+        <span class="spark-bar w-1" style="height:100%; background:#B8741F"></span>
+      </div>
+    </div>
+
+    <div class="col-span-3 bg-surface p-6">
+      <p class="eyebrow mb-3">Nội dung đã đăng</p>
+      <div class="flex items-baseline gap-2 mb-1">
+        <span class="stat-hero text-5xl tnum">42</span>
+        <span class="text-muted text-sm mono">bài</span>
+      </div>
+      <div class="flex items-center gap-3 text-xs">
+        <span class="text-sage mono">↑ 7</span>
+        <span class="text-muted">tuần này</span>
+      </div>
+      <div class="mt-4 grid grid-cols-4 gap-1 text-[10px] mono">
+        <div class="text-center">
+          <div class="h-8 bg-forest/10 rounded-sm flex items-end justify-center pb-0.5">
+            <span class="text-forest font-semibold">18</span>
+          </div>
+          <div class="text-muted mt-1">Blog</div>
+        </div>
+        <div class="text-center">
+          <div class="h-8 rounded-sm flex items-end justify-center pb-0.5" style="background:rgba(31,61,46,0.2)">
+            <span class="text-forest font-semibold">14</span>
+          </div>
+          <div class="text-muted mt-1">Social</div>
+        </div>
+        <div class="text-center">
+          <div class="h-8 rounded-sm flex items-end justify-center pb-0.5" style="background:rgba(31,61,46,0.15)">
+            <span class="text-forest font-semibold">7</span>
+          </div>
+          <div class="text-muted mt-1">Video</div>
+        </div>
+        <div class="text-center">
+          <div class="h-8 rounded-sm flex items-end justify-center pb-0.5" style="background:rgba(31,61,46,0.08)">
+            <span class="text-forest font-semibold">3</span>
+          </div>
+          <div class="text-muted mt-1">Email</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-span-3 bg-surface p-6">
+      <p class="eyebrow mb-3">Công việc</p>
+      <div class="flex items-baseline gap-2 mb-1">
+        <span class="stat-hero text-5xl tnum">58</span>
+        <span class="text-muted text-sm mono">/ 72 xong</span>
+      </div>
+      <div class="flex items-center gap-3 text-xs">
+        <span class="text-rust mono">⚠ 3</span>
+        <span class="text-rust">quá hạn</span>
+        <span class="text-muted">· 11 trong tuần</span>
+      </div>
+      <div class="progress-track mt-4">
+        <div class="progress-fill" style="width: 80%"></div>
+      </div>
+      <p class="text-[10px] text-muted mono mt-1">80% hoàn thành</p>
+    </div>
+
+    <div class="col-span-3 bg-forest text-white p-6 relative overflow-hidden">
+      <div class="absolute top-3 right-3 ornament text-2xl">✦</div>
+      <p class="eyebrow text-forest-100 mb-3" style="color: rgba(255,255,255,0.55)">Chiến dịch đang chạy</p>
+      <div class="flex items-baseline gap-2 mb-1">
+        <span class="stat-hero text-5xl tnum text-white">7</span>
+        <span class="text-forest-100 text-sm mono">chiến dịch</span>
+      </div>
+      <div class="flex items-center gap-3 text-xs text-forest-100">
+        <span>trên 4 công ty</span>
+      </div>
+      <div class="mt-4 text-xs text-forest-100">
+        <div class="flex justify-between py-1 border-b border-white/10">
+          <span>SEO Q2 · ABC</span>
+          <span class="mono">62%</span>
+        </div>
+        <div class="flex justify-between py-1 border-b border-white/10">
+          <span>Ra mắt SP · XYZ</span>
+          <span class="mono">34%</span>
+        </div>
+        <div class="flex justify-between py-1">
+          <span>Training Q2 · EDU</span>
+          <span class="mono">88%</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-12 gap-6">
+
+    <!-- LEFT: Companies Health -->
+    <div class="col-span-8">
+      <div class="flex items-baseline justify-between mb-4">
+        <h2 class="display text-3xl font-bold">Tình trạng <span class="accent">công ty</span></h2>
+        <a class="text-xs text-muted hover:text-ink mono">xem tất cả →</a>
+      </div>
+
+      <div class="bg-surface border border-hairline rounded-lg divide-y divide-hairline">
+
+        <div class="p-4 row-hover flex items-center gap-4">
+          <div class="w-10 h-10 rounded bg-forest text-white flex items-center justify-center mono text-xs font-bold">ABC</div>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-2">
+              <span class="font-semibold">ABC Education</span>
+              <span class="pill" style="background:#E8F0EB; color:#2D5C44"><span class="dot" style="background:#4A7C59"></span>OK</span>
+              <span class="eyebrow">Giáo dục</span>
+            </div>
+            <div class="text-xs text-muted mt-0.5">SEO · Content · Training · <span class="text-ink">12 người</span></div>
+          </div>
+          <div class="grid grid-cols-3 gap-6 text-right">
+            <div>
+              <div class="tnum text-lg font-semibold mono">18</div>
+              <div class="data-label">việc mở</div>
+            </div>
+            <div>
+              <div class="tnum text-lg font-semibold mono">124</div>
+              <div class="data-label">output/th</div>
+            </div>
+            <div>
+              <div class="tnum text-lg font-semibold text-sage mono">93%</div>
+              <div class="data-label">ontime</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="p-4 row-hover flex items-center gap-4">
+          <div class="w-10 h-10 rounded bg-amber2 text-white flex items-center justify-center mono text-xs font-bold">XYZ</div>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-2">
+              <span class="font-semibold">XYZ Finance</span>
+              <span class="pill" style="background:#FDF4E2; color:#B8741F"><span class="dot" style="background:#C89B3C"></span>CHU Y</span>
+              <span class="eyebrow">Tài chính</span>
+            </div>
+            <div class="text-xs text-muted mt-0.5">Content · Branding · <span class="text-ink">6 người</span></div>
+          </div>
+          <div class="grid grid-cols-3 gap-6 text-right">
+            <div>
+              <div class="tnum text-lg font-semibold mono">23</div>
+              <div class="data-label">việc mở</div>
+            </div>
+            <div>
+              <div class="tnum text-lg font-semibold mono">67</div>
+              <div class="data-label">output/th</div>
+            </div>
+            <div>
+              <div class="tnum text-lg font-semibold text-ochre mono">71%</div>
+              <div class="data-label">ontime</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="p-4 row-hover flex items-center gap-4">
+          <div class="w-10 h-10 rounded bg-sage text-white flex items-center justify-center mono text-xs font-bold">EDU</div>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-2">
+              <span class="font-semibold">EduPlus Academy</span>
+              <span class="pill" style="background:#E8F0EB; color:#2D5C44"><span class="dot" style="background:#4A7C59"></span>OK</span>
+              <span class="eyebrow">Giáo dục</span>
+            </div>
+            <div class="text-xs text-muted mt-0.5">Training · Mentor · <span class="text-ink">4 người</span></div>
+          </div>
+          <div class="grid grid-cols-3 gap-6 text-right">
+            <div>
+              <div class="tnum text-lg font-semibold mono">8</div>
+              <div class="data-label">việc mở</div>
+            </div>
+            <div>
+              <div class="tnum text-lg font-semibold mono">34</div>
+              <div class="data-label">output/th</div>
+            </div>
+            <div>
+              <div class="tnum text-lg font-semibold text-sage mono">100%</div>
+              <div class="data-label">ontime</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="p-4 row-hover flex items-center gap-4">
+          <div class="w-10 h-10 rounded bg-rust text-white flex items-center justify-center mono text-xs font-bold">FIN</div>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-2">
+              <span class="font-semibold">FinHub Vietnam</span>
+              <span class="pill" style="background:#F5DCDC; color:#A64545"><span class="dot" style="background:#A64545"></span>GAP</span>
+              <span class="eyebrow">Tài chính</span>
+            </div>
+            <div class="text-xs text-muted mt-0.5">Full Ops · <span class="text-ink">8 người</span> · Launching 05/2026</div>
+          </div>
+          <div class="grid grid-cols-3 gap-6 text-right">
+            <div>
+              <div class="tnum text-lg font-semibold text-rust mono">31</div>
+              <div class="data-label">việc mở</div>
+            </div>
+            <div>
+              <div class="tnum text-lg font-semibold mono">89</div>
+              <div class="data-label">output/th</div>
+            </div>
+            <div>
+              <div class="tnum text-lg font-semibold text-rust mono">54%</div>
+              <div class="data-label">ontime</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="p-4 row-hover flex items-center gap-4">
+          <div class="w-10 h-10 rounded bg-muted text-white flex items-center justify-center mono text-xs font-bold">CR</div>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-2">
+              <span class="font-semibold">Creative Studio</span>
+              <span class="pill" style="background:#F0EEE8; color:#6B665E"><span class="dot" style="background:#6B665E"></span>PAUSE</span>
+              <span class="eyebrow">Thiết kế</span>
+            </div>
+            <div class="text-xs text-muted mt-0.5">Consulting · <span class="text-ink">2 người</span></div>
+          </div>
+          <div class="grid grid-cols-3 gap-6 text-right">
+            <div>
+              <div class="tnum text-lg font-semibold text-muted mono">—</div>
+              <div class="data-label">việc mở</div>
+            </div>
+            <div>
+              <div class="tnum text-lg font-semibold text-muted mono">—</div>
+              <div class="data-label">output/th</div>
+            </div>
+            <div>
+              <div class="tnum text-lg font-semibold text-muted mono">—</div>
+              <div class="data-label">ontime</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- RIGHT: Today's Tasks -->
+    <div class="col-span-4">
+      <div class="flex items-baseline justify-between mb-4">
+        <h2 class="display text-3xl font-bold">Hôm <span class="accent">nay</span></h2>
+        <span class="text-xs text-muted mono">8 việc</span>
+      </div>
+
+      <div class="bg-surface border border-hairline rounded-lg p-5 space-y-4">
+
+        <div class="flex items-start gap-3">
+          <div class="check mt-0.5"></div>
+          <div class="flex-1 min-w-0">
+            <div class="text-sm leading-snug">Review nội dung blog SEO tháng 4</div>
+            <div class="flex items-center gap-2 mt-1 text-[11px]">
+              <span class="pill" style="background:#F5DCDC; color:#A64545">GAP</span>
+              <span class="text-muted mono">ABC · 10:00</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex items-start gap-3">
+          <div class="check mt-0.5"></div>
+          <div class="flex-1 min-w-0">
+            <div class="text-sm leading-snug">Họp strategy với XYZ Finance</div>
+            <div class="flex items-center gap-2 mt-1 text-[11px]">
+              <span class="pill" style="background:#FDF4E2; color:#B8741F">CAO</span>
+              <span class="text-muted mono">14:00</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex items-start gap-3">
+          <div class="check mt-0.5"></div>
+          <div class="flex-1 min-w-0">
+            <div class="text-sm leading-snug">Duyệt 5 work logs của CTV</div>
+            <div class="flex items-center gap-2 mt-1 text-[11px]">
+              <span class="pill" style="background:#FDF4E2; color:#B8741F">CAO</span>
+              <span class="text-muted mono">chiều</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex items-start gap-3 opacity-50">
+          <div class="check checked mt-0.5">
+            <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="text-sm leading-snug line-through">Check email sáng</div>
+            <div class="flex items-center gap-2 mt-1 text-[11px]">
+              <span class="text-muted mono">xong 09:15</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex items-start gap-3">
+          <div class="check mt-0.5"></div>
+          <div class="flex-1 min-w-0">
+            <div class="text-sm leading-snug">Viết brief campaign ra mắt SP tháng 5</div>
+            <div class="flex items-center gap-2 mt-1 text-[11px]">
+              <span class="pill" style="background:#E8EDE9; color:#1F3D2E">TB</span>
+              <span class="text-muted mono">XYZ</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="border-t border-hairline -mx-5 mt-5 pt-4 px-5">
+          <div class="flex items-center justify-between text-xs">
+            <span class="eyebrow">Quá hạn</span>
+            <span class="mono text-rust font-semibold">2</span>
+          </div>
+          <div class="mt-2 text-[11px] text-rust">
+            ⚠ Feedback bài giảng FinHub <span class="mono">· 2 ngày trễ</span>
+          </div>
+          <div class="mt-1 text-[11px] text-rust">
+            ⚠ Check ngân sách ads tháng 4 <span class="mono">· 1 ngày trễ</span>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="mt-6 p-5 bg-cream/40 border border-hairline rounded-lg">
+        <div class="flex items-center justify-between mb-3">
+          <span class="eyebrow">📥 Hộp thư đến</span>
+          <span class="text-xs mono text-amber2 font-semibold">12 chưa xử lý</span>
+        </div>
+        <div class="space-y-2 text-xs">
+          <div class="flex items-start gap-2">
+            <span class="dot mt-1.5" style="background:#B8741F"></span>
+            <div class="flex-1">
+              <div class="truncate">Link TikTok về copywriting của Tâm Bùi</div>
+              <div class="text-muted text-[10px] mono">Telegram · 2 giờ trước</div>
+            </div>
+          </div>
+          <div class="flex items-start gap-2">
+            <span class="dot mt-1.5" style="background:#B8741F"></span>
+            <div class="flex-1">
+              <div class="truncate">Ý tưởng: series về xây SOP cho client</div>
+              <div class="text-muted text-[10px] mono">Manual · 4 giờ trước</div>
+            </div>
+          </div>
+          <div class="flex items-start gap-2">
+            <span class="dot mt-1.5" style="background:#B8741F"></span>
+            <div class="flex-1">
+              <div class="truncate">Brief CTV Hương gửi qua Zalo</div>
+              <div class="text-muted text-[10px] mono">Zalo · hôm qua</div>
+            </div>
+          </div>
+        </div>
+        <button onclick="switchView('inbox')" class="mt-3 text-xs text-forest hover:text-amber2 mono">triage ngay →</button>
+      </div>
+
+    </div>
+  </div>
+
+</section>
+
+
+<!-- ============================================================ -->
+<!-- VIEW: WORK LOGS REVIEW                                        -->
+<!-- ============================================================ -->
+<section class="view" data-view="worklogs">
+
+  <div class="mb-10">
+    <p class="eyebrow mb-2">Nhật ký công việc · duyệt output</p>
+    <div class="flex items-baseline justify-between">
+      <h1 class="display text-6xl font-bold leading-none">
+        Xem xét <span class="accent">báo cáo</span> hôm qua
+      </h1>
+      <div class="flex items-center gap-2">
+        <button class="px-3 py-1.5 text-xs bg-surface border border-hairline rounded text-muted hover:text-ink mono">lọc</button>
+        <button class="px-3 py-1.5 text-xs bg-surface border border-hairline rounded text-muted hover:text-ink mono">xuất CSV</button>
+        <button class="px-3 py-1.5 text-xs bg-forest text-white rounded hover:bg-forest-600 mono font-semibold">duyệt tất cả</button>
+      </div>
+    </div>
+    <p class="mt-4 text-muted max-w-2xl">
+      5 báo cáo chờ duyệt · 3 đã khớp tự động · 2 cần kiểm tra thủ công
+    </p>
+  </div>
+
+  <div class="flex items-center gap-3 mb-6 pb-4 border-b border-hairline text-xs">
+    <div class="flex items-center gap-2 px-3 py-1.5 bg-forest text-white rounded mono font-semibold">
+      <span>Chờ duyệt</span>
+      <span>5</span>
+    </div>
+    <div class="flex items-center gap-2 px-3 py-1.5 bg-surface border border-hairline rounded text-muted mono">
+      <span>Đã duyệt</span>
+      <span>142</span>
+    </div>
+    <div class="flex items-center gap-2 px-3 py-1.5 bg-surface border border-hairline rounded text-muted mono">
+      <span>Cần sửa</span>
+      <span>3</span>
+    </div>
+    <div class="flex items-center gap-2 px-3 py-1.5 bg-surface border border-hairline rounded text-muted mono">
+      <span>Từ chối</span>
+      <span>1</span>
+    </div>
+    <div class="flex-1"></div>
+    <span class="text-muted mono">Tuần 16 · 15—21/04</span>
+  </div>
+
+  <div class="bg-surface border border-hairline rounded-lg overflow-hidden">
+    <table class="w-full text-sm">
+      <thead class="bg-cream/40 border-b border-hairline">
+        <tr class="text-left">
+          <th class="px-4 py-3 w-8"><div class="check"></div></th>
+          <th class="eyebrow px-4 py-3">Ngày · Người</th>
+          <th class="eyebrow px-4 py-3">Công ty · Chiến dịch</th>
+          <th class="eyebrow px-4 py-3">Loại công việc</th>
+          <th class="eyebrow px-4 py-3 text-right">Số lượng</th>
+          <th class="eyebrow px-4 py-3">Nguồn</th>
+          <th class="eyebrow px-4 py-3">Ghi chú</th>
+          <th class="eyebrow px-4 py-3 text-right">Hành động</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-hairline">
+
+        <tr class="row-hover">
+          <td class="px-4 py-4"><div class="check"></div></td>
+          <td class="px-4 py-4">
+            <div class="text-xs text-muted mono">15/04 · 18:47</div>
+            <div class="font-semibold mt-0.5">CTV Hương</div>
+          </td>
+          <td class="px-4 py-4">
+            <div class="flex items-center gap-2">
+              <span class="w-5 h-5 rounded bg-forest text-white text-[9px] flex items-center justify-center mono font-bold">ABC</span>
+              <span>ABC Education</span>
+            </div>
+            <div class="text-xs text-muted mt-0.5 mono">SEO Q2 · 2026</div>
+          </td>
+          <td class="px-4 py-4">
+            <div class="flex items-center gap-2">
+              <span>🔗</span>
+              <span>Xây backlink</span>
+            </div>
+          </td>
+          <td class="px-4 py-4 text-right">
+            <div class="tnum text-xl stat-hero">25</div>
+            <div class="text-xs text-muted mono">link</div>
+          </td>
+          <td class="px-4 py-4">
+            <div class="flex items-center gap-1.5 text-xs text-muted mono">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 007 0l4-4a5 5 0 00-7-7l-1 1"/></svg>
+              <a class="hover:text-forest">sheet</a>
+              <span>·</span>
+              <a class="hover:text-forest">2 ảnh</a>
+            </div>
+          </td>
+          <td class="px-4 py-4 text-xs text-muted max-w-xs">
+            Hôm nay 2 site từ chối, đã note lại trong sheet.
+          </td>
+          <td class="px-4 py-4 text-right">
+            <div class="flex items-center gap-1 justify-end">
+              <button class="w-7 h-7 rounded border border-hairline text-muted hover:bg-sage hover:text-white hover:border-sage transition-all flex items-center justify-center" title="Duyệt">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>
+              </button>
+              <button class="w-7 h-7 rounded border border-hairline text-muted hover:bg-ochre hover:text-white hover:border-ochre flex items-center justify-center" title="Cần sửa">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
+              </button>
+              <button class="w-7 h-7 rounded border border-hairline text-muted hover:bg-rust hover:text-white hover:border-rust flex items-center justify-center" title="Từ chối">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              </button>
+            </div>
+          </td>
+        </tr>
+
+        <tr class="row-hover">
+          <td class="px-4 py-4"><div class="check"></div></td>
+          <td class="px-4 py-4">
+            <div class="text-xs text-muted mono">15/04 · 19:12</div>
+            <div class="font-semibold mt-0.5">CTV Minh</div>
+          </td>
+          <td class="px-4 py-4">
+            <div class="flex items-center gap-2">
+              <span class="w-5 h-5 rounded bg-forest text-white text-[9px] flex items-center justify-center mono font-bold">ABC</span>
+              <span>ABC Education</span>
+            </div>
+            <div class="text-xs text-muted mt-0.5 mono">SEO Q2 · 2026</div>
+          </td>
+          <td class="px-4 py-4">
+            <div class="flex items-center gap-2">
+              <span>📝</span>
+              <span>Viết bài</span>
+            </div>
+          </td>
+          <td class="px-4 py-4 text-right">
+            <div class="tnum text-xl stat-hero">3</div>
+            <div class="text-xs text-muted mono">bài</div>
+          </td>
+          <td class="px-4 py-4">
+            <div class="flex items-center gap-1.5 text-xs text-muted mono">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 007 0l4-4a5 5 0 00-7-7l-1 1"/></svg>
+              <a class="hover:text-forest">drive</a>
+              <span>·</span>
+              <a class="hover:text-forest">3 doc</a>
+            </div>
+          </td>
+          <td class="px-4 py-4 text-xs text-muted max-w-xs">
+            3 bài chuẩn SEO, đã check keyword density.
+          </td>
+          <td class="px-4 py-4 text-right">
+            <div class="flex items-center gap-1 justify-end">
+              <button class="w-7 h-7 rounded border border-hairline text-muted hover:bg-sage hover:text-white hover:border-sage flex items-center justify-center">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>
+              </button>
+              <button class="w-7 h-7 rounded border border-hairline text-muted hover:bg-ochre hover:text-white hover:border-ochre flex items-center justify-center">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M23 4v6h-6M1 20v-6h6"/></svg>
+              </button>
+              <button class="w-7 h-7 rounded border border-hairline text-muted hover:bg-rust hover:text-white hover:border-rust flex items-center justify-center">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              </button>
+            </div>
+          </td>
+        </tr>
+
+        <tr class="row-hover bg-ochre/5">
+          <td class="px-4 py-4"><div class="check"></div></td>
+          <td class="px-4 py-4">
+            <div class="text-xs text-muted mono">15/04 · 20:34</div>
+            <div class="font-semibold mt-0.5">Staff Linh</div>
+          </td>
+          <td class="px-4 py-4">
+            <div class="flex items-center gap-2">
+              <span class="w-5 h-5 rounded bg-amber2 text-white text-[9px] flex items-center justify-center mono font-bold">XYZ</span>
+              <span>XYZ Finance</span>
+            </div>
+            <div class="text-xs text-muted mt-0.5 mono">Ra mắt SP · tháng 5</div>
+          </td>
+          <td class="px-4 py-4">
+            <div class="flex items-center gap-2">
+              <span>📢</span>
+              <span>Set up ads</span>
+            </div>
+          </td>
+          <td class="px-4 py-4 text-right">
+            <div class="tnum text-xl stat-hero text-ochre">8</div>
+            <div class="text-xs text-ochre mono">⚠ chờ check</div>
+          </td>
+          <td class="px-4 py-4">
+            <div class="flex items-center gap-1.5 text-xs text-muted mono">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 007 0l4-4a5 5 0 00-7-7l-1 1"/></svg>
+              <a class="hover:text-forest">fb ads</a>
+              <span>·</span>
+              <a class="hover:text-forest">5 ảnh</a>
+            </div>
+          </td>
+          <td class="px-4 py-4 text-xs text-muted max-w-xs">
+            Budget mỗi ads 500k, CPC đang cao hơn dự kiến 30%.
+          </td>
+          <td class="px-4 py-4 text-right">
+            <div class="flex items-center gap-1 justify-end">
+              <button class="w-7 h-7 rounded border border-hairline text-muted hover:bg-sage hover:text-white hover:border-sage flex items-center justify-center">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>
+              </button>
+              <button class="w-7 h-7 rounded border border-hairline text-muted hover:bg-ochre hover:text-white hover:border-ochre flex items-center justify-center">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M23 4v6h-6M1 20v-6h6"/></svg>
+              </button>
+              <button class="w-7 h-7 rounded border border-hairline text-muted hover:bg-rust hover:text-white hover:border-rust flex items-center justify-center">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              </button>
+            </div>
+          </td>
+        </tr>
+
+        <tr class="row-hover">
+          <td class="px-4 py-4"><div class="check"></div></td>
+          <td class="px-4 py-4">
+            <div class="text-xs text-muted mono">15/04 · 17:50</div>
+            <div class="font-semibold mt-0.5">CTV Phúc</div>
+          </td>
+          <td class="px-4 py-4">
+            <div class="flex items-center gap-2">
+              <span class="w-5 h-5 rounded bg-rust text-white text-[9px] flex items-center justify-center mono font-bold">FIN</span>
+              <span>FinHub Vietnam</span>
+            </div>
+            <div class="text-xs text-muted mt-0.5 mono">— không thuộc campaign —</div>
+          </td>
+          <td class="px-4 py-4">
+            <div class="flex items-center gap-2">
+              <span>📱</span>
+              <span>Đăng MXH</span>
+            </div>
+          </td>
+          <td class="px-4 py-4 text-right">
+            <div class="tnum text-xl stat-hero">12</div>
+            <div class="text-xs text-muted mono">post</div>
+          </td>
+          <td class="px-4 py-4">
+            <div class="flex items-center gap-1.5 text-xs text-muted mono">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 007 0l4-4a5 5 0 00-7-7l-1 1"/></svg>
+              <a class="hover:text-forest">sheet</a>
+            </div>
+          </td>
+          <td class="px-4 py-4 text-xs text-muted max-w-xs">
+            Post Facebook + Instagram cho tuần 16.
+          </td>
+          <td class="px-4 py-4 text-right">
+            <div class="flex items-center gap-1 justify-end">
+              <button class="w-7 h-7 rounded border border-hairline text-muted hover:bg-sage hover:text-white hover:border-sage flex items-center justify-center">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>
+              </button>
+              <button class="w-7 h-7 rounded border border-hairline text-muted hover:bg-ochre hover:text-white hover:border-ochre flex items-center justify-center">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M23 4v6h-6M1 20v-6h6"/></svg>
+              </button>
+              <button class="w-7 h-7 rounded border border-hairline text-muted hover:bg-rust hover:text-white hover:border-rust flex items-center justify-center">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              </button>
+            </div>
+          </td>
+        </tr>
+
+        <tr class="row-hover">
+          <td class="px-4 py-4"><div class="check"></div></td>
+          <td class="px-4 py-4">
+            <div class="text-xs text-muted mono">15/04 · 21:05</div>
+            <div class="font-semibold mt-0.5">Staff Hà</div>
+          </td>
+          <td class="px-4 py-4">
+            <div class="flex items-center gap-2">
+              <span class="w-5 h-5 rounded bg-sage text-white text-[9px] flex items-center justify-center mono font-bold">EDU</span>
+              <span>EduPlus Academy</span>
+            </div>
+            <div class="text-xs text-muted mt-0.5 mono">Training Q2</div>
+          </td>
+          <td class="px-4 py-4">
+            <div class="flex items-center gap-2">
+              <span>🎥</span>
+              <span>Làm video</span>
+            </div>
+          </td>
+          <td class="px-4 py-4 text-right">
+            <div class="tnum text-xl stat-hero">2</div>
+            <div class="text-xs text-muted mono">video</div>
+          </td>
+          <td class="px-4 py-4">
+            <div class="flex items-center gap-1.5 text-xs text-muted mono">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 007 0l4-4a5 5 0 00-7-7l-1 1"/></svg>
+              <a class="hover:text-forest">drive</a>
+            </div>
+          </td>
+          <td class="px-4 py-4 text-xs text-muted max-w-xs">
+            2 video training 15 phút, đã edit xong.
+          </td>
+          <td class="px-4 py-4 text-right">
+            <div class="flex items-center gap-1 justify-end">
+              <button class="w-7 h-7 rounded border border-hairline text-muted hover:bg-sage hover:text-white hover:border-sage flex items-center justify-center">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>
+              </button>
+              <button class="w-7 h-7 rounded border border-hairline text-muted hover:bg-ochre hover:text-white hover:border-ochre flex items-center justify-center">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M23 4v6h-6M1 20v-6h6"/></svg>
+              </button>
+              <button class="w-7 h-7 rounded border border-hairline text-muted hover:bg-rust hover:text-white hover:border-rust flex items-center justify-center">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              </button>
+            </div>
+          </td>
+        </tr>
+
+      </tbody>
+    </table>
+  </div>
+
+  <div class="mt-8 grid grid-cols-6 gap-6 text-center">
+    <div>
+      <div class="eyebrow mb-2">🔗 Backlink</div>
+      <div class="stat-hero text-4xl tnum">25</div>
+      <div class="text-xs text-muted mt-1 mono">hôm nay · <span class="text-sage">324</span> tháng</div>
+    </div>
+    <div>
+      <div class="eyebrow mb-2">📝 Content</div>
+      <div class="stat-hero text-4xl tnum">3</div>
+      <div class="text-xs text-muted mt-1 mono">hôm nay · <span class="text-sage">42</span> tháng</div>
+    </div>
+    <div>
+      <div class="eyebrow mb-2">📢 Ads</div>
+      <div class="stat-hero text-4xl tnum">8</div>
+      <div class="text-xs text-muted mt-1 mono">hôm nay · <span class="text-sage">28</span> tháng</div>
+    </div>
+    <div>
+      <div class="eyebrow mb-2">📱 Social</div>
+      <div class="stat-hero text-4xl tnum">12</div>
+      <div class="text-xs text-muted mt-1 mono">hôm nay · <span class="text-sage">156</span> tháng</div>
+    </div>
+    <div>
+      <div class="eyebrow mb-2">🎥 Video</div>
+      <div class="stat-hero text-4xl tnum">2</div>
+      <div class="text-xs text-muted mt-1 mono">hôm nay · <span class="text-sage">18</span> tháng</div>
+    </div>
+    <div>
+      <div class="eyebrow mb-2">📧 Email</div>
+      <div class="stat-hero text-4xl tnum text-muted/40">—</div>
+      <div class="text-xs text-muted mt-1 mono">hôm nay · <span class="text-sage">4</span> tháng</div>
+    </div>
+  </div>
+
+</section>
+
+
+<!-- ============================================================ -->
+<!-- VIEW: INBOX                                                   -->
+<!-- ============================================================ -->
+<section class="view" data-view="inbox">
+
+  <div class="mb-10">
+    <p class="eyebrow mb-2">Hộp thư đến · triage thông minh</p>
+    <h1 class="display text-6xl font-bold leading-none">
+      Phân loại <span class="accent">12 mục</span> chưa xử lý
+    </h1>
+    <p class="mt-4 text-muted max-w-2xl">
+      Cổng vào duy nhất. Từ Telegram, Zalo, hoặc nhập tay. Triage 10 phút mỗi sáng.
+    </p>
+  </div>
+
+  <div class="grid grid-cols-12 gap-6">
+
+    <div class="col-span-7 bg-surface border border-hairline rounded-lg divide-y divide-hairline">
+
+      <div class="p-5 bg-cream/30 border-l-2 border-forest">
+        <div class="flex items-start justify-between mb-2">
+          <div class="flex items-center gap-2 text-[11px]">
+            <span class="pill" style="background:#1F3D2E; color:white">TELEGRAM</span>
+            <span class="text-muted mono">2 giờ trước</span>
+          </div>
+          <span class="dot" style="background:#B8741F"></span>
+        </div>
+        <div class="mb-2">
+          <a class="text-sm text-forest underline decoration-dotted mono">tiktok.com/@tambui/video/7234...</a>
+        </div>
+        <p class="text-sm leading-snug">Link TikTok của Tâm Bùi về copywriting — phong cách storytelling rất hay, có thể áp dụng cho series XYZ</p>
+        <div class="mt-3 flex items-center gap-3 text-[11px] text-muted">
+          <span class="flex items-center gap-1 mono">📎 1 ảnh</span>
+          <span>·</span>
+          <span>gợi ý: <span class="text-amber2 mono">Kho kiến thức → curated</span></span>
+        </div>
+      </div>
+
+      <div class="p-5 row-hover cursor-pointer">
+        <div class="flex items-start justify-between mb-2">
+          <div class="flex items-center gap-2 text-[11px]">
+            <span class="pill" style="background:#F0EEE8; color:#6B665E">MANUAL</span>
+            <span class="text-muted mono">4 giờ trước</span>
+          </div>
+          <span class="dot" style="background:#B8741F"></span>
+        </div>
+        <p class="text-sm leading-snug">Ý tưởng: làm series video ngắn về cách xây SOP cho SME — 10 tập, 2–3 phút/tập</p>
+        <div class="mt-3 flex items-center gap-3 text-[11px] text-muted">
+          <span>gợi ý: <span class="text-amber2 mono">Nội dung → ý tưởng</span></span>
+        </div>
+      </div>
+
+      <div class="p-5 row-hover cursor-pointer">
+        <div class="flex items-start justify-between mb-2">
+          <div class="flex items-center gap-2 text-[11px]">
+            <span class="pill" style="background:#4A7C59; color:white">ZALO</span>
+            <span class="text-muted mono">hôm qua · 17:23</span>
+          </div>
+          <span class="dot" style="background:#B8741F"></span>
+        </div>
+        <p class="text-sm leading-snug">Brief từ CTV Hương — tuần tới muốn nhận thêm 1 campaign mới của ABC, cần align KPI</p>
+        <div class="mt-3 flex items-center gap-3 text-[11px] text-muted">
+          <span class="flex items-center gap-1 mono">📎 brief.pdf</span>
+          <span>·</span>
+          <span>gợi ý: <span class="text-amber2 mono">Công việc → ABC</span></span>
+        </div>
+      </div>
+
+      <div class="p-5 row-hover cursor-pointer">
+        <div class="flex items-start justify-between mb-2">
+          <div class="flex items-center gap-2 text-[11px]">
+            <span class="pill" style="background:#1F3D2E; color:white">TELEGRAM</span>
+            <span class="text-muted mono">hôm qua · 21:44</span>
+          </div>
+          <span class="dot" style="background:#B8741F"></span>
+        </div>
+        <div class="mb-2">
+          <a class="text-sm text-forest underline decoration-dotted mono">medium.com/@andrewchen/the-co...</a>
+        </div>
+        <p class="text-sm leading-snug">Bài viết hay về cold start problem — nên save làm tài liệu cho bài giảng growth tháng sau</p>
+        <div class="mt-3 flex items-center gap-3 text-[11px] text-muted">
+          <span>gợi ý: <span class="text-amber2 mono">Kho kiến thức → nghiên cứu</span></span>
+        </div>
+      </div>
+
+      <div class="p-5 row-hover cursor-pointer">
+        <div class="flex items-start justify-between mb-2">
+          <div class="flex items-center gap-2 text-[11px]">
+            <span class="pill" style="background:#B8741F; color:white">WEB</span>
+            <span class="text-muted mono">2 ngày trước</span>
+          </div>
+          <span class="dot" style="background:#6B665E"></span>
+        </div>
+        <p class="text-sm leading-snug">Framework định giá mentorship — có thể dùng cho pitch EDU tháng 5</p>
+        <div class="mt-3 flex items-center gap-3 text-[11px] text-muted">
+          <span>gợi ý: <span class="text-amber2 mono">Nội dung → bài giảng</span></span>
+        </div>
+      </div>
+
+      <div class="p-5 row-hover cursor-pointer opacity-60">
+        <div class="flex items-start justify-between mb-2">
+          <div class="flex items-center gap-2 text-[11px]">
+            <span class="pill" style="background:#F0EEE8; color:#6B665E">EMAIL</span>
+            <span class="text-muted mono">3 ngày trước</span>
+          </div>
+          <span class="dot" style="background:#6B665E"></span>
+        </div>
+        <p class="text-sm leading-snug">Forward: Hợp đồng mới với FinHub Vietnam — cần review điều khoản bảo mật</p>
+        <div class="mt-3 flex items-center gap-3 text-[11px] text-muted">
+          <span class="flex items-center gap-1 mono">📎 contract.pdf · 3 ảnh</span>
+          <span class="text-rust mono">⚠ sắp archive</span>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="col-span-5">
+      <div class="bg-surface border border-hairline rounded-lg p-6 sticky top-32">
+
+        <div class="flex items-center justify-between mb-6">
+          <div class="flex items-center gap-2">
+            <span class="pill" style="background:#1F3D2E; color:white">TELEGRAM</span>
+            <span class="text-xs text-muted mono">inbox #a3f2</span>
+          </div>
+          <button class="text-muted hover:text-ink">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+
+        <h3 class="display text-3xl font-bold mb-4">
+          Triage <span class="accent">vào đâu?</span>
+        </h3>
+
+        <div class="bg-cream/40 rounded-md p-4 mb-6">
+          <a class="text-xs text-forest underline decoration-dotted block mb-2 mono">tiktok.com/@tambui/video/7234...</a>
+          <p class="text-sm leading-snug">Link TikTok của Tâm Bùi về copywriting — phong cách storytelling rất hay, có thể áp dụng cho series XYZ</p>
+          <div class="flex items-center gap-2 mt-3 text-[11px] text-muted mono">
+            <span>📎 1 ảnh</span>
+            <span>·</span>
+            <span>2h trước</span>
+          </div>
+        </div>
+
+        <p class="eyebrow mb-3">Chuyển sang</p>
+        <div class="space-y-2 mb-6">
+          <label class="flex items-start gap-3 p-3 border border-hairline rounded-md hover:border-forest cursor-pointer transition-colors">
+            <input type="radio" name="dest" class="mt-0.5 accent-forest">
+            <div class="flex-1">
+              <div class="flex items-center justify-between">
+                <div class="font-semibold text-sm">Kho kiến thức</div>
+                <span class="text-[10px] text-amber2 mono font-semibold">GOI Y</span>
+              </div>
+              <div class="text-xs text-muted mt-0.5">Lưu làm curated content, tag "copywriting"</div>
+            </div>
+          </label>
+          <label class="flex items-start gap-3 p-3 border border-hairline rounded-md hover:border-forest cursor-pointer transition-colors">
+            <input type="radio" name="dest" class="mt-0.5 accent-forest">
+            <div class="flex-1">
+              <div class="font-semibold text-sm">Nội dung</div>
+              <div class="text-xs text-muted mt-0.5">Tạo ý tưởng content mới cho XYZ</div>
+            </div>
+          </label>
+          <label class="flex items-start gap-3 p-3 border border-hairline rounded-md hover:border-forest cursor-pointer transition-colors">
+            <input type="radio" name="dest" class="mt-0.5 accent-forest">
+            <div class="flex-1">
+              <div class="font-semibold text-sm">Công việc</div>
+              <div class="text-xs text-muted mt-0.5">Tạo task xem kỹ và note insights</div>
+            </div>
+          </label>
+          <label class="flex items-start gap-3 p-3 border border-hairline rounded-md hover:border-rust cursor-pointer transition-colors">
+            <input type="radio" name="dest" class="mt-0.5 accent-rust">
+            <div class="flex-1">
+              <div class="font-semibold text-sm text-muted">Lưu trữ · Xoá</div>
+              <div class="text-xs text-muted mt-0.5">Không cần xử lý</div>
+            </div>
+          </label>
+        </div>
+
+        <p class="eyebrow mb-3">Gắn công ty (tuỳ chọn)</p>
+        <select class="w-full p-2.5 border border-hairline rounded-md bg-surface text-sm mb-6">
+          <option>— Chưa gắn —</option>
+          <option>ABC Education</option>
+          <option>XYZ Finance</option>
+          <option>EduPlus Academy</option>
+          <option>FinHub Vietnam</option>
+        </select>
+
+        <div class="flex gap-2">
+          <button class="flex-1 px-4 py-2.5 bg-forest text-white rounded-md text-sm font-semibold hover:bg-forest-900 mono">
+            CHUYEN & TIEP TUC
+          </button>
+          <button class="px-4 py-2.5 border border-hairline rounded-md text-sm text-muted hover:text-ink">
+            Bỏ qua
+          </button>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- ============================================================ -->
+<!-- VIEW: TASKS (Kanban)                                          -->
+<!-- ============================================================ -->
+<section class="view" data-view="tasks">
+
+  <div class="mb-10 flex items-end justify-between">
+    <div>
+      <p class="eyebrow mb-2">Công việc · Kanban theo trạng thái</p>
+      <h1 class="display text-6xl font-bold leading-none">
+        <span class="accent">72</span> đầu việc đang chạy
+      </h1>
+    </div>
+    <button class="px-4 py-2 bg-forest text-white rounded-md text-sm hover:bg-forest-900 mono font-semibold">+ TAO CONG VIEC</button>
+  </div>
+
+  <div class="flex items-center gap-3 mb-6 pb-4 border-b border-hairline text-xs">
+    <span class="eyebrow">Lọc:</span>
+    <button class="px-3 py-1.5 bg-surface border border-hairline rounded-full">Tất cả công ty ▾</button>
+    <button class="px-3 py-1.5 bg-surface border border-hairline rounded-full">Tất cả người ▾</button>
+    <button class="px-3 py-1.5 bg-surface border border-hairline rounded-full">Nhóm việc ▾</button>
+    <button class="px-3 py-1.5 bg-surface border border-hairline rounded-full">Ưu tiên ▾</button>
+    <div class="flex-1"></div>
+    <span class="eyebrow">View:</span>
+    <button class="px-3 py-1.5 bg-forest text-white rounded-full mono font-semibold">KANBAN</button>
+    <button class="px-3 py-1.5 bg-surface border border-hairline rounded-full text-muted mono">BẢNG</button>
+    <button class="px-3 py-1.5 bg-surface border border-hairline rounded-full text-muted mono">LỊCH</button>
+  </div>
+
+  <div class="grid grid-cols-5 gap-4">
+
+    <div>
+      <div class="flex items-center justify-between mb-3 pb-2 border-b border-hairline">
+        <div class="flex items-center gap-2">
+          <span class="dot" style="background:#6B665E"></span>
+          <span class="text-sm font-semibold">Cần làm</span>
+          <span class="text-xs text-muted mono">14</span>
+        </div>
+      </div>
+      <div class="space-y-2">
+
+        <div class="kanban-card">
+          <div class="flex items-center justify-between mb-2">
+            <span class="pill" style="background:#F5DCDC; color:#A64545">GAP</span>
+            <span class="text-[10px] text-muted mono">ABC</span>
+          </div>
+          <div class="text-sm leading-snug mb-2">Review bài SEO tháng 4 của CTV Minh</div>
+          <div class="flex items-center justify-between text-[11px] text-muted mono">
+            <span>hôm nay</span>
+            <div class="w-5 h-5 rounded-full bg-forest text-white flex items-center justify-center text-[9px] font-bold">BV</div>
+          </div>
+        </div>
+
+        <div class="kanban-card">
+          <div class="flex items-center justify-between mb-2">
+            <span class="pill" style="background:#FDF4E2; color:#B8741F">CAO</span>
+            <span class="text-[10px] text-muted mono">XYZ</span>
+          </div>
+          <div class="text-sm leading-snug mb-2">Viết brief campaign ra mắt SP tháng 5</div>
+          <div class="flex items-center justify-between text-[11px] text-muted mono">
+            <span>17/04</span>
+            <div class="w-5 h-5 rounded-full bg-forest text-white flex items-center justify-center text-[9px] font-bold">BV</div>
+          </div>
+        </div>
+
+        <div class="kanban-card">
+          <div class="flex items-center justify-between mb-2">
+            <span class="pill" style="background:#E8EDE9; color:#1F3D2E">TB</span>
+            <span class="text-[10px] text-muted mono">FIN</span>
+          </div>
+          <div class="text-sm leading-snug mb-2">Sắp xếp meeting tháng với FinHub</div>
+          <div class="flex items-center justify-between text-[11px] text-muted mono">
+            <span>18/04</span>
+            <div class="w-5 h-5 rounded-full bg-amber2 text-white flex items-center justify-center text-[9px] font-bold">H</div>
+          </div>
+        </div>
+
+        <div class="kanban-card">
+          <div class="flex items-center justify-between mb-2">
+            <span class="pill" style="background:#E8EDE9; color:#1F3D2E">TB</span>
+            <span class="text-[10px] text-muted mono">EDU</span>
+          </div>
+          <div class="text-sm leading-snug mb-2">Chuẩn bị slide bài giảng "Growth Mindset"</div>
+          <div class="flex items-center justify-between text-[11px] text-muted mono">
+            <span>20/04</span>
+            <div class="w-5 h-5 rounded-full bg-sage text-white flex items-center justify-center text-[9px] font-bold">L</div>
+          </div>
+        </div>
+
+        <div class="kanban-card">
+          <div class="flex items-center justify-between mb-2">
+            <span class="pill" style="background:#F0EEE8; color:#6B665E">THAP</span>
+            <span class="text-[10px] text-muted mono">—</span>
+          </div>
+          <div class="text-sm leading-snug mb-2">Đọc sách "Finite and Infinite Games"</div>
+          <div class="flex items-center justify-between text-[11px] text-muted mono">
+            <span>tuần sau</span>
+            <div class="w-5 h-5 rounded-full bg-forest text-white flex items-center justify-center text-[9px] font-bold">BV</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div>
+      <div class="flex items-center justify-between mb-3 pb-2 border-b border-hairline">
+        <div class="flex items-center gap-2">
+          <span class="dot" style="background:#B8741F"></span>
+          <span class="text-sm font-semibold">Đang làm</span>
+          <span class="text-xs text-muted mono">8</span>
+        </div>
+      </div>
+      <div class="space-y-2">
+
+        <div class="kanban-card" style="border-left: 3px solid #B8741F">
+          <div class="flex items-center justify-between mb-2">
+            <span class="pill" style="background:#FDF4E2; color:#B8741F">CAO</span>
+            <span class="text-[10px] text-muted mono">ABC</span>
+          </div>
+          <div class="text-sm leading-snug mb-2">Xây 300 backlink cho SEO Q2</div>
+          <div class="text-xs text-muted mb-2 mono">SEO Q2 · 187/300 link</div>
+          <div class="progress-track mb-2"><div class="progress-fill" style="width:62%"></div></div>
+          <div class="flex items-center justify-between text-[11px] text-muted mono">
+            <span>30/06</span>
+            <div class="w-5 h-5 rounded-full bg-amber2 text-white flex items-center justify-center text-[9px] font-bold">Hg</div>
+          </div>
+        </div>
+
+        <div class="kanban-card" style="border-left: 3px solid #B8741F">
+          <div class="flex items-center justify-between mb-2">
+            <span class="pill" style="background:#FDF4E2; color:#B8741F">CAO</span>
+            <span class="text-[10px] text-muted mono">XYZ</span>
+          </div>
+          <div class="text-sm leading-snug mb-2">Set up 10 ads campaign Facebook</div>
+          <div class="text-xs text-muted mb-2 mono">Ra mắt SP · 8/10 camp</div>
+          <div class="progress-track mb-2"><div class="progress-fill" style="width:80%"></div></div>
+          <div class="flex items-center justify-between text-[11px] text-muted mono">
+            <span>22/04</span>
+            <div class="w-5 h-5 rounded-full bg-amber2 text-white flex items-center justify-center text-[9px] font-bold">L</div>
+          </div>
+        </div>
+
+        <div class="kanban-card" style="border-left: 3px solid #B8741F">
+          <div class="flex items-center justify-between mb-2">
+            <span class="pill" style="background:#E8EDE9; color:#1F3D2E">TB</span>
+            <span class="text-[10px] text-muted mono">EDU</span>
+          </div>
+          <div class="text-sm leading-snug mb-2">Record 8 video training Q2</div>
+          <div class="text-xs text-muted mb-2 mono">Training Q2 · 5/8 video</div>
+          <div class="progress-track mb-2"><div class="progress-fill" style="width:63%"></div></div>
+          <div class="flex items-center justify-between text-[11px] text-muted mono">
+            <span>25/04</span>
+            <div class="w-5 h-5 rounded-full bg-sage text-white flex items-center justify-center text-[9px] font-bold">H</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div>
+      <div class="flex items-center justify-between mb-3 pb-2 border-b border-hairline">
+        <div class="flex items-center gap-2">
+          <span class="dot" style="background:#C89B3C"></span>
+          <span class="text-sm font-semibold">Chờ</span>
+          <span class="text-xs text-muted mono">4</span>
+        </div>
+      </div>
+      <div class="space-y-2">
+
+        <div class="kanban-card opacity-80">
+          <div class="flex items-center justify-between mb-2">
+            <span class="pill" style="background:#FDF4E2; color:#B8741F">CAO</span>
+            <span class="text-[10px] text-muted mono">FIN</span>
+          </div>
+          <div class="text-sm leading-snug mb-2">Chờ feedback từ FinHub về bài giảng risk mgmt</div>
+          <div class="text-xs text-ochre mono">⏳ 4 ngày rồi</div>
+        </div>
+
+        <div class="kanban-card opacity-80">
+          <div class="flex items-center justify-between mb-2">
+            <span class="pill" style="background:#E8EDE9; color:#1F3D2E">TB</span>
+            <span class="text-[10px] text-muted mono">ABC</span>
+          </div>
+          <div class="text-sm leading-snug mb-2">Chờ thiết kế thumbnail từ CTV Tú</div>
+          <div class="text-xs text-muted mono">⏳ 2 ngày</div>
+        </div>
+
+      </div>
+    </div>
+
+    <div>
+      <div class="flex items-center justify-between mb-3 pb-2 border-b border-hairline">
+        <div class="flex items-center gap-2">
+          <span class="dot" style="background:#4A7C59"></span>
+          <span class="text-sm font-semibold">Cần duyệt</span>
+          <span class="text-xs text-muted mono">5</span>
+        </div>
+      </div>
+      <div class="space-y-2">
+
+        <div class="kanban-card" style="border-left: 3px solid #4A7C59">
+          <div class="flex items-center justify-between mb-2">
+            <span class="pill" style="background:#E8F0EB; color:#2D5C44">REVIEW</span>
+            <span class="text-[10px] text-muted mono">ABC</span>
+          </div>
+          <div class="text-sm leading-snug mb-2">3 bài blog SEO của CTV Minh</div>
+          <div class="flex items-center justify-between text-[11px] text-muted mono mt-2">
+            <span>cần feedback</span>
+            <div class="w-5 h-5 rounded-full bg-forest text-white flex items-center justify-center text-[9px] font-bold">BV</div>
+          </div>
+        </div>
+
+        <div class="kanban-card" style="border-left: 3px solid #4A7C59">
+          <div class="flex items-center justify-between mb-2">
+            <span class="pill" style="background:#E8F0EB; color:#2D5C44">REVIEW</span>
+            <span class="text-[10px] text-muted mono">XYZ</span>
+          </div>
+          <div class="text-sm leading-snug mb-2">Thiết kế landing page ra mắt SP</div>
+          <div class="flex items-center justify-between text-[11px] text-muted mono mt-2">
+            <span>cần duyệt UI</span>
+            <div class="w-5 h-5 rounded-full bg-forest text-white flex items-center justify-center text-[9px] font-bold">BV</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div>
+      <div class="flex items-center justify-between mb-3 pb-2 border-b border-hairline">
+        <div class="flex items-center gap-2">
+          <span class="dot" style="background:#1F3D2E"></span>
+          <span class="text-sm font-semibold">Hoàn thành</span>
+          <span class="text-xs text-muted mono">41</span>
+        </div>
+      </div>
+      <div class="space-y-2">
+
+        <div class="kanban-card opacity-70">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-[10px] text-sage mono">✓ 15/04</span>
+            <span class="text-[10px] text-muted mono">EDU</span>
+          </div>
+          <div class="text-sm leading-snug line-through text-muted">Xong training onboard CTV mới</div>
+        </div>
+
+        <div class="kanban-card opacity-70">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-[10px] text-sage mono">✓ 14/04</span>
+            <span class="text-[10px] text-muted mono">ABC</span>
+          </div>
+          <div class="text-sm leading-snug line-through text-muted">Audit SEO website ABC</div>
+        </div>
+
+        <div class="kanban-card opacity-70">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-[10px] text-sage mono">✓ 13/04</span>
+            <span class="text-[10px] text-muted mono">FIN</span>
+          </div>
+          <div class="text-sm leading-snug line-through text-muted">Xây content plan tháng 4</div>
+        </div>
+
+        <div class="text-center text-xs text-muted py-3 mono">
+          ...và 38 việc khác
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- ============================================================ -->
+<!-- VIEW: CONTENT PIPELINE                                        -->
+<!-- ============================================================ -->
+<section class="view" data-view="content">
+
+  <div class="mb-10 flex items-end justify-between">
+    <div>
+      <p class="eyebrow mb-2">Nội dung · từ ý tưởng đến phân phối</p>
+      <h1 class="display text-6xl font-bold leading-none">
+        <span class="accent">Pipeline</span> nội dung
+      </h1>
+    </div>
+    <div class="flex items-center gap-2">
+      <button class="px-3 py-1.5 bg-surface border border-hairline rounded text-xs text-muted mono">LICH DANG</button>
+      <button class="px-4 py-2 bg-forest text-white rounded-md text-sm mono font-semibold">+ TAO NOI DUNG</button>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-7 gap-px bg-hairline border border-hairline rounded-lg overflow-hidden mb-8">
+    <div class="col-span-1 bg-surface p-4 text-center">
+      <div class="stat-hero text-3xl tnum">14</div>
+      <div class="eyebrow mt-2">💡 Ý tưởng</div>
+    </div>
+    <div class="col-span-1 bg-surface p-4 text-center">
+      <div class="stat-hero text-3xl tnum">8</div>
+      <div class="eyebrow mt-2">📝 Đang viết</div>
+    </div>
+    <div class="col-span-1 bg-surface p-4 text-center">
+      <div class="stat-hero text-3xl tnum text-amber2">3</div>
+      <div class="eyebrow mt-2">👀 Cần duyệt</div>
+    </div>
+    <div class="col-span-1 bg-surface p-4 text-center">
+      <div class="stat-hero text-3xl tnum">2</div>
+      <div class="eyebrow mt-2">🔄 Sửa lại</div>
+    </div>
+    <div class="col-span-1 bg-surface p-4 text-center">
+      <div class="stat-hero text-3xl tnum text-sage">5</div>
+      <div class="eyebrow mt-2">✓ Duyệt</div>
+    </div>
+    <div class="col-span-1 bg-surface p-4 text-center">
+      <div class="stat-hero text-3xl tnum text-forest">42</div>
+      <div class="eyebrow mt-2">📤 Đã đăng</div>
+    </div>
+    <div class="col-span-1 bg-cream/40 p-4 text-center">
+      <div class="stat-hero text-3xl tnum text-muted">74</div>
+      <div class="eyebrow mt-2">Tổng tháng</div>
+    </div>
+  </div>
+
+  <div class="bg-surface border border-hairline rounded-lg overflow-hidden">
+    <table class="w-full text-sm">
+      <thead class="bg-cream/40 border-b border-hairline">
+        <tr class="text-left">
+          <th class="eyebrow px-4 py-3">Tiêu đề</th>
+          <th class="eyebrow px-4 py-3">Công ty</th>
+          <th class="eyebrow px-4 py-3">Loại · Nền tảng</th>
+          <th class="eyebrow px-4 py-3">Người viết</th>
+          <th class="eyebrow px-4 py-3">Trạng thái</th>
+          <th class="eyebrow px-4 py-3">Ngày đăng</th>
+          <th class="eyebrow px-4 py-3 text-right">Tương tác</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-hairline">
+
+        <tr class="row-hover">
+          <td class="px-4 py-4">
+            <div class="font-semibold">10 mẹo SEO cho người mới bắt đầu 2026</div>
+            <div class="text-xs text-muted mt-0.5 mono">SEO Q2 · bài cornerstone</div>
+          </td>
+          <td class="px-4 py-4">
+            <div class="flex items-center gap-2">
+              <span class="w-5 h-5 rounded bg-forest text-white text-[9px] flex items-center justify-center mono font-bold">ABC</span>
+              <span class="text-xs">ABC</span>
+            </div>
+          </td>
+          <td class="px-4 py-4">
+            <div class="text-sm">Blog</div>
+            <div class="text-xs text-muted mt-0.5 mono">Website · Facebook</div>
+          </td>
+          <td class="px-4 py-4 text-xs">CTV Minh</td>
+          <td class="px-4 py-4">
+            <span class="pill" style="background:#E8F0EB; color:#2D5C44"><span class="dot" style="background:#4A7C59"></span>DUYET</span>
+          </td>
+          <td class="px-4 py-4 text-xs mono">20/04</td>
+          <td class="px-4 py-4 text-right">
+            <div class="tnum font-semibold mono">—</div>
+            <div class="text-[10px] text-muted mono">chưa đăng</div>
+          </td>
+        </tr>
+
+        <tr class="row-hover">
+          <td class="px-4 py-4">
+            <div class="font-semibold">Tại sao bạn nên đầu tư vào ETF thay vì cổ phiếu đơn lẻ</div>
+            <div class="text-xs text-muted mt-0.5 mono">Series tài chính cá nhân</div>
+          </td>
+          <td class="px-4 py-4">
+            <div class="flex items-center gap-2">
+              <span class="w-5 h-5 rounded bg-amber2 text-white text-[9px] flex items-center justify-center mono font-bold">XYZ</span>
+              <span class="text-xs">XYZ</span>
+            </div>
+          </td>
+          <td class="px-4 py-4">
+            <div class="text-sm">Blog</div>
+            <div class="text-xs text-muted mt-0.5 mono">Website</div>
+          </td>
+          <td class="px-4 py-4 text-xs">Bình Vương</td>
+          <td class="px-4 py-4">
+            <span class="pill" style="background:#FDF4E2; color:#B8741F"><span class="dot" style="background:#B8741F"></span>REVIEW</span>
+          </td>
+          <td class="px-4 py-4 text-xs mono">22/04</td>
+          <td class="px-4 py-4 text-right">
+            <div class="tnum font-semibold mono">—</div>
+          </td>
+        </tr>
+
+        <tr class="row-hover">
+          <td class="px-4 py-4">
+            <div class="font-semibold">5 sai lầm khi scale content team</div>
+            <div class="text-xs text-muted mt-0.5 mono">tips nhanh cho SME</div>
+          </td>
+          <td class="px-4 py-4">
+            <div class="flex items-center gap-2">
+              <span class="w-5 h-5 rounded bg-sage text-white text-[9px] flex items-center justify-center mono font-bold">EDU</span>
+              <span class="text-xs">EDU</span>
+            </div>
+          </td>
+          <td class="px-4 py-4">
+            <div class="text-sm">Reel</div>
+            <div class="text-xs text-muted mt-0.5 mono">TikTok · IG</div>
+          </td>
+          <td class="px-4 py-4 text-xs">CTV Hà</td>
+          <td class="px-4 py-4">
+            <span class="pill" style="background:#1F3D2E; color:white"><span class="dot" style="background:white"></span>DANG</span>
+          </td>
+          <td class="px-4 py-4 text-xs mono">12/04</td>
+          <td class="px-4 py-4 text-right">
+            <div class="tnum font-semibold mono text-sage">8.3%</div>
+            <div class="text-[10px] text-muted mono">12.4K · 1.03K</div>
+          </td>
+        </tr>
+
+        <tr class="row-hover">
+          <td class="px-4 py-4">
+            <div class="font-semibold">Cách chọn platform phù hợp cho doanh nghiệp</div>
+            <div class="text-xs text-muted mt-0.5 mono">bài giảng training</div>
+          </td>
+          <td class="px-4 py-4">
+            <div class="flex items-center gap-2">
+              <span class="w-5 h-5 rounded bg-sage text-white text-[9px] flex items-center justify-center mono font-bold">EDU</span>
+              <span class="text-xs">EDU</span>
+            </div>
+          </td>
+          <td class="px-4 py-4">
+            <div class="text-sm">Video</div>
+            <div class="text-xs text-muted mt-0.5 mono">YouTube</div>
+          </td>
+          <td class="px-4 py-4 text-xs">Bình Vương</td>
+          <td class="px-4 py-4">
+            <span class="pill" style="background:#F0EEE8; color:#6B665E"><span class="dot" style="background:#6B665E"></span>DRAFT</span>
+          </td>
+          <td class="px-4 py-4 text-xs mono">28/04</td>
+          <td class="px-4 py-4 text-right">
+            <div class="tnum font-semibold mono">—</div>
+          </td>
+        </tr>
+
+        <tr class="row-hover">
+          <td class="px-4 py-4">
+            <div class="font-semibold">Backlink từ báo chí lớn — case study</div>
+            <div class="text-xs text-muted mt-0.5 mono">SEO Q2 · deep dive</div>
+          </td>
+          <td class="px-4 py-4">
+            <div class="flex items-center gap-2">
+              <span class="w-5 h-5 rounded bg-forest text-white text-[9px] flex items-center justify-center mono font-bold">ABC</span>
+              <span class="text-xs">ABC</span>
+            </div>
+          </td>
+          <td class="px-4 py-4">
+            <div class="text-sm">Blog</div>
+            <div class="text-xs text-muted mt-0.5 mono">Web · LinkedIn</div>
+          </td>
+          <td class="px-4 py-4 text-xs">CTV Minh</td>
+          <td class="px-4 py-4">
+            <span class="pill" style="background:#1F3D2E; color:white"><span class="dot" style="background:white"></span>DANG</span>
+          </td>
+          <td class="px-4 py-4 text-xs mono">08/04</td>
+          <td class="px-4 py-4 text-right">
+            <div class="tnum font-semibold mono text-sage">6.1%</div>
+            <div class="text-[10px] text-muted mono">3.2K · 195</div>
+          </td>
+        </tr>
+
+        <tr class="row-hover">
+          <td class="px-4 py-4">
+            <div class="font-semibold">Lãi kép hoạt động thế nào?</div>
+            <div class="text-xs text-muted mt-0.5 mono">explainer ngắn</div>
+          </td>
+          <td class="px-4 py-4">
+            <div class="flex items-center gap-2">
+              <span class="w-5 h-5 rounded bg-amber2 text-white text-[9px] flex items-center justify-center mono font-bold">XYZ</span>
+              <span class="text-xs">XYZ</span>
+            </div>
+          </td>
+          <td class="px-4 py-4">
+            <div class="text-sm">Reel</div>
+            <div class="text-xs text-muted mt-0.5 mono">TikTok</div>
+          </td>
+          <td class="px-4 py-4 text-xs">CTV Hà</td>
+          <td class="px-4 py-4">
+            <span class="pill" style="background:#E8F0EB; color:#2D5C44"><span class="dot" style="background:#4A7C59"></span>SUA LAI</span>
+          </td>
+          <td class="px-4 py-4 text-xs mono">18/04</td>
+          <td class="px-4 py-4 text-right">
+            <div class="tnum font-semibold mono">—</div>
+          </td>
+        </tr>
+
+      </tbody>
+    </table>
+  </div>
+
+</section>
+
+
+<!-- ============================================================ -->
+<!-- VIEW: COMPANIES                                               -->
+<!-- ============================================================ -->
+<section class="view" data-view="companies">
+
+  <div class="mb-10 flex items-end justify-between">
+    <div>
+      <p class="eyebrow mb-2">Công ty · portfolio</p>
+      <h1 class="display text-6xl font-bold leading-none">
+        <span class="accent">5</span> công ty đang đồng hành
+      </h1>
+    </div>
+    <button class="px-4 py-2 bg-forest text-white rounded-md text-sm mono font-semibold">+ THEM CONG TY</button>
+  </div>
+
+  <div class="grid grid-cols-3 gap-5">
+
+    <div class="bg-surface border border-hairline rounded-lg p-6 hover:border-forest transition-colors cursor-pointer relative overflow-hidden">
+      <div class="absolute top-0 right-0 w-1 h-full bg-sage"></div>
+      <div class="flex items-start justify-between mb-4">
+        <div class="w-12 h-12 rounded bg-forest text-white flex items-center justify-center mono font-bold">ABC</div>
+        <span class="pill" style="background:#E8F0EB; color:#2D5C44"><span class="dot" style="background:#4A7C59"></span>OK</span>
+      </div>
+      <h3 class="display text-2xl font-bold mb-1">ABC Education</h3>
+      <p class="text-sm text-muted mb-5 mono">Giáo dục · owner · từ 01/2026</p>
+
+      <div class="grid grid-cols-3 gap-3 mb-5 pb-5 border-b border-hairline">
+        <div>
+          <div class="text-lg tnum stat-hero">18</div>
+          <div class="data-label">việc mở</div>
+        </div>
+        <div>
+          <div class="text-lg tnum stat-hero">124</div>
+          <div class="data-label">output/th</div>
+        </div>
+        <div>
+          <div class="text-lg tnum stat-hero text-sage">93%</div>
+          <div class="data-label">ontime</div>
+        </div>
+      </div>
+
+      <div class="text-xs space-y-1.5 mono">
+        <div class="flex justify-between">
+          <span class="text-muted">SEO Q2 · 2026</span>
+          <span>62%</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-muted">Content Pillar</span>
+          <span>41%</span>
+        </div>
+      </div>
+
+      <div class="mt-5 flex items-center gap-1">
+        <div class="w-6 h-6 rounded-full bg-amber2 text-white text-[9px] flex items-center justify-center ring-2 ring-surface font-bold">Hg</div>
+        <div class="w-6 h-6 rounded-full bg-sage text-white text-[9px] flex items-center justify-center ring-2 ring-surface -ml-2 font-bold">Mh</div>
+        <div class="w-6 h-6 rounded-full bg-rust text-white text-[9px] flex items-center justify-center ring-2 ring-surface -ml-2 font-bold">T</div>
+        <span class="text-xs text-muted ml-2 mono">+9</span>
+      </div>
+    </div>
+
+    <div class="bg-surface border border-hairline rounded-lg p-6 hover:border-forest transition-colors cursor-pointer relative overflow-hidden">
+      <div class="absolute top-0 right-0 w-1 h-full bg-ochre"></div>
+      <div class="flex items-start justify-between mb-4">
+        <div class="w-12 h-12 rounded bg-amber2 text-white flex items-center justify-center mono font-bold">XYZ</div>
+        <span class="pill" style="background:#FDF4E2; color:#B8741F"><span class="dot" style="background:#C89B3C"></span>CHU Y</span>
+      </div>
+      <h3 class="display text-2xl font-bold mb-1">XYZ Finance</h3>
+      <p class="text-sm text-muted mb-5 mono">Tài chính · co-founder · từ 09/2025</p>
+
+      <div class="grid grid-cols-3 gap-3 mb-5 pb-5 border-b border-hairline">
+        <div>
+          <div class="text-lg tnum stat-hero">23</div>
+          <div class="data-label">việc mở</div>
+        </div>
+        <div>
+          <div class="text-lg tnum stat-hero">67</div>
+          <div class="data-label">output/th</div>
+        </div>
+        <div>
+          <div class="text-lg tnum stat-hero text-ochre">71%</div>
+          <div class="data-label">ontime</div>
+        </div>
+      </div>
+
+      <div class="text-xs space-y-1.5 mono">
+        <div class="flex justify-between">
+          <span class="text-muted">Ra mắt SP · T5</span>
+          <span>34%</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-muted">Brand Story 2026</span>
+          <span>78%</span>
+        </div>
+      </div>
+
+      <div class="mt-5 flex items-center gap-1">
+        <div class="w-6 h-6 rounded-full bg-forest text-white text-[9px] flex items-center justify-center ring-2 ring-surface font-bold">BV</div>
+        <div class="w-6 h-6 rounded-full bg-amber2 text-white text-[9px] flex items-center justify-center ring-2 ring-surface -ml-2 font-bold">L</div>
+        <div class="w-6 h-6 rounded-full bg-muted text-white text-[9px] flex items-center justify-center ring-2 ring-surface -ml-2 font-bold">P</div>
+        <span class="text-xs text-muted ml-2 mono">+3</span>
+      </div>
+    </div>
+
+    <div class="bg-surface border border-hairline rounded-lg p-6 hover:border-forest transition-colors cursor-pointer relative overflow-hidden">
+      <div class="absolute top-0 right-0 w-1 h-full bg-sage"></div>
+      <div class="flex items-start justify-between mb-4">
+        <div class="w-12 h-12 rounded bg-sage text-white flex items-center justify-center mono font-bold">EDU</div>
+        <span class="pill" style="background:#E8F0EB; color:#2D5C44"><span class="dot" style="background:#4A7C59"></span>OK</span>
+      </div>
+      <h3 class="display text-2xl font-bold mb-1">EduPlus Academy</h3>
+      <p class="text-sm text-muted mb-5 mono">Giáo dục · mentor · từ 06/2025</p>
+
+      <div class="grid grid-cols-3 gap-3 mb-5 pb-5 border-b border-hairline">
+        <div>
+          <div class="text-lg tnum stat-hero">8</div>
+          <div class="data-label">việc mở</div>
+        </div>
+        <div>
+          <div class="text-lg tnum stat-hero">34</div>
+          <div class="data-label">output/th</div>
+        </div>
+        <div>
+          <div class="text-lg tnum stat-hero text-sage">100%</div>
+          <div class="data-label">ontime</div>
+        </div>
+      </div>
+
+      <div class="text-xs space-y-1.5 mono">
+        <div class="flex justify-between">
+          <span class="text-muted">Training Q2</span>
+          <span>88%</span>
+        </div>
+      </div>
+
+      <div class="mt-5 flex items-center gap-1">
+        <div class="w-6 h-6 rounded-full bg-sage text-white text-[9px] flex items-center justify-center ring-2 ring-surface font-bold">H</div>
+        <div class="w-6 h-6 rounded-full bg-rust text-white text-[9px] flex items-center justify-center ring-2 ring-surface -ml-2 font-bold">L</div>
+        <span class="text-xs text-muted ml-2 mono">+2</span>
+      </div>
+    </div>
+
+    <div class="bg-surface border border-hairline rounded-lg p-6 hover:border-forest transition-colors cursor-pointer relative overflow-hidden">
+      <div class="absolute top-0 right-0 w-1 h-full bg-rust"></div>
+      <div class="flex items-start justify-between mb-4">
+        <div class="w-12 h-12 rounded bg-rust text-white flex items-center justify-center mono font-bold">FIN</div>
+        <span class="pill" style="background:#F5DCDC; color:#A64545"><span class="dot" style="background:#A64545"></span>GAP</span>
+      </div>
+      <h3 class="display text-2xl font-bold mb-1">FinHub Vietnam</h3>
+      <p class="text-sm text-muted mb-5 mono">Tài chính · mentor · từ 03/2026</p>
+
+      <div class="grid grid-cols-3 gap-3 mb-5 pb-5 border-b border-hairline">
+        <div>
+          <div class="text-lg tnum stat-hero text-rust">31</div>
+          <div class="data-label">việc mở</div>
+        </div>
+        <div>
+          <div class="text-lg tnum stat-hero">89</div>
+          <div class="data-label">output/th</div>
+        </div>
+        <div>
+          <div class="text-lg tnum stat-hero text-rust">54%</div>
+          <div class="data-label">ontime</div>
+        </div>
+      </div>
+
+      <div class="text-xs space-y-1.5 mono">
+        <div class="flex justify-between">
+          <span class="text-muted">Full Launch · 05</span>
+          <span class="text-rust">23%</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-muted">Compliance Setup</span>
+          <span>67%</span>
+        </div>
+      </div>
+
+      <div class="mt-5 flex items-center gap-1">
+        <div class="w-6 h-6 rounded-full bg-forest text-white text-[9px] flex items-center justify-center ring-2 ring-surface font-bold">BV</div>
+        <div class="w-6 h-6 rounded-full bg-rust text-white text-[9px] flex items-center justify-center ring-2 ring-surface -ml-2 font-bold">P</div>
+        <div class="w-6 h-6 rounded-full bg-amber2 text-white text-[9px] flex items-center justify-center ring-2 ring-surface -ml-2 font-bold">H</div>
+        <span class="text-xs text-muted ml-2 mono">+5</span>
+      </div>
+    </div>
+
+    <div class="bg-cream/30 border border-hairline rounded-lg p-6 relative overflow-hidden opacity-70">
+      <div class="flex items-start justify-between mb-4">
+        <div class="w-12 h-12 rounded bg-muted text-white flex items-center justify-center mono font-bold">CR</div>
+        <span class="pill" style="background:#F0EEE8; color:#6B665E"><span class="dot" style="background:#6B665E"></span>PAUSE</span>
+      </div>
+      <h3 class="display text-2xl font-bold mb-1 text-muted">Creative Studio</h3>
+      <p class="text-sm text-muted mb-5 mono">Thiết kế · consulting</p>
+
+      <div class="text-center py-6 text-xs text-muted mono">
+        — Không có hoạt động từ 02/2026 —
+      </div>
+    </div>
+
+    <div class="border-2 border-dashed border-hairline rounded-lg p-6 flex items-center justify-center text-muted hover:border-forest hover:text-forest transition-colors cursor-pointer">
+      <div class="text-center">
+        <div class="display text-4xl font-bold mb-2">+</div>
+        <div class="text-sm mono">THÊM CÔNG TY MỚI</div>
+      </div>
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- ============================================================ -->
+<!-- VIEW: CAMPAIGNS                                               -->
+<!-- ============================================================ -->
+<section class="view" data-view="campaigns">
+
+  <div class="mb-10">
+    <p class="eyebrow mb-2">Chiến dịch · tiến độ & output</p>
+    <div class="flex items-end justify-between">
+      <h1 class="display text-6xl font-bold leading-none">
+        <span class="accent">7</span> chiến dịch đang chạy
+      </h1>
+      <button class="px-4 py-2 bg-forest text-white rounded-md text-sm mono font-semibold">+ TAO CHIEN DICH</button>
+    </div>
+  </div>
+
+  <div class="bg-surface border border-hairline rounded-lg p-8 mb-8">
+    <div class="flex items-start justify-between mb-6">
+      <div>
+        <div class="flex items-center gap-3 mb-2">
+          <span class="w-8 h-8 rounded bg-forest text-white flex items-center justify-center mono text-xs font-bold">ABC</span>
+          <span class="eyebrow">ABC Education</span>
+          <span class="ornament">✦</span>
+          <span class="text-xs text-muted mono">SEO · Content</span>
+        </div>
+        <h2 class="display text-5xl font-bold">SEO Quý 2 · 2026</h2>
+        <p class="text-sm text-muted mt-3 mono">01/04 — 30/06 · 75 ngày còn lại · chủ trì bởi Bình Vương</p>
+      </div>
+      <div class="text-right">
+        <div class="eyebrow mb-1">Tiến độ tổng</div>
+        <div class="stat-hero text-6xl tnum text-forest">62<span class="text-3xl">%</span></div>
+      </div>
+    </div>
+
+    <div class="space-y-5 mb-8">
+      <div>
+        <div class="flex items-center justify-between mb-2">
+          <div class="flex items-center gap-2">
+            <span>🔗</span>
+            <span class="font-semibold">Xây backlink</span>
+            <span class="text-xs text-sage mono">DAN DAU</span>
+          </div>
+          <div class="tnum text-sm mono">
+            <span class="font-semibold">187</span>
+            <span class="text-muted">/ 300 link</span>
+            <span class="ml-2 text-sage font-semibold">62%</span>
+          </div>
+        </div>
+        <div class="progress-track" style="height: 8px">
+          <div class="progress-fill" style="width:62%; background: linear-gradient(90deg, #1F3D2E, #4A7C59)"></div>
+        </div>
+      </div>
+
+      <div>
+        <div class="flex items-center justify-between mb-2">
+          <div class="flex items-center gap-2">
+            <span>📝</span>
+            <span class="font-semibold">Viết bài</span>
+          </div>
+          <div class="tnum text-sm mono">
+            <span class="font-semibold">32</span>
+            <span class="text-muted">/ 50 bài</span>
+            <span class="ml-2 text-sage font-semibold">64%</span>
+          </div>
+        </div>
+        <div class="progress-track" style="height: 8px">
+          <div class="progress-fill" style="width:64%; background: linear-gradient(90deg, #1F3D2E, #4A7C59)"></div>
+        </div>
+      </div>
+
+      <div>
+        <div class="flex items-center justify-between mb-2">
+          <div class="flex items-center gap-2">
+            <span>📱</span>
+            <span class="font-semibold">Đăng MXH</span>
+          </div>
+          <div class="tnum text-sm mono">
+            <span class="font-semibold">48</span>
+            <span class="text-muted">/ 80 post</span>
+            <span class="ml-2 text-sage font-semibold">60%</span>
+          </div>
+        </div>
+        <div class="progress-track" style="height: 8px">
+          <div class="progress-fill" style="width:60%; background: linear-gradient(90deg, #1F3D2E, #4A7C59)"></div>
+        </div>
+      </div>
+
+      <div>
+        <div class="flex items-center justify-between mb-2">
+          <div class="flex items-center gap-2">
+            <span>🎥</span>
+            <span class="font-semibold">Video</span>
+            <span class="text-xs text-ochre mono">CAN TANG TOC</span>
+          </div>
+          <div class="tnum text-sm mono">
+            <span class="font-semibold">5</span>
+            <span class="text-muted">/ 15 video</span>
+            <span class="ml-2 text-ochre font-semibold">33%</span>
+          </div>
+        </div>
+        <div class="progress-track" style="height: 8px">
+          <div class="progress-fill" style="width:33%; background: linear-gradient(90deg, #C89B3C, #B8741F)"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex items-center justify-between pt-6 border-t border-hairline">
+      <div>
+        <span class="eyebrow">Đội ngũ tham gia</span>
+        <div class="flex items-center gap-1 mt-2">
+          <div class="w-8 h-8 rounded-full bg-amber2 text-white text-xs flex items-center justify-center ring-2 ring-surface font-bold">Hg</div>
+          <div class="w-8 h-8 rounded-full bg-sage text-white text-xs flex items-center justify-center ring-2 ring-surface -ml-2 font-bold">Mh</div>
+          <div class="w-8 h-8 rounded-full bg-rust text-white text-xs flex items-center justify-center ring-2 ring-surface -ml-2 font-bold">T</div>
+          <div class="w-8 h-8 rounded-full bg-forest text-white text-xs flex items-center justify-center ring-2 ring-surface -ml-2 font-bold">BV</div>
+          <span class="text-xs text-muted ml-3 mono">+ 3 CTV</span>
+        </div>
+      </div>
+      <div class="text-right">
+        <span class="eyebrow">Ngân sách</span>
+        <div class="tnum stat-hero text-2xl mt-1">18.4M <span class="text-muted text-sm mono font-normal">/ 30M VND</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-2 gap-5">
+
+    <div class="bg-surface border border-hairline rounded-lg p-5 hover:border-forest cursor-pointer">
+      <div class="flex items-center gap-2 mb-3">
+        <span class="w-6 h-6 rounded bg-amber2 text-white text-[9px] flex items-center justify-center mono font-bold">XYZ</span>
+        <span class="eyebrow">XYZ Finance</span>
+      </div>
+      <h3 class="display text-2xl font-bold mb-1">Ra mắt SP · tháng 5</h3>
+      <p class="text-xs text-muted mb-4 mono">15/04 — 15/05 · 29 ngày</p>
+
+      <div class="mb-3">
+        <div class="flex items-center justify-between text-xs mb-1 mono">
+          <span>Tiến độ tổng</span>
+          <span class="font-semibold">34%</span>
+        </div>
+        <div class="progress-track"><div class="progress-fill" style="width:34%"></div></div>
+      </div>
+      <div class="flex items-center gap-4 text-[11px] text-muted mono">
+        <span>📢 8/10 camp</span>
+        <span>📝 6/20 bài</span>
+        <span>🎥 1/5 video</span>
+      </div>
+    </div>
+
+    <div class="bg-surface border border-hairline rounded-lg p-5 hover:border-forest cursor-pointer">
+      <div class="flex items-center gap-2 mb-3">
+        <span class="w-6 h-6 rounded bg-sage text-white text-[9px] flex items-center justify-center mono font-bold">EDU</span>
+        <span class="eyebrow">EduPlus Academy</span>
+      </div>
+      <h3 class="display text-2xl font-bold mb-1">Training Q2 · Cohort 4</h3>
+      <p class="text-xs text-muted mb-4 mono">01/04 — 30/06 · 75 ngày</p>
+
+      <div class="mb-3">
+        <div class="flex items-center justify-between text-xs mb-1 mono">
+          <span>Tiến độ tổng</span>
+          <span class="font-semibold text-sage">88%</span>
+        </div>
+        <div class="progress-track"><div class="progress-fill" style="width:88%"></div></div>
+      </div>
+      <div class="flex items-center gap-4 text-[11px] text-muted mono">
+        <span>🎥 14/16 video</span>
+        <span>📝 8/10 SOP</span>
+      </div>
+    </div>
+
+    <div class="bg-surface border border-hairline rounded-lg p-5 hover:border-forest cursor-pointer">
+      <div class="flex items-center gap-2 mb-3">
+        <span class="w-6 h-6 rounded bg-rust text-white text-[9px] flex items-center justify-center mono font-bold">FIN</span>
+        <span class="eyebrow">FinHub Vietnam</span>
+      </div>
+      <h3 class="display text-2xl font-bold mb-1">Full Launch · Q2</h3>
+      <p class="text-xs text-muted mb-4 mono">15/03 — 20/05 · URGENT</p>
+
+      <div class="mb-3">
+        <div class="flex items-center justify-between text-xs mb-1 mono">
+          <span>Tiến độ tổng</span>
+          <span class="font-semibold text-rust">23%</span>
+        </div>
+        <div class="progress-track"><div class="progress-fill" style="width:23%; background:#A64545"></div></div>
+      </div>
+      <div class="flex items-center gap-4 text-[11px] text-muted mono">
+        <span>📝 12/40 bài</span>
+        <span>📢 5/15 camp</span>
+        <span class="text-rust">⚠ cham lich</span>
+      </div>
+    </div>
+
+    <div class="bg-surface border border-hairline rounded-lg p-5 hover:border-forest cursor-pointer">
+      <div class="flex items-center gap-2 mb-3">
+        <span class="w-6 h-6 rounded bg-forest text-white text-[9px] flex items-center justify-center mono font-bold">ABC</span>
+        <span class="eyebrow">ABC Education</span>
+      </div>
+      <h3 class="display text-2xl font-bold mb-1">Content Pillar · H1</h3>
+      <p class="text-xs text-muted mb-4 mono">01/01 — 30/06 · 75 ngày còn</p>
+
+      <div class="mb-3">
+        <div class="flex items-center justify-between text-xs mb-1 mono">
+          <span>Tiến độ tổng</span>
+          <span class="font-semibold">41%</span>
+        </div>
+        <div class="progress-track"><div class="progress-fill" style="width:41%"></div></div>
+      </div>
+      <div class="flex items-center gap-4 text-[11px] text-muted mono">
+        <span>📝 18/40 bài</span>
+        <span>🎥 4/12 video</span>
+      </div>
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- ============================================================ -->
+<!-- VIEW: KNOWLEDGE BASE                                          -->
+<!-- ============================================================ -->
+<section class="view" data-view="knowledge">
+
+  <div class="mb-10">
+    <p class="eyebrow mb-2">Kho kiến thức · bài giảng, quy trình, nguyên liệu</p>
+    <div class="flex items-end justify-between">
+      <h1 class="display text-6xl font-bold leading-none">
+        Thư viện của <span class="accent">Bình Vương</span>
+      </h1>
+      <div class="flex items-center gap-2">
+        <div class="flex items-center gap-2 bg-surface border border-hairline rounded px-3 py-2 w-80">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input class="text-sm bg-transparent outline-none flex-1 placeholder-muted" placeholder="Tìm bài giảng, SOP, tài liệu...">
+        </div>
+        <button class="px-4 py-2 bg-forest text-white rounded-md text-sm mono font-semibold">+ THEM</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="flex items-center gap-2 mb-8 pb-4 border-b border-hairline text-xs">
+    <button class="px-3 py-1.5 bg-forest text-white rounded-full mono font-semibold">Tất cả <span class="ml-1">184</span></button>
+    <button class="px-3 py-1.5 bg-surface border border-hairline rounded-full text-muted mono">📖 Bài giảng <span class="ml-1">28</span></button>
+    <button class="px-3 py-1.5 bg-surface border border-hairline rounded-full text-muted mono">📋 SOP <span class="ml-1">42</span></button>
+    <button class="px-3 py-1.5 bg-surface border border-hairline rounded-full text-muted mono">📄 Template <span class="ml-1">16</span></button>
+    <button class="px-3 py-1.5 bg-surface border border-hairline rounded-full text-muted mono">🎓 Training <span class="ml-1">21</span></button>
+    <button class="px-3 py-1.5 bg-surface border border-hairline rounded-full text-muted mono">🔗 Nguyên liệu <span class="ml-1">65</span></button>
+    <button class="px-3 py-1.5 bg-surface border border-hairline rounded-full text-muted mono">📑 Nghiên cứu <span class="ml-1">12</span></button>
+  </div>
+
+  <div class="grid grid-cols-4 gap-5">
+
+    <div class="col-span-2 row-span-1 bg-forest text-white rounded-lg p-8 relative overflow-hidden cursor-pointer group">
+      <div class="absolute top-4 right-4 ornament text-3xl">✦</div>
+      <span class="pill" style="background:rgba(255,255,255,0.15); color:white">📖 BAI GIANG</span>
+      <h3 class="display text-4xl font-bold mt-4 mb-3 leading-tight">
+        Cách xây content pillar cho SME Việt
+      </h3>
+      <p class="text-sm text-forest-100 mb-6 max-w-md">
+        Framework 5 bước để xây dựng hệ thống content bền vững. Từ research keyword đến đo lường ROI.
+      </p>
+      <div class="flex items-center justify-between text-xs mono">
+        <div class="flex items-center gap-3">
+          <span>54 phút đọc</span>
+          <span>·</span>
+          <span>chia sẻ 3 công ty</span>
+        </div>
+        <span class="text-amber2 font-semibold">→ MO</span>
+      </div>
+    </div>
+
+    <div class="bg-surface border border-hairline rounded-lg p-5 hover:border-forest cursor-pointer">
+      <div class="flex items-start justify-between mb-3">
+        <span class="pill" style="background:#FDF4E2; color:#B8741F">📋 SOP</span>
+        <span class="text-[10px] text-muted mono">v3</span>
+      </div>
+      <h3 class="display text-lg font-bold leading-tight mb-2">Quy trình viết blog SEO chuẩn</h3>
+      <p class="text-xs text-muted mb-4">15 bước từ research đến publish. Áp dụng dùng chung mọi công ty.</p>
+      <div class="flex items-center justify-between text-[11px]">
+        <div class="flex items-center gap-1">
+          <span class="pill" style="background:#E8EDE9; color:#1F3D2E">SEO</span>
+          <span class="pill" style="background:#E8EDE9; color:#1F3D2E">CONTENT</span>
+        </div>
+        <span class="text-muted mono">3 cty</span>
+      </div>
+    </div>
+
+    <div class="bg-surface border border-hairline rounded-lg p-5 hover:border-forest cursor-pointer">
+      <div class="flex items-start justify-between mb-3">
+        <span class="pill" style="background:#E8F0EB; color:#2D5C44">📄 TEMPLATE</span>
+        <span class="text-amber2">⭐⭐⭐</span>
+      </div>
+      <h3 class="display text-lg font-bold leading-tight mb-2">Brief template cho CTV</h3>
+      <p class="text-xs text-muted mb-4">Đầy đủ các field cần thiết, đã test trên 5 công ty.</p>
+      <div class="flex items-center justify-between text-[11px]">
+        <div class="flex items-center gap-1">
+          <span class="pill" style="background:#E8EDE9; color:#1F3D2E">MGMT</span>
+        </div>
+        <span class="text-muted mono">dùng chung</span>
+      </div>
+    </div>
+
+    <div class="bg-cream/40 border border-hairline rounded-lg p-5 hover:border-forest cursor-pointer">
+      <div class="flex items-start justify-between mb-3">
+        <span class="pill" style="background:#F0EEE8; color:#6B665E">🔗 NGUYEN LIEU</span>
+        <span class="text-amber2">⭐⭐⭐</span>
+      </div>
+      <h3 class="display text-lg font-bold leading-tight mb-2">How Notion Grew to 100M Users</h3>
+      <p class="text-xs text-muted mb-4">Case study hay về product-led growth. Nguồn: Lenny's Newsletter.</p>
+      <div class="flex items-center justify-between text-[11px]">
+        <div class="flex items-center gap-1">
+          <span class="pill" style="background:#E8EDE9; color:#1F3D2E">GROWTH</span>
+        </div>
+        <span class="text-muted mono">lennysnewsletter</span>
+      </div>
+    </div>
+
+    <div class="bg-surface border border-hairline rounded-lg p-5 hover:border-forest cursor-pointer">
+      <div class="flex items-start justify-between mb-3">
+        <span class="pill" style="background:#F5DCDC; color:#A64545">🎓 TRAINING</span>
+        <span class="text-[10px] text-muted mono">34 min</span>
+      </div>
+      <h3 class="display text-lg font-bold leading-tight mb-2">Onboarding cho CTV mới</h3>
+      <p class="text-xs text-muted mb-4">Video + checklist. Standard cho mọi CTV trước khi nhận project.</p>
+      <div class="flex items-center justify-between text-[11px]">
+        <div class="flex items-center gap-1">
+          <span class="pill" style="background:#E8EDE9; color:#1F3D2E">HR</span>
+          <span class="pill" style="background:#E8EDE9; color:#1F3D2E">ONBOARD</span>
+        </div>
+        <span class="text-muted mono">dùng chung</span>
+      </div>
+    </div>
+
+    <div class="bg-surface border border-hairline rounded-lg p-5 hover:border-forest cursor-pointer">
+      <div class="flex items-start justify-between mb-3">
+        <span class="pill" style="background:#E8F0EB; color:#2D5C44">📖 BAI GIANG</span>
+        <span class="text-[10px] text-amber2 mono font-semibold">MOI</span>
+      </div>
+      <h3 class="display text-lg font-bold leading-tight mb-2">Định giá dịch vụ cho freelancer</h3>
+      <p class="text-xs text-muted mb-4">Framework pricing — giá trị vs giá cả. Bao gồm case study thực tế.</p>
+      <div class="flex items-center justify-between text-[11px]">
+        <div class="flex items-center gap-1">
+          <span class="pill" style="background:#E8EDE9; color:#1F3D2E">BUSINESS</span>
+        </div>
+        <span class="text-muted mono">EDU</span>
+      </div>
+    </div>
+
+    <div class="bg-surface border border-hairline rounded-lg p-5 hover:border-forest cursor-pointer">
+      <div class="flex items-start justify-between mb-3">
+        <span class="pill" style="background:#FDF4E2; color:#B8741F">📋 SOP</span>
+        <span class="text-[10px] text-muted mono">v1</span>
+      </div>
+      <h3 class="display text-lg font-bold leading-tight mb-2">Review content trước khi đăng</h3>
+      <p class="text-xs text-muted mb-4">Checklist 12 điểm cho editor. Bao gồm brand voice, SEO, CTA.</p>
+      <div class="flex items-center justify-between text-[11px]">
+        <div class="flex items-center gap-1">
+          <span class="pill" style="background:#E8EDE9; color:#1F3D2E">CONTENT</span>
+        </div>
+        <span class="text-muted mono">ABC, XYZ</span>
+      </div>
+    </div>
+
+    <div class="bg-surface border border-hairline rounded-lg p-5 hover:border-forest cursor-pointer">
+      <div class="flex items-start justify-between mb-3">
+        <span class="pill" style="background:#F0EEE8; color:#6B665E">📑 NGHIEN CUU</span>
+        <span class="text-amber2">⭐⭐</span>
+      </div>
+      <h3 class="display text-lg font-bold leading-tight mb-2">AI trong workflow SME 2026</h3>
+      <p class="text-xs text-muted mb-4">Survey 200 doanh nghiệp VN. Đã đọc, có insight cho EDU cohort 5.</p>
+      <div class="flex items-center justify-between text-[11px]">
+        <div class="flex items-center gap-1">
+          <span class="pill" style="background:#E8EDE9; color:#1F3D2E">AI</span>
+          <span class="pill" style="background:#E8EDE9; color:#1F3D2E">TRENDS</span>
+        </div>
+        <span class="text-muted mono">McKinsey</span>
+      </div>
+    </div>
+
+  </div>
+
+</section>
+
+
+</main>
+
+<footer class="mt-20 border-t border-hairline py-8">
+  <div class="max-w-[1440px] mx-auto px-8 flex items-center justify-between text-xs text-muted">
+    <div class="flex items-center gap-3">
+      <span class="display font-bold text-base text-forest">Bình Vương OS</span>
+      <span>·</span>
+      <span class="mono">v1.0</span>
+      <span>·</span>
+      <span>Solo Founder Edition</span>
+    </div>
+    <div class="flex items-center gap-6 mono">
+      <span>Sync Notion: <span class="text-sage">✓ vừa xong · 09:00</span></span>
+      <span>DB: <span class="text-sage">●</span> online</span>
+      <span class="ornament">✦</span>
+    </div>
+  </div>
+</footer>
+
+
+<script>
+  function switchView(name) {
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    document.querySelector(`[data-view="${name}"]`).classList.add('active');
+
+    document.querySelectorAll('.tab-btn').forEach(b => {
+      b.classList.remove('tab-active');
+      b.classList.add('text-muted');
+    });
+    const activeTab = document.querySelector(`[data-tab="${name}"]`);
+    if (activeTab) {
+      activeTab.classList.add('tab-active');
+      activeTab.classList.remove('text-muted');
+    }
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  document.querySelectorAll('.check').forEach(c => {
+    c.addEventListener('click', function(e) {
+      e.stopPropagation();
+      this.classList.toggle('checked');
+      if (this.classList.contains('checked')) {
+        this.innerHTML = '<svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg>';
+      } else {
+        this.innerHTML = '';
+      }
+    });
+  });
+</script>
+
+</body>
+</html>

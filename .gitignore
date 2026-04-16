@@ -1,0 +1,11 @@
+bin/
+tmp/
+node_modules/
+web/static/css/output.css
+*.exe
+*.dll
+*.so
+*.dylib
+.env
+.env.local
+.DS_Store
