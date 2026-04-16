@@ -43,55 +43,7 @@ func main() {
 	app.Post("/auth/login", h.Login)
 	app.Post("/auth/logout", h.Logout)
 
-	// Protected routes (require authentication)
-	protected := app.Group("", middleware.AuthRequired(queries, cfg))
-
-	// Auth info
-	protected.Get("/auth/me", h.AuthMe)
-
-	// Pages
-	protected.Get("/", h.Dashboard)
-	protected.Get("/inbox", h.Inbox)
-	protected.Get("/work-logs", h.WorkLogs)
-	protected.Get("/tasks", h.Tasks)
-	protected.Get("/content", h.Content)
-	protected.Get("/companies", h.Companies)
-	protected.Get("/campaigns", h.Campaigns)
-	protected.Get("/knowledge", h.Knowledge)
-	protected.Get("/bookmarks", h.Bookmarks)
-	protected.Get("/prompts", h.Prompts)
-
-	// Create pages
-	protected.Get("/inbox/new", h.InboxCreate)
-
-	// Detail pages
-	protected.Get("/content/:id", h.ContentDetail)
-	protected.Get("/companies/:id", h.CompanyDetail)
-	protected.Get("/tasks/:id", h.TaskDetail)
-	protected.Get("/work-logs/:id", h.WorkLogDetail)
-	protected.Get("/campaigns/:id", h.CampaignDetail)
-	protected.Get("/knowledge/:id", h.KnowledgeDetail)
-	protected.Get("/inbox/:id", h.InboxDetail)
-	protected.Get("/bookmarks/:id", h.BookmarkDetail)
-
-	// CRUD POST/PUT/DELETE routes
-	protected.Post("/companies", h.CreateCompany)
-	protected.Post("/companies/:id", h.UpdateCompanyForm)
-	protected.Post("/inbox", h.CreateInboxItem)
-	protected.Post("/inbox/:id/triage", h.TriageInbox)
-	protected.Post("/tasks", h.CreateTask)
-	protected.Post("/tasks/:id/status", h.UpdateTaskStatusForm)
-	protected.Post("/content", h.CreateContent)
-	protected.Post("/content/:id/review", h.ReviewContentForm)
-	protected.Post("/work-logs", h.CreateWorkLog)
-	protected.Post("/work-logs/:id/approve", h.ApproveWorkLogForm)
-	protected.Post("/work-logs/:id/reject", h.RejectWorkLogForm)
-	protected.Post("/campaigns", h.CreateCampaign)
-	protected.Post("/knowledge", h.CreateKnowledgeItem)
-	protected.Post("/bookmarks", h.CreateBookmark)
-	protected.Post("/bookmarks/:id/delete", h.DeleteBookmark)
-
-	// JSON API routes (API key auth)
+	// JSON API routes (API key auth — must be before protected group)
 	api := app.Group("/api/v1", middleware.APIKeyAuth(cfg.APIKey))
 	api.Get("/dashboard", h.APIDashboard)
 	api.Get("/companies", h.APIListCompanies)
@@ -100,6 +52,54 @@ func main() {
 	api.Post("/bookmarks", h.APICreateBookmark)
 	api.Post("/work-logs", h.APICreateWorkLog)
 	api.Post("/knowledge", h.APICreateKnowledge)
+
+	// Protected routes (require authentication)
+	app.Use(middleware.AuthRequired(queries, cfg))
+
+	// Auth info
+	app.Get("/auth/me", h.AuthMe)
+
+	// Pages
+	app.Get("/", h.Dashboard)
+	app.Get("/inbox", h.Inbox)
+	app.Get("/work-logs", h.WorkLogs)
+	app.Get("/tasks", h.Tasks)
+	app.Get("/content", h.Content)
+	app.Get("/companies", h.Companies)
+	app.Get("/campaigns", h.Campaigns)
+	app.Get("/knowledge", h.Knowledge)
+	app.Get("/bookmarks", h.Bookmarks)
+	app.Get("/prompts", h.Prompts)
+
+	// Create pages
+	app.Get("/inbox/new", h.InboxCreate)
+
+	// Detail pages
+	app.Get("/content/:id", h.ContentDetail)
+	app.Get("/companies/:id", h.CompanyDetail)
+	app.Get("/tasks/:id", h.TaskDetail)
+	app.Get("/work-logs/:id", h.WorkLogDetail)
+	app.Get("/campaigns/:id", h.CampaignDetail)
+	app.Get("/knowledge/:id", h.KnowledgeDetail)
+	app.Get("/inbox/:id", h.InboxDetail)
+	app.Get("/bookmarks/:id", h.BookmarkDetail)
+
+	// CRUD POST/PUT/DELETE routes
+	app.Post("/companies", h.CreateCompany)
+	app.Post("/companies/:id", h.UpdateCompanyForm)
+	app.Post("/inbox", h.CreateInboxItem)
+	app.Post("/inbox/:id/triage", h.TriageInbox)
+	app.Post("/tasks", h.CreateTask)
+	app.Post("/tasks/:id/status", h.UpdateTaskStatusForm)
+	app.Post("/content", h.CreateContent)
+	app.Post("/content/:id/review", h.ReviewContentForm)
+	app.Post("/work-logs", h.CreateWorkLog)
+	app.Post("/work-logs/:id/approve", h.ApproveWorkLogForm)
+	app.Post("/work-logs/:id/reject", h.RejectWorkLogForm)
+	app.Post("/campaigns", h.CreateCampaign)
+	app.Post("/knowledge", h.CreateKnowledgeItem)
+	app.Post("/bookmarks", h.CreateBookmark)
+	app.Post("/bookmarks/:id/delete", h.DeleteBookmark)
 
 	log.Printf("Bình Vương OS starting on :%s", cfg.Port)
 	log.Fatal(app.Listen(":" + cfg.Port))
