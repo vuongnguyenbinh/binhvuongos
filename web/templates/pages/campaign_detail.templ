@@ -1,0 +1,57 @@
+package pages
+
+import "binhvuongos/web/templates"
+
+templ CampaignDetailPage() {
+	@templates.Layout("Chi tiết chiến dịch", "campaigns") {
+		<div class="mb-8">
+			<a href="/campaigns" class="text-xs text-muted hover:text-ink mono">← Quay lại danh sách</a>
+			<div class="flex items-end justify-between mt-4">
+				<div>
+					<div class="flex items-center gap-3 mb-2">
+						<span class="w-8 h-8 rounded bg-forest text-white flex items-center justify-center mono text-xs font-bold">ABC</span>
+						<span class="eyebrow">ABC Education</span>
+					</div>
+					<h1 class="display text-4xl md:text-5xl font-bold leading-none">SEO Quý 2 · 2026</h1>
+					<p class="text-sm text-muted mt-2 mono">01/04 — 30/06 · 75 ngày còn lại</p>
+				</div>
+				<div class="text-right">
+					<div class="stat-hero text-5xl tnum text-forest">62<span class="text-2xl">%</span></div>
+					<div class="data-label mt-1">tiến độ tổng</div>
+				</div>
+			</div>
+		</div>
+		<div class="grid grid-cols-1 xl:grid-cols-12 gap-6">
+			<div class="xl:col-span-8 space-y-6">
+				<div class="bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-lg p-6">
+					<h3 class="display text-lg font-bold mb-4">Tiến độ theo loại</h3>
+					<div class="space-y-4">
+						<div><div class="flex justify-between text-sm mb-1"><span>🔗 Xây backlink</span><span class="mono font-semibold">187/300 · 62%</span></div><div class="progress-track h-2"><div class="progress-fill bg-gradient-to-r from-forest to-sage w-[62%]"></div></div></div>
+						<div><div class="flex justify-between text-sm mb-1"><span>📝 Viết bài</span><span class="mono font-semibold">32/50 · 64%</span></div><div class="progress-track h-2"><div class="progress-fill bg-gradient-to-r from-forest to-sage w-[64%]"></div></div></div>
+						<div><div class="flex justify-between text-sm mb-1"><span>📱 Đăng MXH</span><span class="mono font-semibold">48/80 · 60%</span></div><div class="progress-track h-2"><div class="progress-fill bg-gradient-to-r from-forest to-sage w-[60%]"></div></div></div>
+						<div><div class="flex justify-between text-sm mb-1"><span>🎥 Video</span><span class="mono font-semibold text-flame">5/15 · 33%</span></div><div class="progress-track h-2"><div class="progress-fill bg-gradient-to-r from-flame to-ember w-[33%]"></div></div></div>
+					</div>
+				</div>
+				<div class="bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-lg p-6">
+					<h3 class="display text-lg font-bold mb-4">Work Logs gần đây</h3>
+					<div class="divide-y divide-hairline dark:divide-dark-border text-sm">
+						<div class="py-3 flex items-center justify-between"><div><span class="mono text-xs text-muted mr-2">15/04</span>CTV Hương · 🔗 25 link</div><span class="pill bg-sage/20 text-forest-600">approved</span></div>
+						<div class="py-3 flex items-center justify-between"><div><span class="mono text-xs text-muted mr-2">15/04</span>CTV Minh · 📝 3 bài</div><span class="pill bg-sage/20 text-forest-600">approved</span></div>
+						<div class="py-3 flex items-center justify-between"><div><span class="mono text-xs text-muted mr-2">14/04</span>CTV Hương · 🔗 18 link</div><span class="pill bg-sage/20 text-forest-600">approved</span></div>
+					</div>
+				</div>
+			</div>
+			<div class="xl:col-span-4 space-y-4">
+				<div class="bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-lg p-5">
+					<h3 class="eyebrow mb-3">Thông tin</h3>
+					<div class="space-y-3 text-xs">
+						<div class="flex justify-between"><span class="text-muted">Loại</span><span>SEO</span></div>
+						<div class="flex justify-between"><span class="text-muted">Ngân sách</span><span class="mono">18.4M / 30M VND</span></div>
+						<div class="flex justify-between"><span class="text-muted">Chủ trì</span><span>Bình Vương</span></div>
+						<div class="flex justify-between"><span class="text-muted">Đội ngũ</span><span>7 người</span></div>
+					</div>
+				</div>
+			</div>
+		</div>
+	}
+}

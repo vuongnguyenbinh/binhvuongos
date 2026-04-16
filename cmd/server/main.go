@@ -32,6 +32,14 @@ func main() {
 	app.Get("/bookmarks", handler.Bookmarks)
 	app.Get("/prompts", handler.Prompts)
 
+	// Detail pages
+	app.Get("/content/:id", handler.ContentDetail)
+	app.Get("/companies/:id", handler.CompanyDetail)
+	app.Get("/tasks/:id", handler.TaskDetail)
+	app.Get("/work-logs/:id", handler.WorkLogDetail)
+	app.Get("/campaigns/:id", handler.CampaignDetail)
+	app.Get("/knowledge/:id", handler.KnowledgeDetail)
+
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "3000"

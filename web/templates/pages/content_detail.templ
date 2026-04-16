@@ -1,0 +1,65 @@
+package pages
+
+import "binhvuongos/web/templates"
+
+templ ContentDetailPage() {
+	@templates.Layout("Chi tiết nội dung", "content") {
+		<div class="mb-8">
+			<a href="/content" class="text-xs text-muted hover:text-ink mono">← Quay lại Pipeline</a>
+			<div class="flex items-end justify-between mt-4">
+				<div>
+					<p class="eyebrow mb-2">Nội dung · Chi tiết</p>
+					<h1 class="display text-4xl md:text-5xl font-bold leading-none">10 mẹo SEO cho người mới bắt đầu 2026</h1>
+				</div>
+				<div class="flex gap-2">
+					<button class="px-3 py-1.5 bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded text-xs text-muted mono">Chỉnh sửa</button>
+					<button class="px-3 py-1.5 bg-rust text-white rounded text-xs mono">Xoá</button>
+				</div>
+			</div>
+		</div>
+		<div class="grid grid-cols-1 xl:grid-cols-12 gap-6">
+			<div class="xl:col-span-8">
+				<div class="bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-lg p-6">
+					<div class="flex items-center gap-3 mb-6 pb-4 border-b border-hairline dark:border-dark-border">
+						<span class="pill bg-sage/20 text-forest-600">DUYỆT</span>
+						<span class="w-6 h-6 rounded bg-forest text-white text-[9px] flex items-center justify-center mono font-bold">ABC</span>
+						<span class="text-sm">ABC Education</span>
+						<span class="text-muted mono text-xs">· SEO Q2 · bài cornerstone</span>
+					</div>
+					<div class="prose prose-sm max-w-none">
+						<h2 class="display text-xl font-bold mb-3">Nội dung bài viết</h2>
+						<p class="text-muted text-sm mb-4">Nội dung sẽ hiển thị ở đây khi kết nối database. Hiện tại đang ở chế độ demo.</p>
+						<div class="bg-cream/40 dark:bg-dark-cream/40 rounded-md p-4 text-sm">
+							<p class="mono text-muted">📄 Source file:</p>
+							<a class="text-forest underline decoration-dotted mono text-xs">docs.google.com/document/d/1abc...</a>
+						</div>
+					</div>
+					<div class="mt-6 pt-4 border-t border-hairline dark:border-dark-border">
+						<h3 class="eyebrow mb-3">Review Notes</h3>
+						<div class="bg-sage/5 dark:bg-sage/10 rounded-md p-4 text-sm">
+							<p class="text-sage font-semibold text-xs mb-1">Bình Vương — 15/04</p>
+							<p>Bài viết tốt, cần bổ sung thêm phần internal linking và CTA cuối bài. Keyword density OK.</p>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="xl:col-span-4 space-y-4">
+				@detailInfoCard("Thông tin", []string{"Loại: Blog", "Nền tảng: Website · Facebook", "Người viết: CTV Minh", "Ngày đăng: 20/04/2026", "Chiến dịch: SEO Q2 · 2026"})
+				@detailInfoCard("Hiệu suất", []string{"Reach: —", "Engagement: —", "Tỷ lệ: — (chưa đăng)"})
+			</div>
+		</div>
+	}
+}
+
+templ detailInfoCard(title string, items []string) {
+	<div class="bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-lg p-5">
+		<h3 class="eyebrow mb-3">{ title }</h3>
+		<div class="space-y-2 text-sm">
+			for _, item := range items {
+				<div class="flex items-center justify-between text-xs">
+					<span class="text-muted">{ item }</span>
+				</div>
+			}
+		</div>
+	</div>
+}

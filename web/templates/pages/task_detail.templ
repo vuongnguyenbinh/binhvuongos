@@ -1,0 +1,59 @@
+package pages
+
+import "binhvuongos/web/templates"
+
+templ TaskDetailPage() {
+	@templates.Layout("Chi tiết công việc", "tasks") {
+		<div class="mb-8">
+			<a href="/tasks" class="text-xs text-muted hover:text-ink mono">← Quay lại Kanban</a>
+			<div class="flex items-end justify-between mt-4">
+				<div>
+					<div class="flex items-center gap-2 mb-2">
+						<span class="pill bg-ember/10 text-ember">CAO</span>
+						<span class="pill bg-ember/10 text-ember">ĐANG LÀM</span>
+						<span class="w-6 h-6 rounded bg-forest text-white text-[9px] flex items-center justify-center mono font-bold">ABC</span>
+					</div>
+					<h1 class="display text-4xl md:text-5xl font-bold leading-none">Xây 300 backlink cho SEO Q2</h1>
+				</div>
+				<button class="px-3 py-1.5 bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded text-xs text-muted mono">Chỉnh sửa</button>
+			</div>
+		</div>
+		<div class="grid grid-cols-1 xl:grid-cols-12 gap-6">
+			<div class="xl:col-span-8 space-y-6">
+				<div class="bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-lg p-6">
+					<h3 class="display text-lg font-bold mb-3">Mô tả</h3>
+					<p class="text-sm text-muted leading-relaxed">Xây dựng 300 backlink chất lượng từ các website DA > 30 cho ABC Education. Focus vào các bài blog SEO pillar content. Target hoàn thành trước 30/06/2026.</p>
+				</div>
+				<div class="bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-lg p-6">
+					<h3 class="display text-lg font-bold mb-3">Tiến độ</h3>
+					<div class="flex items-center justify-between mb-2 text-sm mono">
+						<span class="font-semibold">187 / 300 link</span>
+						<span class="text-sage font-semibold">62%</span>
+					</div>
+					<div class="progress-track h-3"><div class="progress-fill bg-gradient-to-r from-forest to-sage w-[62%]"></div></div>
+				</div>
+				<div class="bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-lg p-6">
+					<h3 class="display text-lg font-bold mb-3">Hoạt động gần đây</h3>
+					<div class="space-y-3 text-sm">
+						<div class="flex gap-3"><span class="text-muted mono text-xs w-16 shrink-0">15/04</span><span>CTV Hương submit 25 backlinks · <span class="text-sage">approved</span></span></div>
+						<div class="flex gap-3"><span class="text-muted mono text-xs w-16 shrink-0">14/04</span><span>CTV Hương submit 18 backlinks · <span class="text-sage">approved</span></span></div>
+						<div class="flex gap-3"><span class="text-muted mono text-xs w-16 shrink-0">12/04</span><span>Bình Vương đổi priority → CAO</span></div>
+					</div>
+				</div>
+			</div>
+			<div class="xl:col-span-4 space-y-4">
+				<div class="bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-lg p-5">
+					<h3 class="eyebrow mb-3">Thông tin</h3>
+					<div class="space-y-3 text-xs">
+						<div class="flex justify-between"><span class="text-muted">Người thực hiện</span><div class="flex items-center gap-1"><div class="w-5 h-5 rounded-full bg-ember text-white text-[8px] flex items-center justify-center font-bold">Hg</div><span>CTV Hương</span></div></div>
+						<div class="flex justify-between"><span class="text-muted">Công ty</span><span>ABC Education</span></div>
+						<div class="flex justify-between"><span class="text-muted">Chiến dịch</span><span class="mono">SEO Q2 · 2026</span></div>
+						<div class="flex justify-between"><span class="text-muted">Nhóm việc</span><span>SEO Campaign</span></div>
+						<div class="flex justify-between"><span class="text-muted">Hạn chót</span><span class="mono">30/06/2026</span></div>
+						<div class="flex justify-between"><span class="text-muted">Tạo bởi</span><span>Bình Vương · 01/04</span></div>
+					</div>
+				</div>
+			</div>
+		</div>
+	}
+}

@@ -1,0 +1,74 @@
+package pages
+
+import "binhvuongos/web/templates"
+
+templ KnowledgeDetailPage() {
+	@templates.Layout("Chi tiết kiến thức", "knowledge") {
+		<div class="mb-8">
+			<a href="/knowledge" class="text-xs text-muted hover:text-ink mono">← Quay lại thư viện</a>
+			<div class="mt-4">
+				<div class="flex items-center gap-2 mb-2">
+					<span class="pill bg-sage/20 text-forest-600">📖 BÀI GIẢNG</span>
+					<span class="text-ember">⭐⭐⭐</span>
+				</div>
+				<h1 class="display text-4xl md:text-5xl font-bold leading-none">Cách xây content pillar cho SME Việt</h1>
+				<div class="flex items-center gap-3 mt-3 text-xs text-muted mono">
+					<span>Tác giả: Bình Vương</span>
+					<span>·</span>
+					<span>Nguồn: Nội bộ</span>
+					<span>·</span>
+					<span>54 phút đọc</span>
+					<span>·</span>
+					<span>Chia sẻ 3 công ty</span>
+				</div>
+			</div>
+		</div>
+		<div class="grid grid-cols-1 xl:grid-cols-12 gap-6">
+			<div class="xl:col-span-8">
+				<div class="bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-lg p-6">
+					<div class="prose prose-sm max-w-none text-sm leading-relaxed">
+						<h2 class="display text-xl font-bold mb-3">1. Tại sao cần Content Pillar?</h2>
+						<p class="text-muted mb-4">Content pillar là nền tảng cho chiến lược content dài hạn. Thay vì viết ngẫu nhiên, bạn xây dựng một hệ thống topic clusters xoay quanh các chủ đề cốt lõi.</p>
+						<h2 class="display text-xl font-bold mb-3">2. Framework 5 bước</h2>
+						<div class="bg-cream/40 dark:bg-dark-cream/40 rounded-md p-4 mb-4">
+							<ol class="list-decimal list-inside space-y-2 text-sm">
+								<li>Research keyword + audience intent</li>
+								<li>Xác định 3-5 pillar topics</li>
+								<li>Map sub-topics → cluster articles</li>
+								<li>Tạo content calendar theo priority</li>
+								<li>Đo lường ROI: traffic, leads, conversions</li>
+							</ol>
+						</div>
+						<h2 class="display text-xl font-bold mb-3">3. Áp dụng cho SME Việt Nam</h2>
+						<p class="text-muted mb-4">SME Việt thường có budget hạn chế. Focus vào 2-3 pillar thay vì 10. Quality over quantity. Consistency over virality.</p>
+						<div class="mt-6 p-4 bg-forest/5 dark:bg-forest/10 rounded-md">
+							<p class="text-xs mono text-muted">📝 Nội dung đầy đủ sẽ hiển thị khi kết nối markdown editor + database.</p>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="xl:col-span-4 space-y-4">
+				<div class="bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-lg p-5">
+					<h3 class="eyebrow mb-3">Thông tin</h3>
+					<div class="space-y-3 text-xs">
+						<div class="flex justify-between"><span class="text-muted">Danh mục</span><span>Bài giảng</span></div>
+						<div class="flex justify-between"><span class="text-muted">Chủ đề</span><span>SEO · Content</span></div>
+						<div class="flex justify-between"><span class="text-muted">Phạm vi</span><span>Chia sẻ chung</span></div>
+						<div class="flex justify-between"><span class="text-muted">Chất lượng</span><span class="text-ember">⭐⭐⭐</span></div>
+						<div class="flex justify-between"><span class="text-muted">Tác giả</span><span>Bình Vương</span></div>
+						<div class="flex justify-between"><span class="text-muted">Nguồn</span><span>Nội bộ</span></div>
+						<div class="flex justify-between"><span class="text-muted">Ngày tạo</span><span class="mono">01/03/2026</span></div>
+					</div>
+				</div>
+				<div class="bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-lg p-5">
+					<h3 class="eyebrow mb-3">Công ty được chia sẻ</h3>
+					<div class="space-y-2 text-xs">
+						<div class="flex items-center gap-2"><span class="w-5 h-5 rounded bg-forest text-white text-[9px] flex items-center justify-center mono font-bold">ABC</span><span>ABC Education</span></div>
+						<div class="flex items-center gap-2"><span class="w-5 h-5 rounded bg-sage text-white text-[9px] flex items-center justify-center mono font-bold">EDU</span><span>EduPlus Academy</span></div>
+						<div class="flex items-center gap-2"><span class="w-5 h-5 rounded bg-rust text-white text-[9px] flex items-center justify-center mono font-bold">FIN</span><span>FinHub Vietnam</span></div>
+					</div>
+				</div>
+			</div>
+		</div>
+	}
+}

@@ -1,0 +1,60 @@
+package pages
+
+import "binhvuongos/web/templates"
+
+templ WorkLogDetailPage() {
+	@templates.Layout("Chi tiết nhật ký", "worklogs") {
+		<div class="mb-8">
+			<a href="/work-logs" class="text-xs text-muted hover:text-ink mono">← Quay lại danh sách</a>
+			<div class="mt-4">
+				<p class="eyebrow mb-2">Nhật ký công việc · Chi tiết</p>
+				<h1 class="display text-4xl md:text-5xl font-bold leading-none">Báo cáo của <span class="accent">CTV Hương</span></h1>
+			</div>
+		</div>
+		<div class="grid grid-cols-1 xl:grid-cols-12 gap-6">
+			<div class="xl:col-span-8">
+				<div class="bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-lg p-6">
+					<div class="flex items-center gap-3 mb-6 pb-4 border-b border-hairline dark:border-dark-border">
+						<span class="pill bg-sage/20 text-forest-600">ĐÃ DUYỆT</span>
+						<span class="w-6 h-6 rounded bg-forest text-white text-[9px] flex items-center justify-center mono font-bold">ABC</span>
+						<span class="text-sm">ABC Education</span>
+						<span class="text-muted mono text-xs">· 15/04/2026 · 18:47</span>
+					</div>
+					<div class="grid grid-cols-2 md:grid-cols-3 gap-6 mb-6">
+						<div><div class="data-label mb-1">Loại công việc</div><div class="flex items-center gap-2 text-sm"><span>🔗</span><span class="font-semibold">Xây backlink</span></div></div>
+						<div><div class="data-label mb-1">Số lượng</div><div class="stat-hero text-3xl tnum">25 <span class="text-muted text-sm font-normal">link</span></div></div>
+						<div><div class="data-label mb-1">Chiến dịch</div><div class="text-sm mono">SEO Q2 · 2026</div></div>
+					</div>
+					<div class="mb-6">
+						<div class="data-label mb-2">Ghi chú</div>
+						<p class="text-sm leading-relaxed">Hôm nay 2 site từ chối, đã note lại trong sheet. Các site còn lại đều accept và đã verify live link.</p>
+					</div>
+					<div class="mb-6">
+						<div class="data-label mb-2">Nguồn minh chứng</div>
+						<div class="flex items-center gap-4 text-sm">
+							<a class="text-forest mono underline decoration-dotted">📎 Google Sheet</a>
+							<a class="text-forest mono underline decoration-dotted">📎 2 ảnh chụp</a>
+						</div>
+					</div>
+					<div class="pt-4 border-t border-hairline dark:border-dark-border">
+						<div class="data-label mb-2">Review</div>
+						<div class="bg-sage/5 dark:bg-sage/10 rounded-md p-3 text-sm">
+							<span class="text-sage font-semibold text-xs">Bình Vương · Duyệt 16/04 09:15</span>
+							<p class="mt-1 text-muted">OK, confirmed 25 links.</p>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="xl:col-span-4">
+				<div class="bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-lg p-5">
+					<h3 class="eyebrow mb-3">Hành động</h3>
+					<div class="space-y-2">
+						<button class="w-full px-4 py-2 bg-sage text-white rounded-md text-sm mono font-semibold">✓ Đã duyệt</button>
+						<button class="w-full px-4 py-2 border border-hairline dark:border-dark-border rounded-md text-sm text-muted mono">🔄 Yêu cầu sửa</button>
+						<button class="w-full px-4 py-2 border border-rust text-rust rounded-md text-sm mono">✕ Từ chối</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	}
+}

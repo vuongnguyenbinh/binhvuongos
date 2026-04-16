@@ -1,0 +1,58 @@
+package pages
+
+import "binhvuongos/web/templates"
+
+templ CompanyDetailPage() {
+	@templates.Layout("Chi tiết công ty", "companies") {
+		<div class="mb-8">
+			<a href="/companies" class="text-xs text-muted hover:text-ink mono">← Quay lại danh sách</a>
+			<div class="flex items-end justify-between mt-4">
+				<div class="flex items-center gap-4">
+					<div class="w-16 h-16 rounded-lg bg-forest text-white flex items-center justify-center mono text-xl font-bold">ABC</div>
+					<div>
+						<p class="eyebrow mb-1">Công ty · Giáo dục · owner</p>
+						<h1 class="display text-4xl md:text-5xl font-bold leading-none">ABC Education</h1>
+						<div class="flex items-center gap-2 mt-2">
+							<span class="pill bg-sage/20 text-forest">OK</span>
+							<span class="text-xs text-muted mono">từ 01/2026 · 12 người</span>
+						</div>
+					</div>
+				</div>
+				<button class="px-3 py-1.5 bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded text-xs text-muted mono">Chỉnh sửa</button>
+			</div>
+		</div>
+		<!-- Tabs -->
+		<div class="flex items-center gap-4 mb-6 pb-3 border-b border-hairline dark:border-dark-border text-sm overflow-x-auto">
+			<button class="font-semibold text-forest border-b-2 border-forest pb-3 whitespace-nowrap">Công việc (18)</button>
+			<button class="text-muted hover:text-ink whitespace-nowrap">Nội dung (24)</button>
+			<button class="text-muted hover:text-ink whitespace-nowrap">Nhật ký (142)</button>
+			<button class="text-muted hover:text-ink whitespace-nowrap">Chiến dịch (2)</button>
+			<button class="text-muted hover:text-ink whitespace-nowrap">Kiến thức (8)</button>
+			<button class="text-muted hover:text-ink whitespace-nowrap">Người (12)</button>
+		</div>
+		<!-- Stats -->
+		<div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+			<div class="bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-lg p-4 text-center">
+				<div class="stat-hero text-3xl tnum">18</div><div class="data-label mt-1">việc mở</div>
+			</div>
+			<div class="bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-lg p-4 text-center">
+				<div class="stat-hero text-3xl tnum">124</div><div class="data-label mt-1">output/tháng</div>
+			</div>
+			<div class="bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-lg p-4 text-center">
+				<div class="stat-hero text-3xl tnum text-sage">93%</div><div class="data-label mt-1">ontime</div>
+			</div>
+			<div class="bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-lg p-4 text-center">
+				<div class="stat-hero text-3xl tnum">2</div><div class="data-label mt-1">chiến dịch</div>
+			</div>
+		</div>
+		<!-- Tasks preview -->
+		<div class="bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-lg p-5">
+			<h3 class="display text-xl font-bold mb-4">Công việc gần đây</h3>
+			<div class="divide-y divide-hairline dark:divide-dark-border">
+				<div class="py-3 flex items-center justify-between"><div><span class="pill bg-ember/10 text-ember mr-2">CAO</span><span class="text-sm">Xây 300 backlink cho SEO Q2</span></div><span class="text-xs text-muted mono">62% · 30/06</span></div>
+				<div class="py-3 flex items-center justify-between"><div><span class="pill bg-sage/20 text-forest-600 mr-2">REVIEW</span><span class="text-sm">3 bài blog SEO của CTV Minh</span></div><span class="text-xs text-muted mono">cần feedback</span></div>
+				<div class="py-3 flex items-center justify-between"><div><span class="pill bg-rust/10 text-rust mr-2">GẤP</span><span class="text-sm">Review bài SEO tháng 4</span></div><span class="text-xs text-muted mono">hôm nay</span></div>
+			</div>
+		</div>
+	}
+}
