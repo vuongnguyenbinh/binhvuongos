@@ -15,7 +15,7 @@ templ CampaignsPage() {
 			</div>
 		</div>
 		<!-- Featured -->
-		<div class="bg-surface border border-hairline rounded-lg p-8 mb-8">
+		<div class="bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-lg p-8 mb-8">
 			<div class="flex items-start justify-between mb-6">
 				<div>
 					<div class="flex items-center gap-3 mb-2">
@@ -96,7 +96,7 @@ templ campBar(icon string, name string, badge string, badgeColor string, actual 
 }
 
 templ campCard(code string, codeBg string, compName string, campName string, dateLine string, pct int, pctColor string, metrics string) {
-	<div class="bg-surface border border-hairline rounded-lg p-5 hover:border-forest cursor-pointer">
+	<div class="bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-lg p-5 hover:border-forest cursor-pointer">
 		<div class="flex items-center gap-2 mb-3">
 			<span class={ "w-6 h-6 rounded text-white text-[9px] flex items-center justify-center mono font-bold", codeBg }>{ code }</span>
 			<span class="eyebrow">{ compName }</span>

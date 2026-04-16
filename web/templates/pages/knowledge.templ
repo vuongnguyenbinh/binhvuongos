@@ -9,7 +9,7 @@ templ KnowledgePage() {
 			<div class="flex items-end justify-between">
 				<h1 class="display text-5xl md:text-6xl font-bold leading-none">Thư viện của <span class="accent">Bình Vương</span></h1>
 				<div class="hidden md:flex items-center gap-2">
-					<div class="flex items-center gap-2 bg-surface border border-hairline rounded px-3 py-2 w-80">
+					<div class="flex items-center gap-2 bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded px-3 py-2 w-80">
 						<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
 						<input class="text-sm bg-transparent outline-none flex-1 placeholder-muted" placeholder="Tìm bài giảng, SOP, tài liệu..."/>
 					</div>
@@ -19,12 +19,12 @@ templ KnowledgePage() {
 		</div>
 		<div class="flex items-center gap-2 mb-8 pb-4 border-b border-hairline text-xs overflow-x-auto">
 			<button class="px-3 py-1.5 bg-forest text-white rounded-full mono font-semibold whitespace-nowrap">Tất cả <span class="ml-1">184</span></button>
-			<button class="px-3 py-1.5 bg-surface border border-hairline rounded-full text-muted mono whitespace-nowrap">📖 Bài giảng <span class="ml-1">28</span></button>
-			<button class="px-3 py-1.5 bg-surface border border-hairline rounded-full text-muted mono whitespace-nowrap">📋 SOP <span class="ml-1">42</span></button>
-			<button class="px-3 py-1.5 bg-surface border border-hairline rounded-full text-muted mono whitespace-nowrap">📄 Template <span class="ml-1">16</span></button>
-			<button class="px-3 py-1.5 bg-surface border border-hairline rounded-full text-muted mono whitespace-nowrap">🎓 Training <span class="ml-1">21</span></button>
-			<button class="px-3 py-1.5 bg-surface border border-hairline rounded-full text-muted mono whitespace-nowrap">🔗 Nguyên liệu <span class="ml-1">65</span></button>
-			<button class="px-3 py-1.5 bg-surface border border-hairline rounded-full text-muted mono whitespace-nowrap">📑 Nghiên cứu <span class="ml-1">12</span></button>
+			<button class="px-3 py-1.5 bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-full text-muted mono whitespace-nowrap">📖 Bài giảng <span class="ml-1">28</span></button>
+			<button class="px-3 py-1.5 bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-full text-muted mono whitespace-nowrap">📋 SOP <span class="ml-1">42</span></button>
+			<button class="px-3 py-1.5 bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-full text-muted mono whitespace-nowrap">📄 Template <span class="ml-1">16</span></button>
+			<button class="px-3 py-1.5 bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-full text-muted mono whitespace-nowrap">🎓 Training <span class="ml-1">21</span></button>
+			<button class="px-3 py-1.5 bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-full text-muted mono whitespace-nowrap">🔗 Nguyên liệu <span class="ml-1">65</span></button>
+			<button class="px-3 py-1.5 bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-full text-muted mono whitespace-nowrap">📑 Nghiên cứu <span class="ml-1">12</span></button>
 		</div>
 		<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
 			<!-- Featured hero card -->
@@ -43,7 +43,7 @@ templ KnowledgePage() {
 			</div>
 			@kbCard("📋 SOP", "bg-ember/10 text-ember", "v3", "", "Quy trình viết blog SEO chuẩn", "15 bước từ research đến publish. Áp dụng dùng chung mọi công ty.", "SEO", "CONTENT", "3 cty")
 			@kbCard("📄 TEMPLATE", "bg-sage/20 text-forest-600", "", "⭐⭐⭐", "Brief template cho CTV", "Đầy đủ các field cần thiết, đã test trên 5 công ty.", "MGMT", "", "dùng chung")
-			<div class="bg-cream/40 border border-hairline rounded-lg p-5 hover:border-forest cursor-pointer">
+			<div class="bg-cream/40 dark:bg-dark-cream/40 border border-hairline rounded-lg p-5 hover:border-forest cursor-pointer">
 				<div class="flex items-start justify-between mb-3"><span class="pill bg-muted/10 text-muted">🔗 NGUYÊN LIỆU</span><span class="text-ember">⭐⭐⭐</span></div>
 				<h3 class="display text-lg font-bold leading-tight mb-2">How Notion Grew to 100M Users</h3>
 				<p class="text-xs text-muted mb-4">Case study hay về product-led growth. Nguồn: Lenny's Newsletter.</p>
@@ -58,7 +58,7 @@ templ KnowledgePage() {
 }
 
 templ kbCard(tag string, tagClass string, extra string, stars string, title string, desc string, topic1 string, topic2 string, source string) {
-	<div class="bg-surface border border-hairline rounded-lg p-5 hover:border-forest cursor-pointer">
+	<div class="bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-lg p-5 hover:border-forest cursor-pointer">
 		<div class="flex items-start justify-between mb-3">
 			<span class={ "pill", tagClass }>{ tag }</span>
 			if stars != "" {

@@ -1,5 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
+  darkMode: 'class',
   content: ["./web/templates/**/*.templ", "./web/templates/**/*_templ.go"],
   theme: {
     extend: {
@@ -26,6 +27,13 @@ module.exports = {
         cream: '#F2EEE4',
         sage: '#4A7C59',
         rust: '#A64545',
+        // Dark palette
+        'dark-bg': '#0F1117',
+        'dark-surface': '#1A1D26',
+        'dark-text': '#E8E6E3',
+        'dark-border': '#2D3039',
+        'dark-cream': '#1F2229',
+        'dark-muted': '#8B8880',
       }
     }
   },

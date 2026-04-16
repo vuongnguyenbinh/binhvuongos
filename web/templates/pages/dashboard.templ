@@ -20,7 +20,7 @@ templ DashboardPage() {
 		</div>
 		<!-- Stat grid -->
 		<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-12 gap-px bg-hairline border border-hairline rounded-lg overflow-hidden mb-10">
-			<div class="xl:col-span-3 bg-surface p-6">
+			<div class="xl:col-span-3 bg-surface dark:bg-dark-surface p-6">
 				<p class="eyebrow mb-3">Output tháng này</p>
 				<div class="flex items-baseline gap-2 mb-1">
 					<span class="stat-hero text-5xl tnum">324</span>
@@ -45,7 +45,7 @@ templ DashboardPage() {
 					<span class="spark-bar w-1 h-full bg-ember"></span>
 				</div>
 			</div>
-			<div class="xl:col-span-3 bg-surface p-6">
+			<div class="xl:col-span-3 bg-surface dark:bg-dark-surface p-6">
 				<p class="eyebrow mb-3">Nội dung đã đăng</p>
 				<div class="flex items-baseline gap-2 mb-1">
 					<span class="stat-hero text-5xl tnum">42</span>
@@ -62,7 +62,7 @@ templ DashboardPage() {
 					<div class="text-center"><div class="h-8 bg-forest/[0.08] rounded-sm flex items-end justify-center pb-0.5"><span class="text-forest font-semibold">3</span></div><div class="text-muted mt-1">Email</div></div>
 				</div>
 			</div>
-			<div class="xl:col-span-3 bg-surface p-6">
+			<div class="xl:col-span-3 bg-surface dark:bg-dark-surface p-6">
 				<p class="eyebrow mb-3">Công việc</p>
 				<div class="flex items-baseline gap-2 mb-1">
 					<span class="stat-hero text-5xl tnum">58</span>
@@ -102,7 +102,7 @@ templ DashboardPage() {
 					<h2 class="display text-3xl font-bold">Tình trạng <span class="accent">công ty</span></h2>
 					<a href="/companies" class="text-xs text-muted hover:text-ink mono">xem tất cả →</a>
 				</div>
-				<div class="bg-surface border border-hairline rounded-lg divide-y divide-hairline">
+				<div class="bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-lg divide-y divide-hairline">
 					@companyRow("ABC", "bg-forest", "ABC Education", "OK", "bg-sage/20 text-forest", "Giáo dục", "SEO · Content · Training · 12 người", "18", "124", "93%", "text-sage")
 					@companyRow("XYZ", "bg-ember", "XYZ Finance", "CHÚ Ý", "bg-ember/10 text-ember", "Tài chính", "Content · Branding · 6 người", "23", "67", "71%", "text-flame")
 					@companyRow("EDU", "bg-sage", "EduPlus Academy", "OK", "bg-sage/20 text-forest", "Giáo dục", "Training · Mentor · 4 người", "8", "34", "100%", "text-sage")
@@ -115,7 +115,7 @@ templ DashboardPage() {
 					<h2 class="display text-3xl font-bold">Hôm <span class="accent">nay</span></h2>
 					<span class="text-xs text-muted mono">8 việc</span>
 				</div>
-				<div class="bg-surface border border-hairline rounded-lg p-5 space-y-4">
+				<div class="bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-lg p-5 space-y-4">
 					@taskItem("Review nội dung blog SEO tháng 4", "GẤP", "bg-rust/10 text-rust", "ABC · 10:00")
 					@taskItem("Họp strategy với XYZ Finance", "CAO", "bg-ember/10 text-ember", "14:00")
 					@taskItem("Duyệt 5 work logs của CTV", "CAO", "bg-ember/10 text-ember", "chiều")
@@ -130,7 +130,7 @@ templ DashboardPage() {
 						<div class="mt-1 text-[11px] text-rust">⚠ Check ngân sách ads tháng 4 <span class="mono">· 1 ngày trễ</span></div>
 					</div>
 				</div>
-				<div class="mt-6 p-5 bg-cream/40 border border-hairline rounded-lg">
+				<div class="mt-6 p-5 bg-cream/40 dark:bg-dark-cream/40 border border-hairline rounded-lg">
 					<div class="flex items-center justify-between mb-3">
 						<span class="eyebrow">📥 Hộp thư đến</span>
 						<span class="text-xs mono text-ember font-semibold">12 chưa xử lý</span>

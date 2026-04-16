@@ -1,0 +1,63 @@
+package pages
+
+import "binhvuongos/web/templates"
+
+templ PromptsPage() {
+	@templates.Layout("Prompt Templates", "prompts") {
+		<div class="mb-10 flex items-end justify-between">
+			<div>
+				<p class="eyebrow mb-2">Prompt · câu lệnh mẫu cho AI</p>
+				<h1 class="display text-5xl md:text-6xl font-bold leading-none">
+					<span class="accent">Prompt</span> Templates
+				</h1>
+			</div>
+			<div class="flex items-center gap-2">
+				<div class="hidden md:flex items-center gap-2 bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded px-3 py-2 w-64">
+					<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+					<input class="text-sm bg-transparent outline-none flex-1 placeholder-muted" placeholder="Tìm prompt..."/>
+				</div>
+				<button class="px-4 py-2 bg-forest text-white rounded-md text-sm mono font-semibold">+ TẠO PROMPT</button>
+			</div>
+		</div>
+		<!-- Categories -->
+		<div class="flex items-center gap-2 mb-8 pb-4 border-b border-hairline dark:border-dark-border text-xs overflow-x-auto">
+			<button class="px-3 py-1.5 bg-forest text-white rounded-full mono font-semibold whitespace-nowrap">Tất cả <span class="ml-1">18</span></button>
+			<button class="px-3 py-1.5 bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-full text-muted mono whitespace-nowrap">🔍 SEO <span class="ml-1">5</span></button>
+			<button class="px-3 py-1.5 bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-full text-muted mono whitespace-nowrap">📝 Content <span class="ml-1">6</span></button>
+			<button class="px-3 py-1.5 bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-full text-muted mono whitespace-nowrap">🤖 AI <span class="ml-1">4</span></button>
+			<button class="px-3 py-1.5 bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-full text-muted mono whitespace-nowrap">✍️ Copywriting <span class="ml-1">3</span></button>
+		</div>
+		<!-- Prompt cards -->
+		<div class="space-y-4">
+			@promptCard("Viết meta description SEO", "SEO", "Viết meta description cho trang [URL] với keyword chính là [KEYWORD]. Yêu cầu: dưới 155 ký tự, có CTA, bao gồm keyword tự nhiên, hấp dẫn người đọc click.", true)
+			@promptCard("Tạo outline bài blog", "Content", "Tạo outline chi tiết cho bài blog về chủ đề [TOPIC] với target keyword [KEYWORD]. Bao gồm: H1, 5-7 H2, H3 phụ, intro hook, CTA cuối bài. Tone: chuyên nghiệp nhưng gần gũi. Độ dài mục tiêu: 2000 từ.", false)
+			@promptCard("Social media caption", "Copywriting", "Viết 3 phiên bản caption cho post Facebook/Instagram về [TOPIC]. Yêu cầu: mỗi version khác style (storytelling, listicle, question hook). Include 5 hashtag phù hợp. Dưới 300 ký tự mỗi version.", false)
+			@promptCard("Phân tích competitor SEO", "SEO", "Phân tích website [URL] của competitor. Cho tôi: top 10 keyword họ rank, backlink profile tổng quan, content strategy (loại content, tần suất, format), điểm mạnh/yếu so với website [MY_URL].", false)
+			@promptCard("Email outreach template", "Content", "Viết email outreach để xin backlink từ website [TARGET_URL] cho bài viết [MY_URL] về chủ đề [TOPIC]. Tone: professional, không spam. Nêu rõ giá trị cho cả 2 bên. Dưới 150 từ.", false)
+			@promptCard("Summarize meeting notes", "AI", "Tóm tắt meeting notes sau thành: (1) Key decisions - quyết định chính, (2) Action items - ai làm gì, deadline, (3) Open questions - câu hỏi chưa trả lời. Format bullet points, ngắn gọn.\n\nMeeting notes:\n[PASTE NOTES HERE]", false)
+		</div>
+	}
+}
+
+templ promptCard(title string, category string, body string, isExpanded bool) {
+	<div class="bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-lg overflow-hidden">
+		<div class="p-5 flex items-start justify-between cursor-pointer" onclick="this.parentElement.querySelector('.prompt-body').classList.toggle('hidden')">
+			<div class="flex-1">
+				<div class="flex items-center gap-2 mb-1">
+					<span class="pill bg-forest-50 text-forest">{ category }</span>
+					<span class="font-semibold">{ title }</span>
+				</div>
+				if !isExpanded {
+					<p class="text-xs text-muted mt-1 line-clamp-1 mono">{ body }</p>
+				}
+			</div>
+			<div class="flex items-center gap-2 ml-4">
+				<button class="px-3 py-1 text-xs bg-forest text-white rounded mono font-semibold" onclick="event.stopPropagation(); copyText(this.closest('.bg-surface, .dark\\:bg-dark-surface').querySelector('.prompt-text').textContent, this)">Copy</button>
+				<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-muted"><path d="M6 9l6 6 6-6"></path></svg>
+			</div>
+		</div>
+		<div class={ "prompt-body border-t border-hairline dark:border-dark-border", templ.KV("hidden", !isExpanded) }>
+			<pre class="prompt-text p-5 text-sm mono leading-relaxed whitespace-pre-wrap bg-cream/30 dark:bg-dark-cream/30">{ body }</pre>
+		</div>
+	</div>
+}

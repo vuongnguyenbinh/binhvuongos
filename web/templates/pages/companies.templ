@@ -35,7 +35,7 @@ templ CompaniesPage() {
 }
 
 templ compCard(code string, codeBg string, name string, status string, statusClass string, stripeBg string, meta string, tasks string, output string, ontime string, ontimeColor string, camp1 string, camp1pct string, camp2 string, camp2pct string, people string) {
-	<div class="bg-surface border border-hairline rounded-lg p-6 hover:border-forest transition-colors cursor-pointer relative overflow-hidden">
+	<div class="bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-lg p-6 hover:border-forest transition-colors cursor-pointer relative overflow-hidden">
 		<div class={ "absolute top-0 right-0 w-1 h-full", stripeBg }></div>
 		<div class="flex items-start justify-between mb-4">
 			<div class={ "w-12 h-12 rounded text-white flex items-center justify-center mono font-bold", codeBg }>{ code }</div>

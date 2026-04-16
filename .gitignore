@@ -9,3 +9,4 @@ web/static/css/output.css
 .env
 .env.local
 .DS_Store
+.claude/

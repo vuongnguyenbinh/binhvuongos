@@ -29,6 +29,8 @@ func main() {
 	app.Get("/companies", handler.Companies)
 	app.Get("/campaigns", handler.Campaigns)
 	app.Get("/knowledge", handler.Knowledge)
+	app.Get("/bookmarks", handler.Bookmarks)
+	app.Get("/prompts", handler.Prompts)
 
 	port := os.Getenv("PORT")
 	if port == "" {

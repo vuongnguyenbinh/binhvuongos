@@ -1,0 +1,63 @@
+package pages
+
+import "binhvuongos/web/templates"
+
+templ BookmarksPage() {
+	@templates.Layout("Bookmark", "bookmarks") {
+		<div class="mb-10 flex items-end justify-between">
+			<div>
+				<p class="eyebrow mb-2">Bookmark · lưu link quan trọng</p>
+				<h1 class="display text-5xl md:text-6xl font-bold leading-none">
+					<span class="accent">Bookmark</span> của tôi
+				</h1>
+			</div>
+			<div class="flex items-center gap-2">
+				<div class="hidden md:flex items-center gap-2 bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded px-3 py-2 w-64">
+					<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+					<input class="text-sm bg-transparent outline-none flex-1 placeholder-muted" placeholder="Tìm bookmark..."/>
+				</div>
+				<button class="px-4 py-2 bg-forest text-white rounded-md text-sm mono font-semibold">+ THÊM LINK</button>
+			</div>
+		</div>
+		<!-- Filters -->
+		<div class="flex items-center gap-2 mb-8 pb-4 border-b border-hairline dark:border-dark-border text-xs overflow-x-auto">
+			<button class="px-3 py-1.5 bg-forest text-white rounded-full mono font-semibold whitespace-nowrap">Tất cả <span class="ml-1">24</span></button>
+			<button class="px-3 py-1.5 bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-full text-muted mono whitespace-nowrap">🔍 SEO <span class="ml-1">8</span></button>
+			<button class="px-3 py-1.5 bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-full text-muted mono whitespace-nowrap">📝 Content <span class="ml-1">6</span></button>
+			<button class="px-3 py-1.5 bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-full text-muted mono whitespace-nowrap">🛠 Tools <span class="ml-1">5</span></button>
+			<button class="px-3 py-1.5 bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-full text-muted mono whitespace-nowrap">🎨 Design <span class="ml-1">3</span></button>
+			<button class="px-3 py-1.5 bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-full text-muted mono whitespace-nowrap">💼 Business <span class="ml-1">2</span></button>
+		</div>
+		<!-- Grid -->
+		<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+			@bmCard("Ahrefs", "ahrefs.com", "Tool SEO phân tích backlink và keyword hàng đầu. Dùng hàng ngày cho mọi client.", "SEO", "Tools", "12/04")
+			@bmCard("Hemingway Editor", "hemingwayapp.com", "Check readability cho content tiếng Anh. Giữ blog dưới Grade 9.", "Content", "", "10/04")
+			@bmCard("Canva Brand Kit", "canva.com/brand", "Template design cho tất cả social posts. Đã setup brand colors.", "Design", "", "08/04")
+			@bmCard("Google Search Console", "search.google.com/search-console", "Monitor SEO performance cho mọi website khách hàng.", "SEO", "Tools", "07/04")
+			@bmCard("Copy.ai", "copy.ai", "AI copywriting tool cho viết social captions nhanh.", "Content", "Tools", "05/04")
+			@bmCard("SimilarWeb", "similarweb.com", "Phân tích traffic và competitor cho báo cáo khách hàng.", "SEO", "Business", "03/04")
+			@bmCard("Notion API Docs", "developers.notion.com", "Documentation API cho sync module. Bookmark để tra cứu nhanh.", "Tools", "", "01/04")
+			@bmCard("TikTok Creative Center", "ads.tiktok.com/business/creativecenter", "Trending hashtags và ad inspiration cho content video.", "Content", "", "28/03")
+		</div>
+	}
+}
+
+templ bmCard(title string, url string, desc string, tag1 string, tag2 string, date string) {
+	<a href="#" class="bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-lg p-5 hover:border-forest transition-colors block">
+		<div class="flex items-start justify-between mb-3">
+			<div class="flex items-center gap-2">
+				<div class="w-6 h-6 rounded bg-cream dark:bg-dark-cream flex items-center justify-center text-xs">🔗</div>
+				<span class="font-semibold text-sm">{ title }</span>
+			</div>
+			<span class="text-[10px] text-muted mono">{ date }</span>
+		</div>
+		<div class="text-xs text-forest mono mb-2 truncate">{ url }</div>
+		<p class="text-xs text-muted mb-3 line-clamp-2">{ desc }</p>
+		<div class="flex items-center gap-1">
+			<span class="pill bg-forest-50 text-forest">{ tag1 }</span>
+			if tag2 != "" {
+				<span class="pill bg-forest-50 text-forest">{ tag2 }</span>
+			}
+		</div>
+	</a>
+}

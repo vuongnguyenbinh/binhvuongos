@@ -1,7 +1,7 @@
 ---
 title: "Bình Vương OS — Hybrid UI-First Layer 1 (Static UI)"
 description: "Convert demo HTML to Go templ components with design changes, serve as static demo for stakeholder feedback"
-status: pending
+status: completed
 priority: P1
 effort: 16h
 tags: [frontend, ui, templ, go, htmx]
