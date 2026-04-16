@@ -2,118 +2,136 @@ package pages
 
 import (
 	"binhvuongos/web/templates"
-	"binhvuongos/web/templates/components"
+	"fmt"
+	"strings"
 )
 
-templ WorkLogsPage() {
-	@templates.Layout("Nhật ký công việc", "worklogs") {
-		<div class="mb-10">
-			<p class="eyebrow mb-2">Nhật ký công việc · duyệt output</p>
-			<div class="flex items-baseline justify-between">
-				<h1 class="display text-5xl md:text-6xl font-bold leading-none">Xem xét <span class="accent">báo cáo</span> hôm qua</h1>
-				<div class="hidden md:flex items-center gap-2">
-					<button class="px-3 py-1.5 text-xs bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded text-muted hover:text-ink mono">lọc</button>
-					<button class="px-3 py-1.5 text-xs bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded text-muted hover:text-ink mono">xuất CSV</button>
-					<button class="px-3 py-1.5 text-xs bg-forest text-white rounded hover:bg-forest-600 mono font-semibold">duyệt tất cả</button>
-				</div>
-			</div>
-			<div class="mt-4">@components.DateFilter()</div>
-		</div>
-		<div class="flex items-center gap-3 mb-6 pb-4 border-b border-hairline text-xs">
-			<div class="flex items-center gap-2 px-3 py-1.5 bg-forest text-white rounded mono font-semibold"><span>Chờ duyệt</span><span>5</span></div>
-			<div class="flex items-center gap-2 px-3 py-1.5 bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded text-muted mono"><span>Đã duyệt</span><span>142</span></div>
-			<div class="flex items-center gap-2 px-3 py-1.5 bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded text-muted mono"><span>Cần sửa</span><span>3</span></div>
-			<div class="flex items-center gap-2 px-3 py-1.5 bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded text-muted mono"><span>Từ chối</span><span>1</span></div>
-			<div class="flex-1"></div>
-			<span class="text-muted mono hidden md:inline">Tuần 16 · 15—21/04</span>
-		</div>
-		<div class="bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-lg overflow-x-auto">
-			<table class="w-full text-sm min-w-[900px]">
-				<thead class="bg-cream/40 dark:bg-dark-cream/40 border-b border-hairline">
-					<tr class="text-left">
-						<th class="px-4 py-3 w-8"><div class="check"></div></th>
-						<th class="eyebrow px-4 py-3">Ngày · Người</th>
-						<th class="eyebrow px-4 py-3">Công ty · Chiến dịch</th>
-						<th class="eyebrow px-4 py-3">Loại công việc</th>
-						<th class="eyebrow px-4 py-3 text-right">Số lượng</th>
-						<th class="eyebrow px-4 py-3">Nguồn</th>
-						<th class="eyebrow px-4 py-3">Ghi chú</th>
-						<th class="eyebrow px-4 py-3 text-right">Hành động</th>
-					</tr>
-				</thead>
-				<tbody class="divide-y divide-hairline">
-					@wlRow("15/04 · 18:47", "CTV Hương", "ABC", "bg-forest", "ABC Education", "SEO Q2 · 2026", "🔗", "Xây backlink", "25", "link", false, "sheet · 2 ảnh", "Hôm nay 2 site từ chối, đã note lại trong sheet.")
-					@wlRow("15/04 · 19:12", "CTV Minh", "ABC", "bg-forest", "ABC Education", "SEO Q2 · 2026", "📝", "Viết bài", "3", "bài", false, "drive · 3 doc", "3 bài chuẩn SEO, đã check keyword density.")
-					@wlRow("15/04 · 20:34", "Staff Linh", "XYZ", "bg-ember", "XYZ Finance", "Ra mắt SP · tháng 5", "📢", "Set up ads", "8", "⚠ chờ check", true, "fb ads · 5 ảnh", "Budget mỗi ads 500k, CPC đang cao hơn dự kiến 30%.")
-					@wlRow("15/04 · 17:50", "CTV Phúc", "FIN", "bg-rust", "FinHub Vietnam", "— không thuộc campaign —", "📱", "Đăng MXH", "12", "post", false, "sheet", "Post Facebook + Instagram cho tuần 16.")
-					@wlRow("15/04 · 21:05", "Staff Hà", "EDU", "bg-sage", "EduPlus Academy", "Training Q2", "🎥", "Làm video", "2", "video", false, "drive", "2 video training 15 phút, đã edit xong.")
-				</tbody>
-			</table>
-		</div>
-		@components.Pagination(1, 3)
-		<div class="mt-8 grid grid-cols-3 md:grid-cols-6 gap-6 text-center">
-			@wlStat("🔗 Backlink", "25", "324")
-			@wlStat("📝 Content", "3", "42")
-			@wlStat("📢 Ads", "8", "28")
-			@wlStat("📱 Social", "12", "156")
-			@wlStat("🎥 Video", "2", "18")
-			@wlStat("📧 Email", "—", "4")
-		</div>
+type WorkLogItem struct {
+	ID           string
+	WorkDate     string
+	WorkTypeName string
+	WorkTypeIcon string
+	Unit         string
+	Quantity     string
+	Status       string
+	Notes        string
+}
+
+type WorkLogsPageData struct {
+	Items        []WorkLogItem
+	Total        int64
+	PendingCount int64
+}
+
+func wlStatusPill(s string) string {
+	switch strings.ToLower(s) {
+	case "submitted":
+		return "bg-ember/10 text-ember"
+	case "approved":
+		return "bg-sage/20 text-forest"
+	case "rejected":
+		return "bg-rust/10 text-rust"
+	case "needs_fix":
+		return "bg-flame/10 text-flame"
+	default:
+		return "bg-muted/10 text-muted"
 	}
 }
 
-templ wlRow(datetime string, person string, compCode string, compBg string, compName string, campaign string, icon string, workType string, qty string, unit string, needsCheck bool, sources string, notes string) {
-	<tr class={ "row-hover cursor-pointer", templ.KV("bg-flame/5", needsCheck) } onclick="window.location='/work-logs/1'">
-		<td class="px-4 py-4"><div class="check" onclick="event.stopPropagation()"></div></td>
-		<td class="px-4 py-4">
-			<div class="text-xs text-muted mono">{ datetime }</div>
-			<div class="font-semibold mt-0.5">{ person }</div>
-		</td>
+func wlStatusLabel(s string) string {
+	switch strings.ToLower(s) {
+	case "submitted":
+		return "CHỜ DUYỆT"
+	case "approved":
+		return "ĐÃ DUYỆT"
+	case "rejected":
+		return "TỪ CHỐI"
+	case "needs_fix":
+		return "CẦN SỬA"
+	default:
+		return strings.ToUpper(s)
+	}
+}
+
+templ WorkLogsListPage(data WorkLogsPageData) {
+	@templates.Layout("Nhật ký công việc", "worklogs") {
+		<div class="mb-10">
+			<p class="eyebrow mb-2">Nhật ký công việc · duyệt output</p>
+			<div class="flex items-end justify-between">
+				<h1 class="display text-5xl md:text-6xl font-bold leading-none">
+					if data.PendingCount > 0 {
+						<span class="accent">{ fmt.Sprintf("%d", data.PendingCount) }</span> báo cáo chờ duyệt
+					} else {
+						<span class="accent">Nhật ký</span> công việc
+					}
+				</h1>
+			</div>
+		</div>
+		if len(data.Items) == 0 {
+			<div class="text-center py-20">
+				<div class="text-6xl mb-4">📋</div>
+				<h3 class="display text-2xl font-bold mb-2">Chưa có work log nào</h3>
+				<p class="text-muted text-sm">Nhân sự sẽ submit báo cáo hàng ngày tại đây.</p>
+			</div>
+		} else {
+			<div class="bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-lg overflow-x-auto">
+				<table class="w-full text-sm min-w-[700px]">
+					<thead class="bg-cream/40 dark:bg-dark-cream/40 border-b border-hairline">
+						<tr class="text-left">
+							<th class="eyebrow px-4 py-3">Ngày</th>
+							<th class="eyebrow px-4 py-3">Loại công việc</th>
+							<th class="eyebrow px-4 py-3 text-right">Số lượng</th>
+							<th class="eyebrow px-4 py-3">Trạng thái</th>
+							<th class="eyebrow px-4 py-3">Ghi chú</th>
+							<th class="eyebrow px-4 py-3 text-right">Hành động</th>
+						</tr>
+					</thead>
+					<tbody class="divide-y divide-hairline">
+						for _, wl := range data.Items {
+							@wlRowDB(wl)
+						}
+					</tbody>
+				</table>
+			</div>
+		}
+	}
+}
+
+templ wlRowDB(wl WorkLogItem) {
+	<tr class={ "row-hover", templ.KV("bg-flame/5", wl.Status == "submitted") }>
+		<td class="px-4 py-4 text-xs mono">{ wl.WorkDate }</td>
 		<td class="px-4 py-4">
 			<div class="flex items-center gap-2">
-				<span class={ "w-5 h-5 rounded text-white text-[9px] flex items-center justify-center mono font-bold", compBg }>{ compCode }</span>
-				<span>{ compName }</span>
+				<span>{ wl.WorkTypeIcon }</span>
+				<span>{ wl.WorkTypeName }</span>
 			</div>
-			<div class="text-xs text-muted mt-0.5 mono">{ campaign }</div>
 		</td>
-		<td class="px-4 py-4"><div class="flex items-center gap-2"><span>{ icon }</span><span>{ workType }</span></div></td>
 		<td class="px-4 py-4 text-right">
-			if needsCheck {
-				<div class="tnum text-xl stat-hero text-flame">{ qty }</div>
-				<div class="text-xs text-flame mono">{ unit }</div>
-			} else {
-				<div class="tnum text-xl stat-hero">{ qty }</div>
-				<div class="text-xs text-muted mono">{ unit }</div>
+			<div class="tnum text-xl stat-hero">{ wl.Quantity }</div>
+			<div class="text-xs text-muted mono">{ wl.Unit }</div>
+		</td>
+		<td class="px-4 py-4"><span class={ "pill", wlStatusPill(wl.Status) }>{ wlStatusLabel(wl.Status) }</span></td>
+		<td class="px-4 py-4 text-xs text-muted max-w-xs">{ wl.Notes }</td>
+		<td class="px-4 py-4 text-right">
+			if wl.Status == "submitted" {
+				<div class="flex items-center gap-1 justify-end">
+					<form method="POST" action={ templ.SafeURL("/work-logs/" + wl.ID + "/approve") } class="inline">
+						<button type="submit" class="w-7 h-7 rounded border border-hairline text-muted hover:bg-sage hover:text-white hover:border-sage flex items-center justify-center transition-all" title="Duyệt">
+							<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"></path></svg>
+						</button>
+					</form>
+					<form method="POST" action={ templ.SafeURL("/work-logs/" + wl.ID + "/reject") } class="inline">
+						<button type="submit" class="w-7 h-7 rounded border border-hairline text-muted hover:bg-rust hover:text-white hover:border-rust flex items-center justify-center transition-all" title="Từ chối">
+							<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+						</button>
+					</form>
+				</div>
 			}
-		</td>
-		<td class="px-4 py-4"><div class="text-xs text-muted mono">{ sources }</div></td>
-		<td class="px-4 py-4 text-xs text-muted max-w-xs">{ notes }</td>
-		<td class="px-4 py-4 text-right">
-			<div class="flex items-center gap-1 justify-end">
-				@actionBtn("hover:bg-sage hover:text-white hover:border-sage", "Duyệt", "M20 6L9 17l-5-5")
-				@actionBtn("hover:bg-flame hover:text-white hover:border-flame", "Cần sửa", "M23 4v6h-6M1 20v-6h6")
-				@actionBtnX()
-			</div>
 		</td>
 	</tr>
 }
 
-templ actionBtn(hoverClass string, titleText string, pathD string) {
-	<button class={ "w-7 h-7 rounded border border-hairline text-muted flex items-center justify-center transition-all", hoverClass } title={ titleText }>
-		<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d={ pathD }></path></svg>
-	</button>
-}
-
-templ actionBtnX() {
-	<button class="w-7 h-7 rounded border border-hairline text-muted hover:bg-rust hover:text-white hover:border-rust flex items-center justify-center transition-all" title="Từ chối">
-		<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-	</button>
-}
-
-templ wlStat(label string, today string, month string) {
-	<div>
-		<div class="eyebrow mb-2">{ label }</div>
-		<div class="stat-hero text-4xl tnum">{ today }</div>
-		<div class="text-xs text-muted mt-1 mono">hôm nay · <span class="text-sage">{ month }</span> tháng</div>
-	</div>
+// Keep old function
+templ WorkLogsPage() {
+	@WorkLogsListPage(WorkLogsPageData{})
 }

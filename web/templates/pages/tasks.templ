@@ -2,119 +2,188 @@ package pages
 
 import (
 	"binhvuongos/web/templates"
-	"binhvuongos/web/templates/components"
+	"fmt"
+	"strings"
 )
 
-templ TasksPage() {
+type TaskItem struct {
+	ID       string
+	Title    string
+	Status   string
+	Priority string
+	Category string
+	DueDate  string
+}
+
+type TasksPageData struct {
+	Todo         []TaskItem
+	InProgress   []TaskItem
+	Waiting      []TaskItem
+	Review       []TaskItem
+	Done         []TaskItem
+	StatusCounts map[string]int64
+}
+
+func totalTasks(data TasksPageData) int {
+	return len(data.Todo) + len(data.InProgress) + len(data.Waiting) + len(data.Review) + len(data.Done)
+}
+
+func priorityPill(p string) string {
+	switch strings.ToLower(p) {
+	case "urgent":
+		return "bg-rust/10 text-rust"
+	case "high":
+		return "bg-ember/10 text-ember"
+	case "normal":
+		return "bg-forest-50 text-forest"
+	case "low":
+		return "bg-muted/10 text-muted"
+	default:
+		return "bg-muted/10 text-muted"
+	}
+}
+
+func priorityLabel(p string) string {
+	switch strings.ToLower(p) {
+	case "urgent":
+		return "GẤP"
+	case "high":
+		return "CAO"
+	case "normal":
+		return "TB"
+	case "low":
+		return "THẤP"
+	default:
+		return strings.ToUpper(p)
+	}
+}
+
+templ TasksListPage(data TasksPageData) {
 	@templates.Layout("Công việc", "tasks") {
 		<div class="mb-10 flex items-end justify-between">
 			<div>
 				<p class="eyebrow mb-2">Công việc · Kanban theo trạng thái</p>
-				<h1 class="display text-5xl md:text-6xl font-bold leading-none"><span class="accent">72</span> đầu việc đang chạy</h1>
+				<h1 class="display text-5xl md:text-6xl font-bold leading-none"><span class="accent">{ fmt.Sprintf("%d", totalTasks(data)) }</span> đầu việc</h1>
 			</div>
-			<button class="px-4 py-2 bg-forest text-white rounded-md text-sm hover:bg-forest-900 mono font-semibold">+ TẠO CÔNG VIỆC</button>
+			<button onclick="document.getElementById('task-modal').classList.remove('hidden')" class="px-4 py-2 bg-forest text-white rounded-md text-sm hover:bg-forest-900 mono font-semibold">+ TẠO CÔNG VIỆC</button>
 		</div>
-		<div class="mb-4">@components.DateFilter()</div>
-		<div class="flex items-center gap-3 mb-6 pb-4 border-b border-hairline text-xs overflow-x-auto">
-			<span class="eyebrow">Lọc:</span>
-			<button class="px-3 py-1.5 bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-full whitespace-nowrap">Tất cả công ty ▾</button>
-			<button class="px-3 py-1.5 bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-full whitespace-nowrap">Tất cả người ▾</button>
-			<button class="px-3 py-1.5 bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-full whitespace-nowrap">Nhóm việc ▾</button>
-			<button class="px-3 py-1.5 bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-full whitespace-nowrap">Ưu tiên ▾</button>
-			<div class="flex-1"></div>
-			<span class="eyebrow">View:</span>
-			<button class="px-3 py-1.5 bg-forest text-white rounded-full mono font-semibold">KANBAN</button>
-			<button class="px-3 py-1.5 bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-full text-muted mono">BẢNG</button>
-			<button class="px-3 py-1.5 bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-full text-muted mono">LỊCH</button>
-		</div>
-		<div class="flex gap-4 overflow-x-auto pb-4">
-			<!-- Cần làm -->
-			<div class="min-w-[240px] flex-1">
-				<div class="flex items-center gap-2 mb-3 pb-2 border-b border-hairline"><span class="dot bg-muted"></span><span class="text-sm font-semibold">Cần làm</span><span class="text-xs text-muted mono">14</span></div>
-				<div class="space-y-2" data-kanban-column>
-					@kCard("GẤP", "bg-rust/10 text-rust", "ABC", "Review bài SEO tháng 4 của CTV Minh", "", 0, "hôm nay", "BV", "bg-forest", false)
-					@kCard("CAO", "bg-ember/10 text-ember", "XYZ", "Viết brief campaign ra mắt SP tháng 5", "", 0, "17/04", "BV", "bg-forest", false)
-					@kCard("TB", "bg-forest-50 text-forest", "FIN", "Sắp xếp meeting tháng với FinHub", "", 0, "18/04", "H", "bg-ember", false)
-					@kCard("TB", "bg-forest-50 text-forest", "EDU", "Chuẩn bị slide bài giảng \"Growth Mindset\"", "", 0, "20/04", "L", "bg-sage", false)
-					@kCard("THẤP", "bg-muted/10 text-muted", "—", "Đọc sách \"Finite and Infinite Games\"", "", 0, "tuần sau", "BV", "bg-forest", false)
-				</div>
+		if totalTasks(data) == 0 {
+			<div class="text-center py-20">
+				<div class="text-6xl mb-4">✅</div>
+				<h3 class="display text-2xl font-bold mb-2">Chưa có công việc nào</h3>
+				<p class="text-muted text-sm mb-6">Tạo task đầu tiên để bắt đầu quản lý.</p>
+				<button onclick="document.getElementById('task-modal').classList.remove('hidden')" class="px-6 py-3 bg-forest text-white rounded-md text-sm mono font-semibold">+ TẠO CÔNG VIỆC ĐẦU TIÊN</button>
 			</div>
-			<!-- Đang làm -->
-			<div class="min-w-[240px] flex-1">
-				<div class="flex items-center gap-2 mb-3 pb-2 border-b border-hairline"><span class="dot bg-ember"></span><span class="text-sm font-semibold">Đang làm</span><span class="text-xs text-muted mono">8</span></div>
-				<div class="space-y-2" data-kanban-column>
-					@kCard("CAO", "bg-ember/10 text-ember", "ABC", "Xây 300 backlink cho SEO Q2", "SEO Q2 · 187/300 link", 62, "30/06", "Hg", "bg-ember", true)
-					@kCard("CAO", "bg-ember/10 text-ember", "XYZ", "Set up 10 ads campaign Facebook", "Ra mắt SP · 8/10 camp", 80, "22/04", "L", "bg-ember", true)
-					@kCard("TB", "bg-forest-50 text-forest", "EDU", "Record 8 video training Q2", "Training Q2 · 5/8 video", 63, "25/04", "H", "bg-sage", true)
-				</div>
+		} else {
+			<div class="flex gap-4 overflow-x-auto pb-4">
+				@kanbanCol("Cần làm", "bg-muted", data.Todo, "todo")
+				@kanbanCol("Đang làm", "bg-ember", data.InProgress, "in_progress")
+				@kanbanCol("Chờ", "bg-flame", data.Waiting, "waiting")
+				@kanbanCol("Cần duyệt", "bg-sage", data.Review, "review")
+				@kanbanCol("Hoàn thành", "bg-forest", data.Done, "done")
 			</div>
-			<!-- Chờ -->
-			<div class="min-w-[240px] flex-1">
-				<div class="flex items-center gap-2 mb-3 pb-2 border-b border-hairline"><span class="dot bg-flame"></span><span class="text-sm font-semibold">Chờ</span><span class="text-xs text-muted mono">4</span></div>
-				<div class="space-y-2" data-kanban-column>
-					<div class="kanban-card opacity-80">
-						<div class="flex items-center justify-between mb-2"><span class="pill bg-ember/10 text-ember">CAO</span><span class="text-[10px] text-muted mono">FIN</span></div>
-						<div class="text-sm leading-snug mb-2">Chờ feedback từ FinHub về bài giảng risk mgmt</div>
-						<div class="text-xs text-flame mono">⏳ 4 ngày rồi</div>
-					</div>
-					<div class="kanban-card opacity-80">
-						<div class="flex items-center justify-between mb-2"><span class="pill bg-forest-50 text-forest">TB</span><span class="text-[10px] text-muted mono">ABC</span></div>
-						<div class="text-sm leading-snug mb-2">Chờ thiết kế thumbnail từ CTV Tú</div>
-						<div class="text-xs text-muted mono">⏳ 2 ngày</div>
-					</div>
-				</div>
-			</div>
-			<!-- Cần duyệt -->
-			<div class="min-w-[240px] flex-1">
-				<div class="flex items-center gap-2 mb-3 pb-2 border-b border-hairline"><span class="dot bg-sage"></span><span class="text-sm font-semibold">Cần duyệt</span><span class="text-xs text-muted mono">5</span></div>
-				<div class="space-y-2" data-kanban-column>
-					<div class="kanban-card border-l-[3px] border-l-sage">
-						<div class="flex items-center justify-between mb-2"><span class="pill bg-sage/20 text-forest-600">REVIEW</span><span class="text-[10px] text-muted mono">ABC</span></div>
-						<div class="text-sm leading-snug mb-2">3 bài blog SEO của CTV Minh</div>
-						<div class="flex items-center justify-between text-[11px] text-muted mono mt-2"><span>cần feedback</span><div class="w-5 h-5 rounded-full bg-forest text-white flex items-center justify-center text-[9px] font-bold">BV</div></div>
-					</div>
-					<div class="kanban-card border-l-[3px] border-l-sage">
-						<div class="flex items-center justify-between mb-2"><span class="pill bg-sage/20 text-forest-600">REVIEW</span><span class="text-[10px] text-muted mono">XYZ</span></div>
-						<div class="text-sm leading-snug mb-2">Thiết kế landing page ra mắt SP</div>
-						<div class="flex items-center justify-between text-[11px] text-muted mono mt-2"><span>cần duyệt UI</span><div class="w-5 h-5 rounded-full bg-forest text-white flex items-center justify-center text-[9px] font-bold">BV</div></div>
-					</div>
-				</div>
-			</div>
-			<!-- Hoàn thành -->
-			<div class="min-w-[240px] flex-1">
-				<div class="flex items-center gap-2 mb-3 pb-2 border-b border-hairline"><span class="dot bg-forest"></span><span class="text-sm font-semibold">Hoàn thành</span><span class="text-xs text-muted mono">41</span></div>
-				<div class="space-y-2" data-kanban-column>
-					@kDone("15/04", "EDU", "Xong training onboard CTV mới")
-					@kDone("14/04", "ABC", "Audit SEO website ABC")
-					@kDone("13/04", "FIN", "Xây content plan tháng 4")
-					<div class="text-center text-xs text-muted py-3 mono">...và 38 việc khác</div>
-				</div>
-			</div>
-		</div>
+		}
+		@taskFormModal()
 	}
 }
 
-templ kCard(priority string, pillClass string, company string, title string, subtitle string, progress int, dueDate string, avatar string, avatarBg string, hasBorder bool) {
-	<div class={ "kanban-card cursor-pointer", templ.KV("border-l-[3px] border-l-ember", hasBorder) } onclick="window.location='/tasks/1'">
-		<div class="flex items-center justify-between mb-2">
-			<span class={ "pill", pillClass }>{ priority }</span>
-			<span class="text-[10px] text-muted mono">{ company }</span>
+templ kanbanCol(label string, dotColor string, tasks []TaskItem, status string) {
+	<div class="min-w-[240px] flex-1">
+		<div class="flex items-center gap-2 mb-3 pb-2 border-b border-hairline">
+			<span class={ "dot", dotColor }></span>
+			<span class="text-sm font-semibold">{ label }</span>
+			<span class="text-xs text-muted mono">{ fmt.Sprintf("%d", len(tasks)) }</span>
 		</div>
-		<div class="text-sm leading-snug mb-2">{ title }</div>
-		if subtitle != "" {
-			<div class="text-xs text-muted mb-2 mono">{ subtitle }</div>
-			<div class="progress-track mb-2"><div class="progress-fill" { templates.WidthStyle(progress)... }></div></div>
-		}
-		<div class="flex items-center justify-between text-[11px] text-muted mono">
-			<span>{ dueDate }</span>
-			<div class={ "w-5 h-5 rounded-full text-white flex items-center justify-center text-[9px] font-bold", avatarBg }>{ avatar }</div>
+		<div class="space-y-2">
+			for _, task := range tasks {
+				if status == "done" {
+					@kDoneDB(task)
+				} else {
+					@kCardDB(task)
+				}
+			}
+			if len(tasks) == 0 {
+				<div class="text-center text-xs text-muted py-4 mono">— trống —</div>
+			}
 		</div>
 	</div>
 }
 
-templ kDone(date string, company string, title string) {
-	<div class="kanban-card opacity-70">
-		<div class="flex items-center justify-between mb-2"><span class="text-[10px] text-sage mono">✓ { date }</span><span class="text-[10px] text-muted mono">{ company }</span></div>
-		<div class="text-sm leading-snug line-through text-muted">{ title }</div>
+templ kCardDB(task TaskItem) {
+	<a href={ templ.SafeURL("/tasks/" + task.ID) } class="kanban-card cursor-pointer block">
+		<div class="flex items-center justify-between mb-2">
+			<span class={ "pill", priorityPill(task.Priority) }>{ priorityLabel(task.Priority) }</span>
+			if task.Category != "" {
+				<span class="text-[10px] text-muted mono">{ task.Category }</span>
+			}
+		</div>
+		<div class="text-sm leading-snug mb-2">{ task.Title }</div>
+		if task.DueDate != "" {
+			<div class="text-[11px] text-muted mono">{ task.DueDate }</div>
+		}
+	</a>
+}
+
+templ kDoneDB(task TaskItem) {
+	<a href={ templ.SafeURL("/tasks/" + task.ID) } class="kanban-card opacity-70 cursor-pointer block">
+		<div class="flex items-center justify-between mb-2">
+			<span class="text-[10px] text-sage mono">✓</span>
+		</div>
+		<div class="text-sm leading-snug line-through text-muted">{ task.Title }</div>
+	</a>
+}
+
+templ taskFormModal() {
+	<div id="task-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-ink/40 dark:bg-black/60" onclick="if(event.target===this)this.classList.add('hidden')">
+		<div class="bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-lg p-8 w-full max-w-lg mx-4">
+			<h2 class="display text-2xl font-bold mb-6">Tạo Công việc</h2>
+			<form method="POST" action="/tasks" class="space-y-4">
+				<div>
+					<label class="block text-sm font-medium mb-1">Tiêu đề *</label>
+					<input type="text" name="title" required class="w-full px-3 py-2 border border-hairline dark:border-dark-border rounded bg-ivory dark:bg-dark-bg text-ink focus:outline-none focus:border-forest" placeholder="Review bài SEO..."/>
+				</div>
+				<div>
+					<label class="block text-sm font-medium mb-1">Mô tả</label>
+					<textarea name="description" rows="2" class="w-full px-3 py-2 border border-hairline dark:border-dark-border rounded bg-ivory dark:bg-dark-bg text-ink focus:outline-none focus:border-forest" placeholder="Chi tiết..."></textarea>
+				</div>
+				<div class="grid grid-cols-2 gap-4">
+					<div>
+						<label class="block text-sm font-medium mb-1">Ưu tiên</label>
+						<select name="priority" class="w-full px-3 py-2 border border-hairline dark:border-dark-border rounded bg-ivory dark:bg-dark-bg text-ink">
+							<option value="normal">Trung bình</option>
+							<option value="urgent">Gấp</option>
+							<option value="high">Cao</option>
+							<option value="low">Thấp</option>
+						</select>
+					</div>
+					<div>
+						<label class="block text-sm font-medium mb-1">Hạn chót</label>
+						<input type="date" name="due_date" class="w-full px-3 py-2 border border-hairline dark:border-dark-border rounded bg-ivory dark:bg-dark-bg text-ink"/>
+					</div>
+				</div>
+				<div>
+					<label class="block text-sm font-medium mb-1">Phân loại</label>
+					<select name="category" class="w-full px-3 py-2 border border-hairline dark:border-dark-border rounded bg-ivory dark:bg-dark-bg text-ink">
+						<option value="">— Chưa phân loại —</option>
+						<option value="content">Content</option>
+						<option value="seo">SEO</option>
+						<option value="training">Training</option>
+						<option value="admin">Admin</option>
+						<option value="design">Design</option>
+						<option value="meeting">Meeting</option>
+						<option value="other">Khác</option>
+					</select>
+				</div>
+				<div class="flex gap-2 pt-2">
+					<button type="submit" class="flex-1 py-2.5 bg-forest text-white font-semibold rounded hover:bg-forest/90 mono">TẠO TASK</button>
+					<button type="button" onclick="document.getElementById('task-modal').classList.add('hidden')" class="px-4 py-2.5 border border-hairline rounded text-muted hover:text-ink">Huỷ</button>
+				</div>
+			</form>
+		</div>
 	</div>
+}
+
+// Keep old function
+templ TasksPage() {
+	@TasksListPage(TasksPageData{StatusCounts: map[string]int64{}})
 }

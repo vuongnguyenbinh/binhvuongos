@@ -1,16 +1,78 @@
 package handler
 
 import (
+	"database/sql"
+
+	"binhvuongos/internal/db/generated"
+	"binhvuongos/internal/middleware"
 	"binhvuongos/web/templates/pages"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 func (h *Handler) Campaigns(c *fiber.Ctx) error {
-	return render(c, pages.CampaignsPage())
+	items, err := h.queries.ListCampaigns(c.Context(), 50, 0)
+	if err != nil {
+		return render(c, pages.CampaignsListPage(pages.CampaignsPageData{}))
+	}
+	total, _ := h.queries.CountCampaigns(c.Context())
+
+	data := pages.CampaignsPageData{
+		Campaigns: toTemplCampaigns(items),
+		Total:     total,
+	}
+	return render(c, pages.CampaignsListPage(data))
 }
 
 func (h *Handler) CreateCampaign(c *fiber.Ctx) error {
-	// TODO: Phase 6 — parse form and create campaign
+	user := GetUser(c)
+	name := c.FormValue("name")
+	description := c.FormValue("description")
+	companyID := c.FormValue("company_id")
+	campaignType := c.FormValue("campaign_type")
+	startDate := c.FormValue("start_date")
+	endDate := c.FormValue("end_date")
+
+	if name == "" || companyID == "" {
+		return c.Redirect("/campaigns")
+	}
+
+	var sd, ed pgtype.Date
+	if startDate != "" {
+		_ = sd.Scan(startDate)
+	}
+	if endDate != "" {
+		_ = ed.Scan(endDate)
+	}
+
+	_, _ = h.queries.CreateCampaign(c.Context(), generated.CreateCampaignParams{
+		Name:         name,
+		Description:  sql.NullString{String: description, Valid: description != ""},
+		CompanyID:    middleware.StringToUUID(companyID),
+		OwnerID:      user.ID,
+		CampaignType: sql.NullString{String: campaignType, Valid: campaignType != ""},
+		Status:       "planning",
+		StartDate:    sd,
+		EndDate:      ed,
+		TargetJSON:   []byte("{}"),
+		CreatedBy:    user.ID,
+	})
 	return c.Redirect("/campaigns")
+}
+
+func toTemplCampaigns(items []generated.Campaign) []pages.CampaignItem {
+	result := make([]pages.CampaignItem, len(items))
+	for i, c := range items {
+		result[i] = pages.CampaignItem{
+			ID:           middleware.UUIDToString(c.ID),
+			Name:         c.Name,
+			Description:  nullStr(c.Description),
+			CampaignType: nullStr(c.CampaignType),
+			Status:       c.Status,
+			StartDate:    formatDate(c.StartDate),
+			EndDate:      formatDate(c.EndDate),
+		}
+	}
+	return result
 }

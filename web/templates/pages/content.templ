@@ -2,73 +2,203 @@ package pages
 
 import (
 	"binhvuongos/web/templates"
-	"binhvuongos/web/templates/components"
+	"fmt"
+	"strings"
 )
 
-templ ContentPage() {
+type ContentItem struct {
+	ID          string
+	Title       string
+	ContentType string
+	Status      string
+	PublishDate string
+}
+
+type ContentPageData struct {
+	Items        []ContentItem
+	Total        int64
+	StatusCounts map[string]int64
+}
+
+func contentStatusPill(s string) string {
+	switch strings.ToLower(s) {
+	case "idea":
+		return "bg-muted/10 text-muted"
+	case "drafting":
+		return "bg-ember/10 text-ember"
+	case "review":
+		return "bg-ember/10 text-ember"
+	case "revise":
+		return "bg-sage/20 text-forest-600"
+	case "approved":
+		return "bg-sage/20 text-forest-600"
+	case "published":
+		return "bg-forest text-white"
+	case "killed":
+		return "bg-rust/10 text-rust"
+	default:
+		return "bg-muted/10 text-muted"
+	}
+}
+
+func contentStatusLabel(s string) string {
+	switch strings.ToLower(s) {
+	case "idea":
+		return "Ý TƯỞNG"
+	case "drafting":
+		return "DRAFT"
+	case "review":
+		return "REVIEW"
+	case "revise":
+		return "SỬA LẠI"
+	case "approved":
+		return "DUYỆT"
+	case "published":
+		return "ĐĂNG"
+	case "killed":
+		return "HUỶ"
+	default:
+		return strings.ToUpper(s)
+	}
+}
+
+func contentTypeLabel(t string) string {
+	switch strings.ToLower(t) {
+	case "blog":
+		return "Blog"
+	case "social_post":
+		return "Social Post"
+	case "video":
+		return "Video"
+	case "reel":
+		return "Reel"
+	case "email":
+		return "Email"
+	case "slide":
+		return "Slide"
+	default:
+		return t
+	}
+}
+
+templ ContentListPage(data ContentPageData) {
 	@templates.Layout("Nội dung", "content") {
 		<div class="mb-10 flex items-end justify-between">
 			<div>
 				<p class="eyebrow mb-2">Nội dung · từ ý tưởng đến phân phối</p>
 				<h1 class="display text-5xl md:text-6xl font-bold leading-none"><span class="accent">Pipeline</span> nội dung</h1>
 			</div>
-			<div class="hidden md:flex items-center gap-2">
-				<button class="px-3 py-1.5 bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded text-xs text-muted mono">LỊCH ĐĂNG</button>
-				<button class="px-4 py-2 bg-forest text-white rounded-md text-sm mono font-semibold">+ TẠO NỘI DUNG</button>
+			<button onclick="document.getElementById('content-modal').classList.remove('hidden')" class="px-4 py-2 bg-forest text-white rounded-md text-sm mono font-semibold">+ TẠO NỘI DUNG</button>
+		</div>
+		<!-- Status counts bar -->
+		if data.Total > 0 {
+			<div class="grid grid-cols-3 md:grid-cols-7 gap-px bg-hairline dark:bg-dark-border border border-hairline dark:border-dark-border rounded-lg overflow-hidden mb-8">
+				@cntStat("💡 Ý tưởng", data.StatusCounts["idea"], false)
+				@cntStat("📝 Đang viết", data.StatusCounts["drafting"], false)
+				@cntStat("👀 Cần duyệt", data.StatusCounts["review"], data.StatusCounts["review"] > 0)
+				@cntStat("🔄 Sửa lại", data.StatusCounts["revise"], false)
+				@cntStat("✓ Duyệt", data.StatusCounts["approved"], false)
+				@cntStat("📤 Đã đăng", data.StatusCounts["published"], false)
+				@cntStatTotal(data.Total)
 			</div>
-		</div>
-		<div class="mb-6">@components.DateFilter()</div>
-		<div class="grid grid-cols-3 md:grid-cols-7 gap-px bg-hairline dark:bg-dark-border border border-hairline dark:border-dark-border rounded-lg overflow-hidden mb-8">
-			<div class="bg-surface dark:bg-dark-surface p-4 text-center"><div class="stat-hero text-3xl tnum">14</div><div class="eyebrow mt-2">💡 Ý tưởng</div></div>
-			<div class="bg-surface dark:bg-dark-surface p-4 text-center"><div class="stat-hero text-3xl tnum">8</div><div class="eyebrow mt-2">📝 Đang viết</div></div>
-			<div class="bg-surface dark:bg-dark-surface p-4 text-center"><div class="stat-hero text-3xl tnum text-ember">3</div><div class="eyebrow mt-2">👀 Cần duyệt</div></div>
-			<div class="bg-surface dark:bg-dark-surface p-4 text-center"><div class="stat-hero text-3xl tnum">2</div><div class="eyebrow mt-2">🔄 Sửa lại</div></div>
-			<div class="bg-surface dark:bg-dark-surface p-4 text-center"><div class="stat-hero text-3xl tnum text-sage">5</div><div class="eyebrow mt-2">✓ Duyệt</div></div>
-			<div class="bg-surface dark:bg-dark-surface p-4 text-center"><div class="stat-hero text-3xl tnum text-forest">42</div><div class="eyebrow mt-2">📤 Đã đăng</div></div>
-			<div class="bg-cream/40 dark:bg-dark-cream/40 p-4 text-center"><div class="stat-hero text-3xl tnum text-muted">74</div><div class="eyebrow mt-2">Tổng tháng</div></div>
-		</div>
-		<div class="bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-lg overflow-x-auto">
-			<table class="w-full text-sm min-w-[900px]">
-				<thead class="bg-cream/40 dark:bg-dark-cream/40 border-b border-hairline">
-					<tr class="text-left">
-						<th class="eyebrow px-4 py-3">Tiêu đề</th>
-						<th class="eyebrow px-4 py-3">Công ty</th>
-						<th class="eyebrow px-4 py-3">Loại · Nền tảng</th>
-						<th class="eyebrow px-4 py-3">Người viết</th>
-						<th class="eyebrow px-4 py-3">Trạng thái</th>
-						<th class="eyebrow px-4 py-3">Ngày đăng</th>
-						<th class="eyebrow px-4 py-3 text-right">Tương tác</th>
-					</tr>
-				</thead>
-				<tbody class="divide-y divide-hairline">
-					@cRow("10 mẹo SEO cho người mới bắt đầu 2026", "SEO Q2 · bài cornerstone", "ABC", "bg-forest", "Blog", "Website · Facebook", "CTV Minh", "DUYỆT", "bg-sage/20 text-forest-600", "20/04", "", "")
-					@cRow("Tại sao bạn nên đầu tư vào ETF", "Series tài chính cá nhân", "XYZ", "bg-ember", "Blog", "Website", "Bình Vương", "REVIEW", "bg-ember/10 text-ember", "22/04", "", "")
-					@cRow("5 sai lầm khi scale content team", "tips nhanh cho SME", "EDU", "bg-sage", "Reel", "TikTok · IG", "CTV Hà", "ĐĂNG", "bg-forest text-white", "12/04", "8.3%", "12.4K · 1.03K")
-					@cRow("Cách chọn platform phù hợp cho DN", "bài giảng training", "EDU", "bg-sage", "Video", "YouTube", "Bình Vương", "DRAFT", "bg-muted/10 text-muted", "28/04", "", "")
-					@cRow("Backlink từ báo chí lớn — case study", "SEO Q2 · deep dive", "ABC", "bg-forest", "Blog", "Web · LinkedIn", "CTV Minh", "ĐĂNG", "bg-forest text-white", "08/04", "6.1%", "3.2K · 195")
-					@cRow("Lãi kép hoạt động thế nào?", "explainer ngắn", "XYZ", "bg-ember", "Reel", "TikTok", "CTV Hà", "SỬA LẠI", "bg-sage/20 text-forest-600", "18/04", "", "")
-				</tbody>
-			</table>
-		</div>
-		@components.Pagination(1, 4)
+		}
+		if len(data.Items) == 0 {
+			<div class="text-center py-20">
+				<div class="text-6xl mb-4">📝</div>
+				<h3 class="display text-2xl font-bold mb-2">Chưa có nội dung nào</h3>
+				<p class="text-muted text-sm mb-6">Tạo ý tưởng content đầu tiên.</p>
+				<button onclick="document.getElementById('content-modal').classList.remove('hidden')" class="px-6 py-3 bg-forest text-white rounded-md text-sm mono font-semibold">+ TẠO NỘI DUNG ĐẦU TIÊN</button>
+			</div>
+		} else {
+			<div class="bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-lg overflow-x-auto">
+				<table class="w-full text-sm min-w-[700px]">
+					<thead class="bg-cream/40 dark:bg-dark-cream/40 border-b border-hairline">
+						<tr class="text-left">
+							<th class="eyebrow px-4 py-3">Tiêu đề</th>
+							<th class="eyebrow px-4 py-3">Loại</th>
+							<th class="eyebrow px-4 py-3">Trạng thái</th>
+							<th class="eyebrow px-4 py-3">Ngày đăng</th>
+						</tr>
+					</thead>
+					<tbody class="divide-y divide-hairline">
+						for _, item := range data.Items {
+							@cRowDB(item)
+						}
+					</tbody>
+				</table>
+			</div>
+		}
+		@contentFormModal()
 	}
 }
 
-templ cRow(title string, subtitle string, company string, compBg string, cType string, platforms string, author string, status string, statusClass string, date string, rate string, metrics string) {
-	<tr class="row-hover cursor-pointer" onclick="window.location='/content/1'">
-		<td class="px-4 py-4"><div class="font-semibold">{ title }</div><div class="text-xs text-muted mt-0.5 mono">{ subtitle }</div></td>
-		<td class="px-4 py-4"><div class="flex items-center gap-2"><span class={ "w-5 h-5 rounded text-white text-[9px] flex items-center justify-center mono font-bold", compBg }>{ company }</span><span class="text-xs">{ company }</span></div></td>
-		<td class="px-4 py-4"><div class="text-sm">{ cType }</div><div class="text-xs text-muted mt-0.5 mono">{ platforms }</div></td>
-		<td class="px-4 py-4 text-xs">{ author }</td>
-		<td class="px-4 py-4"><span class={ "pill", statusClass }>{ status }</span></td>
-		<td class="px-4 py-4 text-xs mono">{ date }</td>
-		<td class="px-4 py-4 text-right">
-			if rate != "" {
-				<div class="tnum font-semibold mono text-sage">{ rate }</div>
-				<div class="text-[10px] text-muted mono">{ metrics }</div>
+templ cntStat(label string, count int64, isAlert bool) {
+	<div class="bg-surface dark:bg-dark-surface p-4 text-center">
+		if isAlert {
+			<div class="stat-hero text-3xl tnum text-ember">{ fmt.Sprintf("%d", count) }</div>
+		} else {
+			<div class="stat-hero text-3xl tnum">{ fmt.Sprintf("%d", count) }</div>
+		}
+		<div class="eyebrow mt-2">{ label }</div>
+	</div>
+}
+
+templ cntStatTotal(total int64) {
+	<div class="bg-cream/40 dark:bg-dark-cream/40 p-4 text-center">
+		<div class="stat-hero text-3xl tnum text-muted">{ fmt.Sprintf("%d", total) }</div>
+		<div class="eyebrow mt-2">Tổng</div>
+	</div>
+}
+
+templ cRowDB(item ContentItem) {
+	<tr class="row-hover cursor-pointer">
+		<td class="px-4 py-4"><a href={ templ.SafeURL("/content/" + item.ID) } class="font-semibold hover:text-forest">{ item.Title }</a></td>
+		<td class="px-4 py-4 text-sm">{ contentTypeLabel(item.ContentType) }</td>
+		<td class="px-4 py-4"><span class={ "pill", contentStatusPill(item.Status) }>{ contentStatusLabel(item.Status) }</span></td>
+		<td class="px-4 py-4 text-xs mono">
+			if item.PublishDate != "" {
+				{ item.PublishDate }
 			} else {
-				<div class="tnum font-semibold mono">—</div>
+				<span class="text-muted">—</span>
 			}
 		</td>
 	</tr>
+}
+
+templ contentFormModal() {
+	<div id="content-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-ink/40 dark:bg-black/60" onclick="if(event.target===this)this.classList.add('hidden')">
+		<div class="bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-lg p-8 w-full max-w-lg mx-4">
+			<h2 class="display text-2xl font-bold mb-6">Tạo Nội dung</h2>
+			<form method="POST" action="/content" class="space-y-4">
+				<div>
+					<label class="block text-sm font-medium mb-1">Tiêu đề *</label>
+					<input type="text" name="title" required class="w-full px-3 py-2 border border-hairline dark:border-dark-border rounded bg-ivory dark:bg-dark-bg text-ink focus:outline-none focus:border-forest" placeholder="10 mẹo SEO..."/>
+				</div>
+				<div>
+					<label class="block text-sm font-medium mb-1">Loại nội dung *</label>
+					<select name="content_type" required class="w-full px-3 py-2 border border-hairline dark:border-dark-border rounded bg-ivory dark:bg-dark-bg text-ink">
+						<option value="blog">Blog</option>
+						<option value="social_post">Social Post</option>
+						<option value="video">Video</option>
+						<option value="reel">Reel</option>
+						<option value="email">Email</option>
+						<option value="slide">Slide</option>
+					</select>
+				</div>
+				<div>
+					<label class="block text-sm font-medium mb-1">Công ty *</label>
+					<input type="text" name="company_id" required class="w-full px-3 py-2 border border-hairline dark:border-dark-border rounded bg-ivory dark:bg-dark-bg text-ink focus:outline-none focus:border-forest" placeholder="UUID công ty"/>
+				</div>
+				<div class="flex gap-2 pt-2">
+					<button type="submit" class="flex-1 py-2.5 bg-forest text-white font-semibold rounded hover:bg-forest/90 mono">TẠO</button>
+					<button type="button" onclick="document.getElementById('content-modal').classList.add('hidden')" class="px-4 py-2.5 border border-hairline rounded text-muted hover:text-ink">Huỷ</button>
+				</div>
+			</form>
+		</div>
+	</div>
+}
+
+// Keep old function
+templ ContentPage() {
+	@ContentListPage(ContentPageData{StatusCounts: map[string]int64{}})
 }

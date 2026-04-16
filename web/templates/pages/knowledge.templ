@@ -2,89 +2,204 @@ package pages
 
 import (
 	"binhvuongos/web/templates"
-	"binhvuongos/web/templates/components"
+	"fmt"
+	"strings"
 )
 
-templ KnowledgePage() {
+type KnowledgeItemData struct {
+	ID          string
+	Title       string
+	Description string
+	Category    string
+	Topics      []string
+	Scope       string
+	SourceURL   string
+	CreatedAt   string
+}
+
+type KnowledgePageData struct {
+	Items    []KnowledgeItemData
+	Total    int64
+	Query    string
+	Category string
+}
+
+func kbCatPill(cat string) string {
+	switch strings.ToLower(cat) {
+	case "lecture":
+		return "bg-sage/20 text-forest-600"
+	case "sop":
+		return "bg-ember/10 text-ember"
+	case "template":
+		return "bg-sage/20 text-forest-600"
+	case "training":
+		return "bg-rust/10 text-rust"
+	case "raw_material":
+		return "bg-muted/10 text-muted"
+	case "research":
+		return "bg-muted/10 text-muted"
+	case "curated":
+		return "bg-forest-50 text-forest"
+	default:
+		return "bg-muted/10 text-muted"
+	}
+}
+
+func kbCatLabel(cat string) string {
+	switch strings.ToLower(cat) {
+	case "lecture":
+		return "📖 BÀI GIẢNG"
+	case "sop":
+		return "📋 SOP"
+	case "template":
+		return "📄 TEMPLATE"
+	case "training":
+		return "🎓 TRAINING"
+	case "raw_material":
+		return "🔗 NGUYÊN LIỆU"
+	case "research":
+		return "📑 NGHIÊN CỨU"
+	case "curated":
+		return "💡 CURATED"
+	default:
+		return strings.ToUpper(cat)
+	}
+}
+
+templ KnowledgeListPage(data KnowledgePageData) {
 	@templates.Layout("Kho kiến thức", "knowledge") {
 		<div class="mb-10">
 			<p class="eyebrow mb-2">Kho kiến thức · bài giảng, quy trình, nguyên liệu</p>
 			<div class="flex items-end justify-between">
-				<h1 class="display text-5xl md:text-6xl font-bold leading-none">Thư viện của <span class="accent">Bình Vương</span></h1>
+				<h1 class="display text-5xl md:text-6xl font-bold leading-none">
+					<span class="accent">{ fmt.Sprintf("%d", data.Total) }</span> tài liệu
+				</h1>
 				<div class="hidden md:flex items-center gap-2">
-					<div class="flex items-center gap-2 bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded px-3 py-2 w-80">
+					<form method="GET" action="/knowledge" class="flex items-center gap-2 bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded px-3 py-2 w-72">
 						<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-						<input class="text-sm bg-transparent outline-none flex-1 placeholder-muted" placeholder="Tìm bài giảng, SOP, tài liệu..."/>
-					</div>
-					<button class="px-4 py-2 bg-forest text-white rounded-md text-sm mono font-semibold">+ THÊM</button>
+						<input name="q" value={ data.Query } class="text-sm bg-transparent outline-none flex-1 placeholder-muted" placeholder="Tìm tài liệu..."/>
+					</form>
+					<button onclick="document.getElementById('kb-modal').classList.remove('hidden')" class="px-4 py-2 bg-forest text-white rounded-md text-sm mono font-semibold">+ THÊM</button>
 				</div>
 			</div>
 		</div>
-		<div class="mb-6">@components.DateFilter()</div>
+		<!-- Category filters -->
 		<div class="flex items-center gap-2 mb-8 pb-4 border-b border-hairline text-xs overflow-x-auto">
-			<button class="px-3 py-1.5 bg-forest text-white rounded-full mono font-semibold whitespace-nowrap">Tất cả <span class="ml-1">184</span></button>
-			<button class="px-3 py-1.5 bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-full text-muted mono whitespace-nowrap">📖 Bài giảng <span class="ml-1">28</span></button>
-			<button class="px-3 py-1.5 bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-full text-muted mono whitespace-nowrap">📋 SOP <span class="ml-1">42</span></button>
-			<button class="px-3 py-1.5 bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-full text-muted mono whitespace-nowrap">📄 Template <span class="ml-1">16</span></button>
-			<button class="px-3 py-1.5 bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-full text-muted mono whitespace-nowrap">🎓 Training <span class="ml-1">21</span></button>
-			<button class="px-3 py-1.5 bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-full text-muted mono whitespace-nowrap">🔗 Nguyên liệu <span class="ml-1">65</span></button>
-			<button class="px-3 py-1.5 bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-full text-muted mono whitespace-nowrap">📑 Nghiên cứu <span class="ml-1">12</span></button>
-			<button class="px-3 py-1.5 bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-full text-muted mono whitespace-nowrap">💡 Note/Idea <span class="ml-1">9</span></button>
-			<button class="px-3 py-1.5 bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-full text-muted mono whitespace-nowrap">💬 Prompt <span class="ml-1">18</span></button>
+			<a href="/knowledge" class={ "px-3 py-1.5 rounded-full mono font-semibold whitespace-nowrap", templ.KV("bg-forest text-white", data.Category == ""), templ.KV("bg-surface dark:bg-dark-surface border border-hairline text-muted", data.Category != "") }>Tất cả</a>
+			@kbFilterBtn("lecture", "📖 Bài giảng", data.Category)
+			@kbFilterBtn("sop", "📋 SOP", data.Category)
+			@kbFilterBtn("template", "📄 Template", data.Category)
+			@kbFilterBtn("training", "🎓 Training", data.Category)
+			@kbFilterBtn("raw_material", "🔗 Nguyên liệu", data.Category)
+			@kbFilterBtn("research", "📑 Nghiên cứu", data.Category)
+			@kbFilterBtn("curated", "💡 Curated", data.Category)
 		</div>
-		<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
-			<!-- Featured hero card -->
-			<div class="md:col-span-2 hero-bg rounded-lg cursor-pointer">
-				<img src="https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=800&q=70" alt="" loading="lazy"/>
-				<div class="hero-overlay"></div>
-				<div class="hero-content p-8 text-white">
-					<span class="pill bg-white/15 text-white">📖 BÀI GIẢNG</span>
-					<h3 class="display text-3xl md:text-4xl font-bold mt-4 mb-3 leading-tight">Cách xây content pillar cho SME Việt</h3>
-					<p class="text-sm mb-6 max-w-md text-white/70">Framework 5 bước để xây dựng hệ thống content bền vững. Từ research keyword đến đo lường ROI.</p>
-					<div class="flex items-center justify-between text-xs mono">
-						<div class="flex items-center gap-3 text-white/60"><span>54 phút đọc</span><span>·</span><span>chia sẻ 3 công ty</span></div>
-						<span class="text-ember font-semibold">→ MỞ</span>
-					</div>
-				</div>
+		if len(data.Items) == 0 {
+			<div class="text-center py-20">
+				<div class="text-6xl mb-4">📚</div>
+				<h3 class="display text-2xl font-bold mb-2">
+					if data.Query != "" {
+						Không tìm thấy kết quả cho "{ data.Query }"
+					} else {
+						Chưa có tài liệu nào
+					}
+				</h3>
+				<p class="text-muted text-sm mb-6">Thêm bài giảng, SOP, template hoặc tài liệu tham khảo.</p>
+				<button onclick="document.getElementById('kb-modal').classList.remove('hidden')" class="px-6 py-3 bg-forest text-white rounded-md text-sm mono font-semibold">+ THÊM TÀI LIỆU ĐẦU TIÊN</button>
 			</div>
-			@kbCard("📋 SOP", "bg-ember/10 text-ember", "v3", "", "Quy trình viết blog SEO chuẩn", "15 bước từ research đến publish. Áp dụng dùng chung mọi công ty.", "SEO", "CONTENT", "3 cty")
-			@kbCard("📄 TEMPLATE", "bg-sage/20 text-forest-600", "", "⭐⭐⭐", "Brief template cho CTV", "Đầy đủ các field cần thiết, đã test trên 5 công ty.", "MGMT", "", "dùng chung")
-			<div class="bg-cream/40 dark:bg-dark-cream/40 border border-hairline rounded-lg p-5 hover:border-forest cursor-pointer">
-				<div class="flex items-start justify-between mb-3"><span class="pill bg-muted/10 text-muted">🔗 NGUYÊN LIỆU</span><span class="text-ember">⭐⭐⭐</span></div>
-				<h3 class="display text-lg font-bold leading-tight mb-2">How Notion Grew to 100M Users</h3>
-				<p class="text-xs text-muted mb-4">Case study hay về product-led growth. Nguồn: Lenny's Newsletter.</p>
-				<div class="flex items-center justify-between text-[11px]"><span class="pill bg-forest-50 text-forest">GROWTH</span><span class="text-muted mono">lennysnewsletter</span></div>
+		} else {
+			<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+				for _, item := range data.Items {
+					@kbCardDB(item)
+				}
 			</div>
-			@kbCard("🎓 TRAINING", "bg-rust/10 text-rust", "34 min", "", "Onboarding cho CTV mới", "Video + checklist. Standard cho mọi CTV trước khi nhận project.", "HR", "ONBOARD", "dùng chung")
-			@kbCard("📖 BÀI GIẢNG", "bg-sage/20 text-forest-600", "", "MỚI", "Định giá dịch vụ cho freelancer", "Framework pricing — giá trị vs giá cả. Bao gồm case study thực tế.", "BUSINESS", "", "EDU")
-			@kbCard("📋 SOP", "bg-ember/10 text-ember", "v1", "", "Review content trước khi đăng", "Checklist 12 điểm cho editor. Bao gồm brand voice, SEO, CTA.", "CONTENT", "", "ABC, XYZ")
-			@kbCard("📑 NGHIÊN CỨU", "bg-muted/10 text-muted", "", "⭐⭐", "AI trong workflow SME 2026", "Survey 200 doanh nghiệp VN. Đã đọc, có insight cho EDU cohort 5.", "AI", "TRENDS", "McKinsey")
-			@kbCard("💬 PROMPT", "bg-ember/10 text-ember", "", "", "Viết meta description SEO", "Viết meta description cho trang [URL] với keyword chính [KEYWORD]. Dưới 155 ký tự, có CTA.", "SEO", "PROMPT", "Copy & paste")
-			@kbCard("💬 PROMPT", "bg-ember/10 text-ember", "", "", "Tạo outline bài blog", "Tạo outline chi tiết cho bài blog về [TOPIC] với target keyword [KEYWORD]. H1 + 5-7 H2.", "CONTENT", "PROMPT", "Copy & paste")
-		</div>
+		}
+		@knowledgeFormModal()
 	}
 }
 
-templ kbCard(tag string, tagClass string, extra string, stars string, title string, desc string, topic1 string, topic2 string, source string) {
-	<a href="/knowledge/1" class="block bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-lg p-5 hover:border-forest cursor-pointer">
+templ kbFilterBtn(cat string, label string, activeCat string) {
+	<a href={ templ.SafeURL("/knowledge?category=" + cat) } class={ "px-3 py-1.5 rounded-full mono whitespace-nowrap", templ.KV("bg-forest text-white font-semibold", activeCat == cat), templ.KV("bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border text-muted", activeCat != cat) }>{ label }</a>
+}
+
+templ kbCardDB(item KnowledgeItemData) {
+	<a href={ templ.SafeURL("/knowledge/" + item.ID) } class="block bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-lg p-5 hover:border-forest cursor-pointer">
 		<div class="flex items-start justify-between mb-3">
-			<span class={ "pill", tagClass }>{ tag }</span>
-			if stars != "" {
-				<span class="text-ember">{ stars }</span>
-			} else if extra != "" {
-				<span class="text-[10px] text-muted mono">{ extra }</span>
+			<span class={ "pill", kbCatPill(item.Category) }>{ kbCatLabel(item.Category) }</span>
+			<span class="text-[10px] text-muted mono">{ item.CreatedAt }</span>
+		</div>
+		<h3 class="display text-lg font-bold leading-tight mb-2">{ item.Title }</h3>
+		if item.Description != "" {
+			<p class="text-xs text-muted mb-4 line-clamp-2">{ item.Description }</p>
+		}
+		<div class="flex items-center justify-between text-[11px]">
+			if len(item.Topics) > 0 {
+				<div class="flex items-center gap-1 flex-wrap">
+					for _, topic := range item.Topics {
+						<span class="pill bg-forest-50 text-forest">{ topic }</span>
+					}
+				</div>
+			}
+			if item.Scope != "shared" {
+				<span class="text-muted mono">{ item.Scope }</span>
 			}
 		</div>
-		<h3 class="display text-lg font-bold leading-tight mb-2">{ title }</h3>
-		<p class="text-xs text-muted mb-4">{ desc }</p>
-		<div class="flex items-center justify-between text-[11px]">
-			<div class="flex items-center gap-1">
-				<span class="pill bg-forest-50 text-forest">{ topic1 }</span>
-				if topic2 != "" {
-					<span class="pill bg-forest-50 text-forest">{ topic2 }</span>
-				}
-			</div>
-			<span class="text-muted mono">{ source }</span>
-		</div>
 	</a>
+}
+
+templ knowledgeFormModal() {
+	<div id="kb-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-ink/40 dark:bg-black/60" onclick="if(event.target===this)this.classList.add('hidden')">
+		<div class="bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-lg p-8 w-full max-w-lg mx-4">
+			<h2 class="display text-2xl font-bold mb-6">Thêm Tài liệu</h2>
+			<form method="POST" action="/knowledge" class="space-y-4">
+				<div>
+					<label class="block text-sm font-medium mb-1">Tiêu đề *</label>
+					<input type="text" name="title" required class="w-full px-3 py-2 border border-hairline dark:border-dark-border rounded bg-ivory dark:bg-dark-bg text-ink focus:outline-none focus:border-forest"/>
+				</div>
+				<div>
+					<label class="block text-sm font-medium mb-1">Mô tả</label>
+					<textarea name="description" rows="2" class="w-full px-3 py-2 border border-hairline dark:border-dark-border rounded bg-ivory dark:bg-dark-bg text-ink focus:outline-none focus:border-forest"></textarea>
+				</div>
+				<div class="grid grid-cols-2 gap-4">
+					<div>
+						<label class="block text-sm font-medium mb-1">Phân loại *</label>
+						<select name="category" required class="w-full px-3 py-2 border border-hairline dark:border-dark-border rounded bg-ivory dark:bg-dark-bg text-ink">
+							<option value="lecture">Bài giảng</option>
+							<option value="sop">SOP</option>
+							<option value="template">Template</option>
+							<option value="training">Training</option>
+							<option value="raw_material">Nguyên liệu</option>
+							<option value="research">Nghiên cứu</option>
+							<option value="curated">Curated</option>
+						</select>
+					</div>
+					<div>
+						<label class="block text-sm font-medium mb-1">Phạm vi</label>
+						<select name="scope" class="w-full px-3 py-2 border border-hairline dark:border-dark-border rounded bg-ivory dark:bg-dark-bg text-ink">
+							<option value="shared">Dùng chung</option>
+							<option value="company_specific">Theo công ty</option>
+							<option value="personal">Cá nhân</option>
+						</select>
+					</div>
+				</div>
+				<div>
+					<label class="block text-sm font-medium mb-1">Topics <span class="text-muted text-xs">(phân cách dấu phẩy)</span></label>
+					<input type="text" name="topics" class="w-full px-3 py-2 border border-hairline dark:border-dark-border rounded bg-ivory dark:bg-dark-bg text-ink focus:outline-none focus:border-forest" placeholder="SEO, Content"/>
+				</div>
+				<div>
+					<label class="block text-sm font-medium mb-1">URL nguồn</label>
+					<input type="url" name="source_url" class="w-full px-3 py-2 border border-hairline dark:border-dark-border rounded bg-ivory dark:bg-dark-bg text-ink focus:outline-none focus:border-forest" placeholder="https://..."/>
+				</div>
+				<div class="flex gap-2 pt-2">
+					<button type="submit" class="flex-1 py-2.5 bg-forest text-white font-semibold rounded hover:bg-forest/90 mono">LƯU</button>
+					<button type="button" onclick="document.getElementById('kb-modal').classList.add('hidden')" class="px-4 py-2.5 border border-hairline rounded text-muted hover:text-ink">Huỷ</button>
+				</div>
+			</form>
+		</div>
+	</div>
+}
+
+// Keep old function
+templ KnowledgePage() {
+	@KnowledgeListPage(KnowledgePageData{})
 }
