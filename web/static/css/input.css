@@ -8,24 +8,33 @@
   --surface: #FFFFFF;
   --ink: #1A1918;
   --forest: #1F3D2E;
+  --forest-50: #E8EDE9;
+  --forest-600: #2D5C44;
   --ember: #D94F30;
   --flame: #E8623A;
   --muted: #6B665E;
   --hairline: #E8E4DB;
   --cream: #F2EEE4;
+  --sage: #4A7C59;
+  --rust: #A64545;
 }
 
 /* ========== DARK MODE ========== */
+/* All text/accent colors BRIGHT for dark backgrounds */
 .dark {
   --bg: #0D0F14;
   --surface: #161920;
   --ink: #F2F0ED;
-  --forest: #1F3D2E;
-  --ember: #E0613F;
-  --flame: #F0724A;
+  --forest: #7FD89E;
+  --forest-50: rgba(127,216,158,0.12);
+  --forest-600: #6BC48A;
+  --ember: #F07050;
+  --flame: #F58060;
   --muted: #B0AAA0;
   --hairline: #2A2E36;
   --cream: #1C1F27;
+  --sage: #7FD89E;
+  --rust: #F08080;
 }
 
 * {
@@ -103,10 +112,7 @@ html, body {
 /* ========== ACCENT TEXT ========== */
 .accent {
   font-weight: 300;
-  color: #1F3D2E;
-}
-.dark .accent {
-  color: #7FD89E;
+  color: var(--forest);
 }
 
 /* ========== DARK MODE COLOR OVERRIDES ========== */
@@ -161,10 +167,7 @@ html, body {
   right: 0;
   bottom: -17px;
   height: 2px;
-  background: #1F3D2E;
-}
-.dark .tab-active::after {
-  background: #7FD89E;
+  background: var(--forest);
 }
 
 .progress-track {
@@ -175,11 +178,8 @@ html, body {
 }
 .progress-fill {
   height: 100%;
-  background: #1F3D2E;
+  background: var(--forest);
   transition: width 0.8s ease;
-}
-.dark .progress-fill {
-  background: #5FA87A;
 }
 
 .row-hover:hover {
@@ -234,28 +234,17 @@ html, body {
   cursor: pointer;
 }
 .check.checked {
-  background: #1F3D2E;
-  border-color: #1F3D2E;
-}
-.dark .check {
-  border-color: #444;
-}
-.dark .check.checked {
-  background: #5FA87A;
-  border-color: #5FA87A;
+  background: var(--forest);
+  border-color: var(--forest);
 }
 
 /* Spark bars — brighter in dark */
 .spark-bar {
   display: inline-block;
-  background: #1F3D2E;
+  background: var(--forest);
   margin-right: 1px;
   border-radius: 1px;
-  opacity: 0.7;
-}
-.dark .spark-bar {
-  background: #5FA87A;
-  opacity: 0.85;
+  opacity: 0.8;
 }
 
 /* ========== HERO SECTION ========== */

@@ -10,30 +10,34 @@ module.exports = {
         mono: ['JetBrains Mono', 'monospace'],
       },
       colors: {
-        ivory: '#FAF8F3',
-        surface: '#FFFFFF',
-        ink: '#1A1918',
+        // CSS-variable-based colors: auto-switch light↔dark
+        ivory: 'var(--bg)',
+        surface: 'var(--surface)',
+        ink: 'var(--ink)',
+        muted: 'var(--muted)',
+        hairline: 'var(--hairline)',
+        cream: 'var(--cream)',
+
+        // Accent colors: use dark-aware values
         forest: {
-          DEFAULT: '#1F3D2E',
-          50: '#E8EDE9',
+          DEFAULT: 'var(--forest)',
+          50: 'var(--forest-50)',
           100: '#C4D1C8',
-          600: '#2D5C44',
+          600: 'var(--forest-600)',
           900: '#122419',
         },
-        ember: '#D94F30',
-        flame: '#E8623A',
-        muted: '#6B665E',
-        hairline: '#E8E4DB',
-        cream: '#F2EEE4',
-        sage: '#4A7C59',
-        rust: '#A64545',
-        // Dark palette
-        'dark-bg': '#0F1117',
-        'dark-surface': '#1A1D26',
-        'dark-text': '#E8E6E3',
-        'dark-border': '#2D3039',
-        'dark-cream': '#1F2229',
-        'dark-muted': '#8B8880',
+        ember: 'var(--ember)',
+        flame: 'var(--flame)',
+        sage: 'var(--sage)',
+        rust: 'var(--rust)',
+
+        // Explicit dark palette (for dark: prefix usage)
+        'dark-bg': '#0D0F14',
+        'dark-surface': '#161920',
+        'dark-text': '#F2F0ED',
+        'dark-border': '#2A2E36',
+        'dark-cream': '#1C1F27',
+        'dark-muted': '#B0AAA0',
       }
     }
   },
