@@ -23,10 +23,13 @@ func (h *Handler) Content(c *fiber.Ctx) error {
 		counts[sc.Status] = sc.Count
 	}
 
+	companies, _ := h.queries.ListCompanies(c.Context(), 50, 0)
+
 	data := pages.ContentPageData{
 		Items:        toTemplContents(items),
 		Total:        total,
 		StatusCounts: counts,
+		Companies:    toTemplCompanies(companies),
 	}
 	return render(c, pages.ContentListPage(data))
 }

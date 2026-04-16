@@ -58,6 +58,45 @@ templ CompanyDetailDataPage(data CompanyDetailData) {
 		} else {
 			<div class="text-center py-12 text-muted text-sm">Chưa có công việc nào cho công ty này.</div>
 		}
+		<!-- Edit form -->
+		<div class="mt-8 bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-lg p-6">
+			<h3 class="display text-xl font-bold mb-4">Chỉnh sửa</h3>
+			<form method="POST" action={ templ.SafeURL("/companies/" + data.Company.ID) } class="space-y-4">
+				<div class="grid grid-cols-2 gap-4">
+					<div>
+						<label class="block text-sm font-medium mb-1">Tên công ty</label>
+						<input type="text" name="name" value={ data.Company.Name } class="w-full px-3 py-2 border border-hairline rounded bg-ivory dark:bg-dark-bg text-ink focus:outline-none focus:border-forest"/>
+					</div>
+					<div>
+						<label class="block text-sm font-medium mb-1">Mã</label>
+						<input type="text" name="short_code" value={ data.Company.ShortCode } maxlength="10" class="w-full px-3 py-2 border border-hairline rounded bg-ivory dark:bg-dark-bg text-ink focus:outline-none focus:border-forest"/>
+					</div>
+				</div>
+				<div class="grid grid-cols-3 gap-4">
+					<div>
+						<label class="block text-sm font-medium mb-1">Tình trạng</label>
+						<select name="health" class="w-full px-3 py-2 border border-hairline rounded bg-ivory dark:bg-dark-bg text-ink">
+							<option value="ok" selected?={ data.Company.Health == "ok" }>OK</option>
+							<option value="attention" selected?={ data.Company.Health == "attention" }>Chú ý</option>
+							<option value="urgent" selected?={ data.Company.Health == "urgent" }>Gấp</option>
+						</select>
+					</div>
+					<div>
+						<label class="block text-sm font-medium mb-1">Trạng thái</label>
+						<select name="status" class="w-full px-3 py-2 border border-hairline rounded bg-ivory dark:bg-dark-bg text-ink">
+							<option value="active" selected?={ data.Company.Status == "active" }>Hoạt động</option>
+							<option value="paused" selected?={ data.Company.Status == "paused" }>Tạm dừng</option>
+							<option value="ended" selected?={ data.Company.Status == "ended" }>Kết thúc</option>
+						</select>
+					</div>
+					<div>
+						<label class="block text-sm font-medium mb-1">Ngành</label>
+						<input type="text" name="industry" value={ data.Company.Industry } class="w-full px-3 py-2 border border-hairline rounded bg-ivory dark:bg-dark-bg text-ink focus:outline-none focus:border-forest"/>
+					</div>
+				</div>
+				<button type="submit" class="px-6 py-2.5 bg-forest text-white font-semibold rounded mono">LƯU THAY ĐỔI</button>
+			</form>
+		</div>
 	}
 }
 

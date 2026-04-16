@@ -21,10 +21,14 @@ func (h *Handler) WorkLogs(c *fiber.Ctx) error {
 	pendingCount, _ := h.queries.CountPendingWorkLogs(c.Context())
 	workTypes, _ := h.queries.ListActiveWorkTypes(c.Context())
 
+	companies, _ := h.queries.ListCompanies(c.Context(), 50, 0)
+
 	data := pages.WorkLogsPageData{
 		Items:        toTemplWorkLogs(items, workTypes),
 		Total:        total,
 		PendingCount: pendingCount,
+		Companies:    toTemplCompanies(companies),
+		WorkTypes:    toTemplWorkTypes(workTypes),
 	}
 	return render(c, pages.WorkLogsListPage(data))
 }
@@ -107,4 +111,17 @@ func toTemplWorkLogs(items []generated.WorkLog, workTypes []generated.WorkType) 
 		}
 	}
 	return result
+}
+
+func toTemplWorkTypes(wts []generated.WorkType) []pages.WorkTypeItem {
+	items := make([]pages.WorkTypeItem, len(wts))
+	for i, wt := range wts {
+		items[i] = pages.WorkTypeItem{
+			ID:   middleware.UUIDToString(wt.ID),
+			Name: wt.Name,
+			Icon: nullStr(wt.Icon),
+			Unit: wt.Unit,
+		}
+	}
+	return items
 }

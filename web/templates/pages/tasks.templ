@@ -22,6 +22,7 @@ type TasksPageData struct {
 	Review       []TaskItem
 	Done         []TaskItem
 	StatusCounts map[string]int64
+	Companies    []CompanyItem
 }
 
 func totalTasks(data TasksPageData) int {
@@ -83,7 +84,7 @@ templ TasksListPage(data TasksPageData) {
 				@kanbanCol("Hoàn thành", "bg-forest", data.Done, "done")
 			</div>
 		}
-		@taskFormModal()
+		@taskFormModalWithCompanies(data.Companies)
 	}
 }
 
@@ -133,7 +134,7 @@ templ kDoneDB(task TaskItem) {
 	</a>
 }
 
-templ taskFormModal() {
+templ taskFormModalWithCompanies(companies []CompanyItem) {
 	<div id="task-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-ink/40 dark:bg-black/60" onclick="if(event.target===this)this.classList.add('hidden')">
 		<div class="bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-lg p-8 w-full max-w-lg mx-4">
 			<h2 class="display text-2xl font-bold mb-6">Tạo Công việc</h2>
@@ -172,6 +173,21 @@ templ taskFormModal() {
 						<option value="design">Design</option>
 						<option value="meeting">Meeting</option>
 						<option value="other">Khác</option>
+					</select>
+				</div>
+				<div>
+					<label class="block text-sm font-medium mb-1">Công ty</label>
+					<select name="company_id" class="w-full px-3 py-2 border border-hairline dark:border-dark-border rounded bg-ivory dark:bg-dark-bg text-ink">
+						<option value="">— Không gắn —</option>
+						for _, comp := range companies {
+							<option value={ comp.ID }>
+								if comp.ShortCode != "" {
+									{ comp.ShortCode + " · " + comp.Name }
+								} else {
+									{ comp.Name }
+								}
+							</option>
+						}
 					</select>
 				</div>
 				<div class="flex gap-2 pt-2">

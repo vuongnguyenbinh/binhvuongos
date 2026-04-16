@@ -18,9 +18,12 @@ func (h *Handler) Campaigns(c *fiber.Ctx) error {
 	}
 	total, _ := h.queries.CountCampaigns(c.Context())
 
+	companies, _ := h.queries.ListCompanies(c.Context(), 50, 0)
+
 	data := pages.CampaignsPageData{
 		Campaigns: toTemplCampaigns(items),
 		Total:     total,
+		Companies: toTemplCompanies(companies),
 	}
 	return render(c, pages.CampaignsListPage(data))
 }

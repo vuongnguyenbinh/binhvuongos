@@ -51,7 +51,25 @@ func (h *Handler) CreateCompany(c *fiber.Ctx) error {
 }
 
 func (h *Handler) UpdateCompanyForm(c *fiber.Ctx) error {
-	return c.Redirect("/companies/" + c.Params("id"))
+	id := c.Params("id")
+	name := c.FormValue("name")
+	shortCode := c.FormValue("short_code")
+	industry := c.FormValue("industry")
+	health := c.FormValue("health")
+	status := c.FormValue("status")
+
+	if name != "" {
+		_, _ = h.queries.UpdateCompany(c.Context(), generated.UpdateCompanyParams{
+			ID:        middleware.StringToUUID(id),
+			Name:      name,
+			ShortCode: sql.NullString{String: shortCode, Valid: shortCode != ""},
+			Industry:  sql.NullString{String: industry, Valid: industry != ""},
+			MyRole:    "owner", // keep existing
+			Status:    status,
+			Health:    sql.NullString{String: health, Valid: health != ""},
+		})
+	}
+	return c.Redirect("/companies/" + id)
 }
 
 func toTemplCompanies(companies []generated.Company) []pages.CompanyItem {

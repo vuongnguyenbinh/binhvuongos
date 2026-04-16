@@ -25,6 +25,8 @@ func (h *Handler) Tasks(c *fiber.Ctx) error {
 		counts[sc.Status] = sc.Count
 	}
 
+	companies, _ := h.queries.ListCompanies(c.Context(), 50, 0)
+
 	data := pages.TasksPageData{
 		Todo:         toTemplTasks(todo),
 		InProgress:   toTemplTasks(inProgress),
@@ -32,6 +34,7 @@ func (h *Handler) Tasks(c *fiber.Ctx) error {
 		Review:       toTemplTasks(review),
 		Done:         toTemplTasks(done),
 		StatusCounts: counts,
+		Companies:    toTemplCompanies(companies),
 	}
 	return render(c, pages.TasksListPage(data))
 }

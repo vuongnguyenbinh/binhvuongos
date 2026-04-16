@@ -18,6 +18,7 @@ type ContentPageData struct {
 	Items        []ContentItem
 	Total        int64
 	StatusCounts map[string]int64
+	Companies    []CompanyItem
 }
 
 func contentStatusPill(s string) string {
@@ -128,7 +129,7 @@ templ ContentListPage(data ContentPageData) {
 				</table>
 			</div>
 		}
-		@contentFormModal()
+		@contentFormModalWithCompanies(data.Companies)
 	}
 }
 
@@ -165,7 +166,7 @@ templ cRowDB(item ContentItem) {
 	</tr>
 }
 
-templ contentFormModal() {
+templ contentFormModalWithCompanies(companies []CompanyItem) {
 	<div id="content-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-ink/40 dark:bg-black/60" onclick="if(event.target===this)this.classList.add('hidden')">
 		<div class="bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-lg p-8 w-full max-w-lg mx-4">
 			<h2 class="display text-2xl font-bold mb-6">Tạo Nội dung</h2>
@@ -187,7 +188,18 @@ templ contentFormModal() {
 				</div>
 				<div>
 					<label class="block text-sm font-medium mb-1">Công ty *</label>
-					<input type="text" name="company_id" required class="w-full px-3 py-2 border border-hairline dark:border-dark-border rounded bg-ivory dark:bg-dark-bg text-ink focus:outline-none focus:border-forest" placeholder="UUID công ty"/>
+					<select name="company_id" required class="w-full px-3 py-2 border border-hairline dark:border-dark-border rounded bg-ivory dark:bg-dark-bg text-ink">
+						<option value="">— Chọn công ty —</option>
+						for _, comp := range companies {
+							<option value={ comp.ID }>
+								if comp.ShortCode != "" {
+									{ comp.ShortCode + " · " + comp.Name }
+								} else {
+									{ comp.Name }
+								}
+							</option>
+						}
+					</select>
 				</div>
 				<div class="flex gap-2 pt-2">
 					<button type="submit" class="flex-1 py-2.5 bg-forest text-white font-semibold rounded hover:bg-forest/90 mono">TẠO</button>

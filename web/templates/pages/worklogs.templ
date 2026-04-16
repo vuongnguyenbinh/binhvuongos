@@ -17,10 +17,19 @@ type WorkLogItem struct {
 	Notes        string
 }
 
+type WorkTypeItem struct {
+	ID   string
+	Name string
+	Icon string
+	Unit string
+}
+
 type WorkLogsPageData struct {
 	Items        []WorkLogItem
 	Total        int64
 	PendingCount int64
+	Companies    []CompanyItem
+	WorkTypes    []WorkTypeItem
 }
 
 func wlStatusPill(s string) string {
@@ -65,6 +74,7 @@ templ WorkLogsListPage(data WorkLogsPageData) {
 						<span class="accent">Nhật ký</span> công việc
 					}
 				</h1>
+				<button onclick="document.getElementById('wl-modal').classList.remove('hidden')" class="px-4 py-2 bg-forest text-white rounded-md text-sm mono font-semibold">+ GỬI BÁO CÁO</button>
 			</div>
 		</div>
 		if len(data.Items) == 0 {
@@ -94,7 +104,64 @@ templ WorkLogsListPage(data WorkLogsPageData) {
 				</table>
 			</div>
 		}
+		@workLogFormModal(data.Companies, data.WorkTypes)
 	}
+}
+
+templ workLogFormModal(companies []CompanyItem, workTypes []WorkTypeItem) {
+	<div id="wl-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-ink/40 dark:bg-black/60" onclick="if(event.target===this)this.classList.add('hidden')">
+		<div class="bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-lg p-8 w-full max-w-lg mx-4">
+			<h2 class="display text-2xl font-bold mb-6">Gửi Báo cáo</h2>
+			<form method="POST" action="/work-logs" class="space-y-4">
+				<div class="grid grid-cols-2 gap-4">
+					<div>
+						<label class="block text-sm font-medium mb-1">Ngày làm *</label>
+						<input type="date" name="work_date" required class="w-full px-3 py-2 border border-hairline dark:border-dark-border rounded bg-ivory dark:bg-dark-bg text-ink"/>
+					</div>
+					<div>
+						<label class="block text-sm font-medium mb-1">Số lượng *</label>
+						<input type="number" name="quantity" required step="0.5" min="0" class="w-full px-3 py-2 border border-hairline dark:border-dark-border rounded bg-ivory dark:bg-dark-bg text-ink" placeholder="25"/>
+					</div>
+				</div>
+				<div>
+					<label class="block text-sm font-medium mb-1">Công ty *</label>
+					<select name="company_id" required class="w-full px-3 py-2 border border-hairline dark:border-dark-border rounded bg-ivory dark:bg-dark-bg text-ink">
+						<option value="">— Chọn —</option>
+						for _, comp := range companies {
+							<option value={ comp.ID }>
+								if comp.ShortCode != "" {
+									{ comp.ShortCode + " · " + comp.Name }
+								} else {
+									{ comp.Name }
+								}
+							</option>
+						}
+					</select>
+				</div>
+				<div>
+					<label class="block text-sm font-medium mb-1">Loại công việc *</label>
+					<select name="work_type_id" required class="w-full px-3 py-2 border border-hairline dark:border-dark-border rounded bg-ivory dark:bg-dark-bg text-ink">
+						<option value="">— Chọn —</option>
+						for _, wt := range workTypes {
+							<option value={ wt.ID }>{ wt.Icon + " " + wt.Name + " (" + wt.Unit + ")" }</option>
+						}
+					</select>
+				</div>
+				<div>
+					<label class="block text-sm font-medium mb-1">Link sheet/evidence</label>
+					<input type="url" name="sheet_url" class="w-full px-3 py-2 border border-hairline dark:border-dark-border rounded bg-ivory dark:bg-dark-bg text-ink" placeholder="https://docs.google.com/..."/>
+				</div>
+				<div>
+					<label class="block text-sm font-medium mb-1">Ghi chú</label>
+					<textarea name="notes" rows="2" class="w-full px-3 py-2 border border-hairline dark:border-dark-border rounded bg-ivory dark:bg-dark-bg text-ink"></textarea>
+				</div>
+				<div class="flex gap-2 pt-2">
+					<button type="submit" class="flex-1 py-2.5 bg-forest text-white font-semibold rounded hover:bg-forest/90 mono">GỬI BÁO CÁO</button>
+					<button type="button" onclick="document.getElementById('wl-modal').classList.add('hidden')" class="px-4 py-2.5 border border-hairline rounded text-muted hover:text-ink">Huỷ</button>
+				</div>
+			</form>
+		</div>
+	</div>
 }
 
 templ wlRowDB(wl WorkLogItem) {
