@@ -1,0 +1,72 @@
+package pages
+
+templ LoginPage(errMsg string) {
+	<!DOCTYPE html>
+	<html lang="vi">
+	<head>
+		<meta charset="UTF-8"/>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+		<title>Đăng nhập — Bình Vương OS</title>
+		<link rel="preconnect" href="https://fonts.googleapis.com"/>
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+		<link href="https://fonts.googleapis.com/css2?family=Phudu:wght@300;400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet"/>
+		<link rel="stylesheet" href="/static/css/output.css?v=20260417"/>
+		<script src="/static/js/dark-mode.js"></script>
+	</head>
+	<body class="min-h-screen paper flex items-center justify-center">
+		<div class="w-full max-w-md px-6">
+			<div class="text-center mb-8">
+				<h1 class="display text-4xl font-bold text-forest mb-2">Bình Vương <span class="eyebrow">OS</span></h1>
+				<p class="text-muted text-sm">Solo Founder Edition</p>
+			</div>
+			<div class="bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-lg p-8">
+				<h2 class="display text-2xl font-bold mb-6">Đăng nhập</h2>
+				if errMsg != "" {
+					<div class="mb-4 p-3 bg-rust/10 border border-rust/20 rounded text-rust text-sm">
+						{ errMsg }
+					</div>
+				}
+				<form method="POST" action="/auth/login" class="space-y-4">
+					<div>
+						<label for="email" class="block text-sm font-medium mb-1">Email</label>
+						<input
+							type="email"
+							id="email"
+							name="email"
+							required
+							autofocus
+							class="w-full px-3 py-2 border border-hairline dark:border-dark-border rounded bg-ivory dark:bg-dark-bg text-ink focus:outline-none focus:border-forest transition-colors"
+							placeholder="email@example.com"
+						/>
+					</div>
+					<div>
+						<label for="password" class="block text-sm font-medium mb-1">Mật khẩu</label>
+						<input
+							type="password"
+							id="password"
+							name="password"
+							required
+							class="w-full px-3 py-2 border border-hairline dark:border-dark-border rounded bg-ivory dark:bg-dark-bg text-ink focus:outline-none focus:border-forest transition-colors"
+							placeholder="••••••••"
+						/>
+					</div>
+					<div class="flex items-center gap-2">
+						<input type="checkbox" id="remember" name="remember" class="rounded border-hairline"/>
+						<label for="remember" class="text-sm text-muted">Ghi nhớ đăng nhập (30 ngày)</label>
+					</div>
+					<button
+						type="submit"
+						class="w-full py-2.5 bg-forest text-white font-semibold rounded hover:bg-forest/90 transition-colors"
+					>
+						Đăng nhập
+					</button>
+				</form>
+			</div>
+			<div class="mt-6 text-center text-xs text-muted">
+				<span class="ornament">✦</span>
+				<span class="ml-2">Bình Vương OS · v2.0 · Layer 2</span>
+			</div>
+		</div>
+	</body>
+	</html>
+}

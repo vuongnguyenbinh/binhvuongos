@@ -1,0 +1,1 @@
+DROP TABLE IF EXISTS notion_sync_log CASCADE;

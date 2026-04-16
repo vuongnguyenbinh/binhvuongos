@@ -1,0 +1,2 @@
+ALTER TABLE tasks DROP CONSTRAINT IF EXISTS fk_tasks_objective;
+DROP TABLE IF EXISTS objectives CASCADE;
