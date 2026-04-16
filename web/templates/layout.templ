@@ -79,17 +79,19 @@ templ Header(activeTab string) {
 				@TabLink("/knowledge", "knowledge", "Kho kiến thức", "", activeTab)
 				@TabLink("/bookmarks", "bookmarks", "🔖 Bookmark", "", activeTab)
 			</nav>
-			<!-- Mobile nav (hidden by default) -->
-			<nav id="mobile-nav" class="hidden md:hidden py-3 space-y-1 border-t border-hairline dark:border-dark-border">
-				@MobileNavLink("/", "Tổng quan", activeTab == "dashboard")
-				@MobileNavLink("/inbox", "📥 Hộp thư đến", activeTab == "inbox")
-				@MobileNavLink("/work-logs", "📋 Nhật ký công việc", activeTab == "worklogs")
-				@MobileNavLink("/tasks", "✅ Công việc", activeTab == "tasks")
-				@MobileNavLink("/content", "📝 Nội dung", activeTab == "content")
-				@MobileNavLink("/companies", "🏢 Công ty", activeTab == "companies")
-				@MobileNavLink("/campaigns", "🎯 Chiến dịch", activeTab == "campaigns")
-				@MobileNavLink("/knowledge", "📚 Kho kiến thức", activeTab == "knowledge")
-				@MobileNavLink("/bookmarks", "🔖 Bookmark", activeTab == "bookmarks")
+			<!-- Mobile nav — grid 2 columns -->
+			<nav id="mobile-nav" class="hidden md:hidden py-3 border-t border-hairline dark:border-dark-border">
+				<div class="grid grid-cols-2 gap-2">
+					@MobileNavCard("/", "🏠", "Tổng quan", activeTab == "dashboard")
+					@MobileNavCard("/inbox", "📥", "Hộp thư đến", activeTab == "inbox")
+					@MobileNavCard("/work-logs", "📋", "Nhật ký", activeTab == "worklogs")
+					@MobileNavCard("/tasks", "✅", "Công việc", activeTab == "tasks")
+					@MobileNavCard("/content", "📝", "Nội dung", activeTab == "content")
+					@MobileNavCard("/companies", "🏢", "Công ty", activeTab == "companies")
+					@MobileNavCard("/campaigns", "🎯", "Chiến dịch", activeTab == "campaigns")
+					@MobileNavCard("/knowledge", "📚", "Kiến thức", activeTab == "knowledge")
+					@MobileNavCard("/bookmarks", "🔖", "Bookmark", activeTab == "bookmarks")
+				</div>
 			</nav>
 		</div>
 	</header>
@@ -113,9 +115,10 @@ templ TabLink(href string, tab string, label string, badge string, activeTab str
 	}
 }
 
-templ MobileNavLink(href string, label string, isActive bool) {
-	<a href={ templ.SafeURL(href) } class={ "block px-3 py-2 rounded text-sm", templ.KV("bg-forest text-white font-semibold", isActive), templ.KV("text-muted hover:text-ink hover:bg-cream/40 dark:hover:bg-dark-cream/40", !isActive) }>
-		{ label }
+templ MobileNavCard(href string, icon string, label string, isActive bool) {
+	<a href={ templ.SafeURL(href) } class={ "flex flex-col items-center justify-center gap-1 p-3 rounded-lg border text-center transition-colors", templ.KV("bg-forest text-white border-forest font-semibold", isActive), templ.KV("bg-surface dark:bg-dark-surface border-hairline dark:border-dark-border text-muted hover:text-ink hover:border-forest", !isActive) }>
+		<span class="text-xl">{ icon }</span>
+		<span class="text-xs mono">{ label }</span>
 	</a>
 }
 
