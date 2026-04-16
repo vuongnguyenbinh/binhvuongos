@@ -28,8 +28,14 @@ CREATE INDEX idx_knowledge_scope ON knowledge_items(scope);
 CREATE INDEX idx_knowledge_company ON knowledge_items(company_id) WHERE company_id IS NOT NULL;
 CREATE INDEX idx_knowledge_topics ON knowledge_items USING GIN(topics);
 CREATE INDEX idx_knowledge_sync ON knowledge_items(sync_status) WHERE sync_status IN ('pending', 'error');
+-- Create immutable wrapper for unaccent (required for GIN index)
+CREATE OR REPLACE FUNCTION immutable_unaccent(text)
+RETURNS text AS $$
+    SELECT unaccent($1);
+$$ LANGUAGE sql IMMUTABLE;
+
 CREATE INDEX idx_knowledge_search ON knowledge_items
-    USING GIN(to_tsvector('simple', unaccent(title || ' ' || COALESCE(description, ''))));
+    USING GIN(to_tsvector('simple', immutable_unaccent(title || ' ' || COALESCE(description, ''))));
 
 CREATE TRIGGER tr_knowledge_updated_at BEFORE UPDATE ON knowledge_items
     FOR EACH ROW EXECUTE FUNCTION set_updated_at();

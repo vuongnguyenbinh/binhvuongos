@@ -57,7 +57,7 @@ func (q *Queries) CountKnowledgeItems(ctx context.Context) (int64, error) {
 func (q *Queries) SearchKnowledgeItems(ctx context.Context, query string, limit, offset int32) ([]KnowledgeItem, error) {
 	return q.scanKnowledgeItems(ctx,
 		`SELECT `+knowledgeCols+` FROM knowledge_items WHERE deleted_at IS NULL
-		 AND to_tsvector('simple', unaccent(title || ' ' || COALESCE(description, ''))) @@ plainto_tsquery('simple', unaccent($1))
+		 AND to_tsvector('simple', immutable_unaccent(title || ' ' || COALESCE(description, ''))) @@ plainto_tsquery('simple', immutable_unaccent($1))
 		 ORDER BY created_at DESC LIMIT $2 OFFSET $3`, query, limit, offset)
 }
 
