@@ -1,0 +1,21 @@
+package components
+
+import "fmt"
+
+templ Pagination(current int, total int) {
+	<nav class="flex items-center justify-center gap-1 mt-8">
+		if current > 1 {
+			<a href={ templ.SafeURL(fmt.Sprintf("?page=%d", current-1)) } class="px-3 py-1.5 text-xs border border-hairline dark:border-dark-border rounded bg-surface dark:bg-dark-surface text-muted hover:text-ink mono">← Trước</a>
+		}
+		for i := 1; i <= total; i++ {
+			if i == current {
+				<span class="px-3 py-1.5 text-xs bg-forest text-white rounded mono font-semibold">{ fmt.Sprintf("%d", i) }</span>
+			} else {
+				<a href={ templ.SafeURL(fmt.Sprintf("?page=%d", i)) } class="px-3 py-1.5 text-xs border border-hairline dark:border-dark-border rounded bg-surface dark:bg-dark-surface text-muted hover:text-ink mono">{ fmt.Sprintf("%d", i) }</a>
+			}
+		}
+		if current < total {
+			<a href={ templ.SafeURL(fmt.Sprintf("?page=%d", current+1)) } class="px-3 py-1.5 text-xs border border-hairline dark:border-dark-border rounded bg-surface dark:bg-dark-surface text-muted hover:text-ink mono">Sau →</a>
+		}
+	</nav>
+}

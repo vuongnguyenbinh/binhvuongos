@@ -1,6 +1,9 @@
 package pages
 
-import "binhvuongos/web/templates"
+import (
+	"binhvuongos/web/templates"
+	"binhvuongos/web/templates/components"
+)
 
 templ KnowledgePage() {
 	@templates.Layout("Kho kiến thức", "knowledge") {
@@ -17,6 +20,7 @@ templ KnowledgePage() {
 				</div>
 			</div>
 		</div>
+		<div class="mb-6">@components.DateFilter()</div>
 		<div class="flex items-center gap-2 mb-8 pb-4 border-b border-hairline text-xs overflow-x-auto">
 			<button class="px-3 py-1.5 bg-forest text-white rounded-full mono font-semibold whitespace-nowrap">Tất cả <span class="ml-1">184</span></button>
 			<button class="px-3 py-1.5 bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-full text-muted mono whitespace-nowrap">📖 Bài giảng <span class="ml-1">28</span></button>
@@ -25,6 +29,7 @@ templ KnowledgePage() {
 			<button class="px-3 py-1.5 bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-full text-muted mono whitespace-nowrap">🎓 Training <span class="ml-1">21</span></button>
 			<button class="px-3 py-1.5 bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-full text-muted mono whitespace-nowrap">🔗 Nguyên liệu <span class="ml-1">65</span></button>
 			<button class="px-3 py-1.5 bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-full text-muted mono whitespace-nowrap">📑 Nghiên cứu <span class="ml-1">12</span></button>
+			<button class="px-3 py-1.5 bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-full text-muted mono whitespace-nowrap">💡 Note/Idea <span class="ml-1">9</span></button>
 		</div>
 		<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
 			<!-- Featured hero card -->

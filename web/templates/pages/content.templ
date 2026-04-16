@@ -1,6 +1,9 @@
 package pages
 
-import "binhvuongos/web/templates"
+import (
+	"binhvuongos/web/templates"
+	"binhvuongos/web/templates/components"
+)
 
 templ ContentPage() {
 	@templates.Layout("Nội dung", "content") {
@@ -14,6 +17,7 @@ templ ContentPage() {
 				<button class="px-4 py-2 bg-forest text-white rounded-md text-sm mono font-semibold">+ TẠO NỘI DUNG</button>
 			</div>
 		</div>
+		<div class="mb-6">@components.DateFilter()</div>
 		<div class="grid grid-cols-3 md:grid-cols-7 gap-px bg-hairline border border-hairline rounded-lg overflow-hidden mb-8">
 			<div class="bg-surface p-4 text-center"><div class="stat-hero text-3xl tnum">14</div><div class="eyebrow mt-2">💡 Ý tưởng</div></div>
 			<div class="bg-surface p-4 text-center"><div class="stat-hero text-3xl tnum">8</div><div class="eyebrow mt-2">📝 Đang viết</div></div>
@@ -46,6 +50,7 @@ templ ContentPage() {
 				</tbody>
 			</table>
 		</div>
+		@components.Pagination(1, 4)
 	}
 }
 

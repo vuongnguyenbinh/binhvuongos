@@ -2,6 +2,7 @@ package pages
 
 import (
 	"binhvuongos/web/templates"
+	"binhvuongos/web/templates/components"
 	"fmt"
 )
 
@@ -14,6 +15,7 @@ templ CampaignsPage() {
 				<button class="px-4 py-2 bg-forest text-white rounded-md text-sm mono font-semibold">+ TẠO CHIẾN DỊCH</button>
 			</div>
 		</div>
+		<div class="mb-6">@components.DateFilter()</div>
 		<!-- Featured -->
 		<div class="bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-lg p-8 mb-8">
 			<div class="flex items-start justify-between mb-6">

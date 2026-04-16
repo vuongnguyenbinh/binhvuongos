@@ -1,0 +1,20 @@
+package components
+
+templ Modal(id string, title string) {
+	<div id={ id } data-modal class="hidden fixed inset-0 z-50">
+		<div class="modal-backdrop absolute inset-0"></div>
+		<div class="relative z-10 mx-auto mt-10 md:mt-20 max-w-2xl mx-4 md:mx-auto bg-surface dark:bg-dark-surface rounded-lg shadow-xl border border-hairline dark:border-dark-border max-h-[85vh] flex flex-col">
+			<div class="flex items-center justify-between p-5 border-b border-hairline dark:border-dark-border shrink-0">
+				<h3 class="display text-xl font-bold">{ title }</h3>
+				<button onclick={ closeModalJS(id) } class="text-muted hover:text-ink text-lg">✕</button>
+			</div>
+			<div class="p-5 overflow-y-auto">
+				{ children... }
+			</div>
+		</div>
+	</div>
+}
+
+script closeModalJS(id string) {
+	closeModal(id)
+}

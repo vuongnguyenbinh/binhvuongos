@@ -1,6 +1,9 @@
 package pages
 
-import "binhvuongos/web/templates"
+import (
+	"binhvuongos/web/templates"
+	"binhvuongos/web/templates/components"
+)
 
 templ TasksPage() {
 	@templates.Layout("Công việc", "tasks") {
@@ -11,6 +14,7 @@ templ TasksPage() {
 			</div>
 			<button class="px-4 py-2 bg-forest text-white rounded-md text-sm hover:bg-forest-900 mono font-semibold">+ TẠO CÔNG VIỆC</button>
 		</div>
+		<div class="mb-4">@components.DateFilter()</div>
 		<div class="flex items-center gap-3 mb-6 pb-4 border-b border-hairline text-xs overflow-x-auto">
 			<span class="eyebrow">Lọc:</span>
 			<button class="px-3 py-1.5 bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-full whitespace-nowrap">Tất cả công ty ▾</button>

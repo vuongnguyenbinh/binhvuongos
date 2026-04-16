@@ -1,6 +1,9 @@
 package pages
 
-import "binhvuongos/web/templates"
+import (
+	"binhvuongos/web/templates"
+	"binhvuongos/web/templates/components"
+)
 
 templ WorkLogsPage() {
 	@templates.Layout("Nhật ký công việc", "worklogs") {
@@ -14,7 +17,7 @@ templ WorkLogsPage() {
 					<button class="px-3 py-1.5 text-xs bg-forest text-white rounded hover:bg-forest-600 mono font-semibold">duyệt tất cả</button>
 				</div>
 			</div>
-			<p class="mt-4 text-muted max-w-2xl">5 báo cáo chờ duyệt · 3 đã khớp tự động · 2 cần kiểm tra thủ công</p>
+			<div class="mt-4">@components.DateFilter()</div>
 		</div>
 		<div class="flex items-center gap-3 mb-6 pb-4 border-b border-hairline text-xs">
 			<div class="flex items-center gap-2 px-3 py-1.5 bg-forest text-white rounded mono font-semibold"><span>Chờ duyệt</span><span>5</span></div>
@@ -47,6 +50,7 @@ templ WorkLogsPage() {
 				</tbody>
 			</table>
 		</div>
+		@components.Pagination(1, 3)
 		<div class="mt-8 grid grid-cols-3 md:grid-cols-6 gap-6 text-center">
 			@wlStat("🔗 Backlink", "25", "324")
 			@wlStat("📝 Content", "3", "42")
