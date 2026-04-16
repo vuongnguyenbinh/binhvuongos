@@ -11,7 +11,7 @@ templ InboxPage() {
 			<p class="eyebrow mb-2">Hộp thư đến · triage thông minh</p>
 			<div class="flex items-end justify-between">
 				<h1 class="display text-5xl md:text-6xl font-bold leading-none">Phân loại <span class="accent">12 mục</span> chưa xử lý</h1>
-				<button onclick="openModal('create-inbox')" class="px-4 py-2 bg-forest text-white rounded-md text-sm mono font-semibold shrink-0">+ TẠO INBOX</button>
+				<a href="/inbox/new" class="px-4 py-2 bg-forest text-white rounded-md text-sm mono font-semibold shrink-0">+ TẠO INBOX</a>
 			</div>
 			<div class="mt-4 flex items-center gap-4 flex-wrap">
 				<span class="text-muted text-sm">Cổng vào duy nhất. Triage 10 phút mỗi sáng.</span>
@@ -98,67 +98,11 @@ templ InboxPage() {
 				</div>
 			</div>
 		</div>
-		<!-- Create Inbox Modal -->
-		@components.Modal("create-inbox", "Tạo inbox mới") {
-			<div class="space-y-4">
-				<div>
-					<label class="eyebrow mb-2 block">Nội dung <span class="text-rust">*</span></label>
-					<textarea rows="4" class="w-full p-3 border border-hairline dark:border-dark-border rounded-md bg-surface dark:bg-dark-surface text-sm" placeholder="Ghi nhanh ý tưởng, link, ghi chú..."></textarea>
-				</div>
-				<div>
-					<label class="eyebrow mb-2 block">URL (tuỳ chọn)</label>
-					<input type="text" class="w-full p-2.5 border border-hairline dark:border-dark-border rounded-md bg-surface dark:bg-dark-surface text-sm" placeholder="https://..."/>
-				</div>
-				<div class="grid grid-cols-2 gap-3">
-					<div>
-						<label class="eyebrow mb-2 block">Loại</label>
-						<select class="w-full p-2.5 border border-hairline dark:border-dark-border rounded-md bg-surface dark:bg-dark-surface text-sm">
-							<option>— Chọn —</option>
-							<option>Ý tưởng</option>
-							<option>Link</option>
-							<option>Ghi chú</option>
-							<option>File</option>
-						</select>
-					</div>
-					<div>
-						<label class="eyebrow mb-2 block">Công ty</label>
-						<select class="w-full p-2.5 border border-hairline dark:border-dark-border rounded-md bg-surface dark:bg-dark-surface text-sm">
-							<option>— Chưa gắn —</option>
-							<option>ABC Education</option>
-							<option>XYZ Finance</option>
-							<option>EduPlus Academy</option>
-							<option>FinHub Vietnam</option>
-						</select>
-					</div>
-				</div>
-				<button class="w-full px-4 py-2.5 bg-forest text-white rounded-md text-sm font-semibold mono">TẠO INBOX</button>
-			</div>
-		}
-		<!-- Inbox Detail Modal -->
-		@components.Modal("inbox-detail", "Chi tiết Inbox") {
-			<div class="space-y-4">
-				<div class="flex items-center gap-2">
-					<span class="pill bg-forest text-white">TELEGRAM</span>
-					<span class="text-xs text-muted mono">2 giờ trước</span>
-				</div>
-				<div class="text-sm text-forest mono underline decoration-dotted">tiktok.com/@tambui/video/7234...</div>
-				<p class="text-sm leading-relaxed">Link TikTok của Tâm Bùi về copywriting — phong cách storytelling rất hay, có thể áp dụng cho series XYZ</p>
-				<div class="text-xs text-muted mono">📎 1 ảnh đính kèm</div>
-				<div>
-					<label class="eyebrow mb-2 block">Ghi chú chi tiết</label>
-					<textarea rows="8" class="w-full p-3 border border-hairline dark:border-dark-border rounded-md bg-surface dark:bg-dark-surface text-sm mono" placeholder="Viết ghi chú markdown ở đây...&#10;&#10;## Heading&#10;- Bullet point&#10;**Bold text**"></textarea>
-				</div>
-				<div class="flex gap-2">
-					<button class="flex-1 px-4 py-2.5 bg-forest text-white rounded-md text-sm font-semibold mono">LƯU &amp; TRIAGE</button>
-					<button class="px-4 py-2.5 border border-hairline dark:border-dark-border rounded-md text-sm text-muted">Đóng</button>
-				</div>
-			</div>
-		}
 	}
 }
 
 templ inboxItem(source string, pillClass string, timeAgo string, url string, content string, attachments string, suggestion string, isFading bool) {
-	<div class={ "p-5 row-hover cursor-pointer", templ.KV("opacity-60", isFading) } onclick="openModal('inbox-detail')">
+	<a href="/inbox/1" class={ "block p-5 row-hover cursor-pointer", templ.KV("opacity-60", isFading) }>
 		<div class="flex items-start justify-between mb-2">
 			<div class="flex items-center gap-3 text-[11px]">
 				<input type="checkbox" class="item-check accent-[#1F3D2E]" onclick="event.stopPropagation(); updateBulkActions('#inbox-list')"/>
@@ -182,5 +126,5 @@ templ inboxItem(source string, pillClass string, timeAgo string, url string, con
 				<span class="text-rust mono">⚠ sắp archive</span>
 			}
 		</div>
-	</div>
+	</a>
 }

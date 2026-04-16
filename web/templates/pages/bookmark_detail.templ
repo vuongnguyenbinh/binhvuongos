@@ -1,0 +1,50 @@
+package pages
+
+import "binhvuongos/web/templates"
+
+templ BookmarkDetailPage() {
+	@templates.Layout("Chi tiết Bookmark", "bookmarks") {
+		<div class="mb-8">
+			<a href="/bookmarks" class="text-xs text-muted hover:text-ink mono">← Quay lại Bookmarks</a>
+			<div class="flex items-end justify-between mt-4">
+				<div>
+					<h1 class="display text-4xl md:text-5xl font-bold leading-none">Ahrefs</h1>
+					<a class="text-forest mono underline decoration-dotted text-sm mt-2 block">ahrefs.com</a>
+				</div>
+				<div class="flex gap-2">
+					<button class="px-3 py-1.5 bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded text-xs text-muted mono">Chỉnh sửa</button>
+					<button class="px-3 py-1.5 bg-rust text-white rounded text-xs mono">Xoá</button>
+				</div>
+			</div>
+		</div>
+		<div class="grid grid-cols-1 xl:grid-cols-12 gap-6">
+			<div class="xl:col-span-8 space-y-6">
+				<div class="bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-lg p-6">
+					<h3 class="display text-lg font-bold mb-3">Mô tả</h3>
+					<p class="text-sm leading-relaxed">Tool SEO phân tích backlink và keyword hàng đầu. Dùng hàng ngày cho mọi client. Hỗ trợ site audit, keyword explorer, content explorer, rank tracker.</p>
+				</div>
+				<div class="bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-lg p-6">
+					<h3 class="display text-lg font-bold mb-3">Ghi chú</h3>
+					<textarea rows="8" class="w-full p-4 border border-hairline dark:border-dark-border rounded-md bg-cream/20 dark:bg-dark-cream text-sm mono leading-relaxed" placeholder="Thêm ghi chú...">## Cách dùng Ahrefs hiệu quả
+
+- Site Explorer: check backlink profile competitor
+- Keyword Explorer: tìm keyword gaps
+- Content Explorer: tìm top content theo topic
+- Batch Analysis: check nhiều URL cùng lúc
+
+**Account:** Business plan, shared team access</textarea>
+				</div>
+			</div>
+			<div class="xl:col-span-4">
+				<div class="bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-lg p-5">
+					<h3 class="eyebrow mb-3">Thông tin</h3>
+					<div class="space-y-3 text-xs">
+						<div class="flex justify-between"><span class="text-muted">URL</span><a class="text-forest mono">ahrefs.com</a></div>
+						<div class="flex justify-between"><span class="text-muted">Tags</span><div class="flex gap-1"><span class="pill bg-forest-50 text-forest">SEO</span><span class="pill bg-forest-50 text-forest">Tools</span></div></div>
+						<div class="flex justify-between"><span class="text-muted">Ngày thêm</span><span class="mono">12/04/2026</span></div>
+					</div>
+				</div>
+			</div>
+		</div>
+	}
+}

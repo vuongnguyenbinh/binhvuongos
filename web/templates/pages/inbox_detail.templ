@@ -1,0 +1,112 @@
+package pages
+
+import "binhvuongos/web/templates"
+
+templ InboxDetailPage() {
+	@templates.Layout("Chi tiết Inbox", "inbox") {
+		<div class="mb-8">
+			<a href="/inbox" class="text-xs text-muted hover:text-ink mono">← Quay lại Hộp thư đến</a>
+			<div class="flex items-end justify-between mt-4">
+				<div>
+					<div class="flex items-center gap-2 mb-2">
+						<span class="pill bg-forest text-white">TELEGRAM</span>
+						<span class="text-xs text-muted mono">inbox #a3f2 · 2 giờ trước</span>
+					</div>
+					<h1 class="display text-4xl md:text-5xl font-bold leading-none">Link TikTok về copywriting</h1>
+				</div>
+				<div class="flex gap-2">
+					<button class="px-3 py-1.5 bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded text-xs text-muted mono">Archive</button>
+					<button class="px-3 py-1.5 bg-rust text-white rounded text-xs mono">Xoá</button>
+				</div>
+			</div>
+		</div>
+		<div class="grid grid-cols-1 xl:grid-cols-12 gap-6">
+			<div class="xl:col-span-8 space-y-6">
+				<!-- Content -->
+				<div class="bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-lg p-6">
+					<h3 class="display text-lg font-bold mb-4">Nội dung</h3>
+					<div class="mb-4">
+						<a class="text-forest mono underline decoration-dotted text-sm">tiktok.com/@tambui/video/7234...</a>
+					</div>
+					<p class="text-sm leading-relaxed">Link TikTok của Tâm Bùi về copywriting — phong cách storytelling rất hay, có thể áp dụng cho series XYZ. Video dài 3 phút, nói về cách viết hook đầu bài để giữ người đọc.</p>
+					<div class="mt-4 flex items-center gap-3 text-xs text-muted mono">
+						<span>📎 1 ảnh đính kèm</span>
+						<span>·</span>
+						<span>Nguồn: Telegram</span>
+					</div>
+				</div>
+				<!-- Notes / Rich text area -->
+				<div class="bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-lg p-6">
+					<h3 class="display text-lg font-bold mb-4">Ghi chú chi tiết</h3>
+					<textarea rows="12" class="w-full p-4 border border-hairline dark:border-dark-border rounded-md bg-cream/20 dark:bg-dark-cream text-sm mono leading-relaxed" placeholder="Viết ghi chú markdown ở đây...&#10;&#10;## Heading&#10;- Bullet point&#10;**Bold text**&#10;&#10;> Quote block">## Insights từ video Tâm Bùi
+
+- Hook đầu bài: đặt câu hỏi gây tò mò
+- Storytelling pattern: problem → agitate → solve
+- Áp dụng cho series XYZ Finance về tài chính cá nhân
+
+**Action items:**
+1. Share video cho CTV Minh tham khảo
+2. Viết brief cho 3 bài dạng storytelling
+3. Test format trên Facebook trước, sau đó TikTok</textarea>
+				</div>
+				<!-- Attachments -->
+				<div class="bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-lg p-6">
+					<h3 class="display text-lg font-bold mb-4">Đính kèm</h3>
+					<div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+						<div class="bg-cream/40 dark:bg-dark-cream rounded-lg p-4 text-center">
+							<div class="text-2xl mb-2">🖼️</div>
+							<div class="text-xs text-muted mono truncate">screenshot-01.png</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<!-- Sidebar: Triage -->
+			<div class="xl:col-span-4 space-y-4">
+				<div class="bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-lg p-5">
+					<h3 class="eyebrow mb-4">Triage — chuyển vào đâu?</h3>
+					<div class="space-y-2 mb-4">
+						<label class="flex items-start gap-3 p-3 border border-hairline dark:border-dark-border rounded-md hover:border-forest cursor-pointer transition-colors">
+							<input type="radio" name="dest" class="mt-0.5 accent-[#1F3D2E]" checked/>
+							<div class="flex-1">
+								<div class="flex items-center justify-between">
+									<div class="font-semibold text-sm">Kho kiến thức</div>
+									<span class="text-[10px] text-ember mono font-semibold">GỢI Ý</span>
+								</div>
+								<div class="text-xs text-muted mt-0.5">Lưu làm curated content</div>
+							</div>
+						</label>
+						<label class="flex items-start gap-3 p-3 border border-hairline dark:border-dark-border rounded-md hover:border-forest cursor-pointer transition-colors">
+							<input type="radio" name="dest" class="mt-0.5 accent-[#1F3D2E]"/>
+							<div class="flex-1"><div class="font-semibold text-sm">Nội dung</div><div class="text-xs text-muted mt-0.5">Tạo ý tưởng content mới</div></div>
+						</label>
+						<label class="flex items-start gap-3 p-3 border border-hairline dark:border-dark-border rounded-md hover:border-forest cursor-pointer transition-colors">
+							<input type="radio" name="dest" class="mt-0.5 accent-[#1F3D2E]"/>
+							<div class="flex-1"><div class="font-semibold text-sm">Công việc</div><div class="text-xs text-muted mt-0.5">Tạo task mới</div></div>
+						</label>
+					</div>
+					<div class="mb-4">
+						<label class="eyebrow mb-2 block">Gắn công ty</label>
+						<select class="w-full p-2.5 border border-hairline dark:border-dark-border rounded-md bg-surface dark:bg-dark-surface text-sm">
+							<option>— Chưa gắn —</option>
+							<option selected>XYZ Finance</option>
+							<option>ABC Education</option>
+							<option>EduPlus Academy</option>
+							<option>FinHub Vietnam</option>
+						</select>
+					</div>
+					<button class="w-full px-4 py-2.5 bg-forest text-white rounded-md text-sm font-semibold mono">CHUYỂN &amp; LƯU</button>
+				</div>
+				<div class="bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-lg p-5">
+					<h3 class="eyebrow mb-3">Thông tin</h3>
+					<div class="space-y-3 text-xs">
+						<div class="flex justify-between"><span class="text-muted">Trạng thái</span><span class="pill bg-ember/10 text-ember">RAW</span></div>
+						<div class="flex justify-between"><span class="text-muted">Nguồn</span><span>Telegram</span></div>
+						<div class="flex justify-between"><span class="text-muted">Loại</span><span>Link</span></div>
+						<div class="flex justify-between"><span class="text-muted">Ngày tạo</span><span class="mono">16/04/2026 07:32</span></div>
+						<div class="flex justify-between"><span class="text-muted">Tự archive</span><span class="mono text-rust">23/04/2026</span></div>
+					</div>
+				</div>
+			</div>
+		</div>
+	}
+}

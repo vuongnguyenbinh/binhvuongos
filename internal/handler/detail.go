@@ -28,3 +28,15 @@ func CampaignDetail(c *fiber.Ctx) error {
 func KnowledgeDetail(c *fiber.Ctx) error {
 	return render(c, pages.KnowledgeDetailPage())
 }
+
+func InboxDetail(c *fiber.Ctx) error {
+	return render(c, pages.InboxDetailPage())
+}
+
+func InboxCreate(c *fiber.Ctx) error {
+	return render(c, pages.InboxCreatePage())
+}
+
+func BookmarkDetail(c *fiber.Ctx) error {
+	return render(c, pages.BookmarkDetailPage())
+}

@@ -32,6 +32,9 @@ func main() {
 	app.Get("/bookmarks", handler.Bookmarks)
 	app.Get("/prompts", handler.Prompts)
 
+	// Create pages
+	app.Get("/inbox/new", handler.InboxCreate)
+
 	// Detail pages
 	app.Get("/content/:id", handler.ContentDetail)
 	app.Get("/companies/:id", handler.CompanyDetail)
@@ -39,6 +42,8 @@ func main() {
 	app.Get("/work-logs/:id", handler.WorkLogDetail)
 	app.Get("/campaigns/:id", handler.CampaignDetail)
 	app.Get("/knowledge/:id", handler.KnowledgeDetail)
+	app.Get("/inbox/:id", handler.InboxDetail)
+	app.Get("/bookmarks/:id", handler.BookmarkDetail)
 
 	port := os.Getenv("PORT")
 	if port == "" {
