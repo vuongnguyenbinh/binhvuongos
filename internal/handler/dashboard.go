@@ -12,7 +12,10 @@ import (
 
 // getGreeting returns Vietnamese greeting + Unsplash image keyword based on Hanoi time
 func getGreeting() (string, string) {
-	loc, _ := time.LoadLocation("Asia/Ho_Chi_Minh")
+	loc, err := time.LoadLocation("Asia/Ho_Chi_Minh")
+	if err != nil {
+		loc = time.FixedZone("ICT", 7*3600)
+	}
 	hour := time.Now().In(loc).Hour()
 	day := time.Now().In(loc).YearDay()
 

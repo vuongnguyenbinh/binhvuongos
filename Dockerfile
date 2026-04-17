@@ -25,7 +25,7 @@ RUN CGO_ENABLED=0 go build -o bin/server cmd/server/main.go
 
 # Runtime
 FROM alpine:3.19
-RUN apk add --no-cache ca-certificates curl
+RUN apk add --no-cache ca-certificates curl tzdata
 WORKDIR /app
 COPY --from=builder /app/bin/server .
 COPY --from=builder /app/web/static ./web/static
