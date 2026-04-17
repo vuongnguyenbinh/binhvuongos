@@ -64,6 +64,45 @@ func (h *Handler) CreateCampaign(c *fiber.Ctx) error {
 	return c.Redirect("/campaigns")
 }
 
+func (h *Handler) UpdateCampaignForm(c *fiber.Ctx) error {
+	id := c.Params("id")
+	name := c.FormValue("name")
+	description := c.FormValue("description")
+	campaignType := c.FormValue("campaign_type")
+	status := c.FormValue("status")
+	startDate := c.FormValue("start_date")
+	endDate := c.FormValue("end_date")
+
+	if name == "" {
+		return c.Redirect("/campaigns/" + id)
+	}
+
+	var sd, ed pgtype.Date
+	if startDate != "" {
+		_ = sd.Scan(startDate)
+	}
+	if endDate != "" {
+		_ = ed.Scan(endDate)
+	}
+
+	_, _ = h.queries.UpdateCampaign(c.Context(), generated.UpdateCampaignParams{
+		ID:           middleware.StringToUUID(id),
+		Name:         name,
+		Description:  sql.NullString{String: description, Valid: description != ""},
+		CampaignType: sql.NullString{String: campaignType, Valid: campaignType != ""},
+		Status:       status,
+		StartDate:    sd,
+		EndDate:      ed,
+	})
+	return c.Redirect("/campaigns/" + id)
+}
+
+func (h *Handler) DeleteCampaign(c *fiber.Ctx) error {
+	id := c.Params("id")
+	_ = h.queries.SoftDeleteCampaign(c.Context(), middleware.StringToUUID(id))
+	return c.Redirect("/campaigns")
+}
+
 func toTemplCampaigns(items []generated.Campaign) []pages.CampaignItem {
 	result := make([]pages.CampaignItem, len(items))
 	for i, c := range items {

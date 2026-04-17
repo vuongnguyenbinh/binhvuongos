@@ -2,12 +2,15 @@ package pages
 
 import (
 	"binhvuongos/web/templates"
+	"fmt"
 	"strings"
 )
 
 type CompanyDetailData struct {
-	Company     CompanyItem
-	RecentTasks []TaskItem
+	Company   CompanyItem
+	Tasks     []TaskItem
+	Content   []ContentItem
+	Campaigns []CampaignItem
 }
 
 templ CompanyDetailDataPage(data CompanyDetailData) {
@@ -40,24 +43,60 @@ templ CompanyDetailDataPage(data CompanyDetailData) {
 				</div>
 			</div>
 		</div>
-		if len(data.RecentTasks) > 0 {
+		<!-- Tabs content -->
+		<div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+			<!-- Tasks -->
 			<div class="bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-lg p-5">
-				<h3 class="display text-xl font-bold mb-4">Công việc gần đây</h3>
-				<div class="divide-y divide-hairline dark:divide-dark-border">
-					for _, task := range data.RecentTasks {
-						<div class="py-3 flex items-center justify-between">
-							<div>
-								<span class={ "pill mr-2", priorityPill(task.Priority) }>{ priorityLabel(task.Priority) }</span>
-								<a href={ templ.SafeURL("/tasks/" + task.ID) } class="text-sm hover:text-forest">{ task.Title }</a>
+				<h3 class="display text-lg font-bold mb-4">Công việc <span class="text-muted text-sm mono">({ fmt.Sprintf("%d", len(data.Tasks)) })</span></h3>
+				if len(data.Tasks) > 0 {
+					<div class="divide-y divide-hairline dark:divide-dark-border">
+						for _, task := range data.Tasks {
+							<div class="py-2 flex items-center justify-between">
+								<a href={ templ.SafeURL("/tasks/" + task.ID) } class="text-sm hover:text-forest flex items-center gap-2">
+									<span class={ "pill text-[10px]", priorityPill(task.Priority) }>{ priorityLabel(task.Priority) }</span>
+									<span class="truncate max-w-[180px]">{ task.Title }</span>
+								</a>
+								<span class="text-[10px] text-muted mono">{ task.Status }</span>
 							</div>
-							<span class="text-xs text-muted mono">{ task.Status }</span>
-						</div>
-					}
-				</div>
+						}
+					</div>
+				} else {
+					<p class="text-xs text-muted">Chưa có task nào.</p>
+				}
 			</div>
-		} else {
-			<div class="text-center py-12 text-muted text-sm">Chưa có công việc nào cho công ty này.</div>
-		}
+			<!-- Content -->
+			<div class="bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-lg p-5">
+				<h3 class="display text-lg font-bold mb-4">Nội dung <span class="text-muted text-sm mono">({ fmt.Sprintf("%d", len(data.Content)) })</span></h3>
+				if len(data.Content) > 0 {
+					<div class="divide-y divide-hairline dark:divide-dark-border">
+						for _, c := range data.Content {
+							<div class="py-2 flex items-center justify-between">
+								<a href={ templ.SafeURL("/content/" + c.ID) } class="text-sm hover:text-forest truncate max-w-[200px]">{ c.Title }</a>
+								<span class={ "pill text-[10px]", contentStatusPill(c.Status) }>{ contentStatusLabel(c.Status) }</span>
+							</div>
+						}
+					</div>
+				} else {
+					<p class="text-xs text-muted">Chưa có nội dung nào.</p>
+				}
+			</div>
+			<!-- Campaigns -->
+			<div class="bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-lg p-5">
+				<h3 class="display text-lg font-bold mb-4">Chiến dịch <span class="text-muted text-sm mono">({ fmt.Sprintf("%d", len(data.Campaigns)) })</span></h3>
+				if len(data.Campaigns) > 0 {
+					<div class="divide-y divide-hairline dark:divide-dark-border">
+						for _, camp := range data.Campaigns {
+							<div class="py-2 flex items-center justify-between">
+								<a href={ templ.SafeURL("/campaigns/" + camp.ID) } class="text-sm hover:text-forest truncate max-w-[200px]">{ camp.Name }</a>
+								<span class={ "pill text-[10px]", campStatusPill(camp.Status) }>{ campStatusLabel(camp.Status) }</span>
+							</div>
+						}
+					</div>
+				} else {
+					<p class="text-xs text-muted">Chưa có chiến dịch nào.</p>
+				}
+			</div>
+		</div>
 		<!-- Edit form -->
 		<div class="mt-8 bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-lg p-6">
 			<h3 class="display text-xl font-bold mb-4">Chỉnh sửa</h3>

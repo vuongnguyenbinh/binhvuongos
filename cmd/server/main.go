@@ -59,6 +59,9 @@ func main() {
 	// Auth info
 	app.Get("/auth/me", h.AuthMe)
 
+	// Search
+	app.Get("/search", h.Search)
+
 	// Pages
 	app.Get("/", h.Dashboard)
 	app.Get("/inbox", h.Inbox)
@@ -94,12 +97,18 @@ func main() {
 	app.Post("/tasks/:id/status", h.UpdateTaskStatusForm)
 	app.Post("/tasks/:id/delete", h.DeleteTask)
 	app.Post("/content", h.CreateContent)
+	app.Post("/content/:id", h.UpdateContentForm)
 	app.Post("/content/:id/review", h.ReviewContentForm)
+	app.Post("/content/:id/delete", h.DeleteContent)
 	app.Post("/work-logs", h.CreateWorkLog)
 	app.Post("/work-logs/:id/approve", h.ApproveWorkLogForm)
 	app.Post("/work-logs/:id/reject", h.RejectWorkLogForm)
 	app.Post("/campaigns", h.CreateCampaign)
+	app.Post("/campaigns/:id", h.UpdateCampaignForm)
+	app.Post("/campaigns/:id/delete", h.DeleteCampaign)
 	app.Post("/knowledge", h.CreateKnowledgeItem)
+	app.Post("/knowledge/:id", h.UpdateKnowledgeForm)
+	app.Post("/knowledge/:id/delete", h.DeleteKnowledge)
 	app.Post("/bookmarks", h.CreateBookmark)
 	app.Post("/bookmarks/:id", h.UpdateBookmarkForm)
 	app.Post("/bookmarks/:id/delete", h.DeleteBookmark)

@@ -46,11 +46,10 @@ templ Header(activeTab string) {
 					</div>
 				</div>
 				<div class="flex items-center gap-3 md:gap-5">
-					<div class="hidden md:flex items-center gap-2 text-muted text-sm bg-cream/60 dark:bg-dark-cream/60 border border-hairline dark:border-dark-border rounded px-3 py-1.5">
+					<form method="GET" action="/search" class="hidden md:flex items-center gap-2 text-muted text-sm bg-cream/60 dark:bg-dark-cream/60 border border-hairline dark:border-dark-border rounded px-3 py-1.5">
 						<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-						<span>Tìm kiếm</span>
-						<span class="mono text-[10px] ml-6 text-muted/60">⌘K</span>
-					</div>
+						<input type="text" name="q" placeholder="Tìm kiếm..." class="bg-transparent outline-none text-ink w-32 placeholder-muted"/>
+					</form>
 					<!-- Dark mode toggle -->
 					<button onclick="toggleDarkMode()" class="text-muted hover:text-ink transition-colors" title="Dark mode">
 						<span id="dark-toggle-icon" class="text-lg">🌙</span>

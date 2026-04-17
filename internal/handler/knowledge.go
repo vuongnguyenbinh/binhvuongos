@@ -81,6 +81,45 @@ func (h *Handler) CreateKnowledgeItem(c *fiber.Ctx) error {
 	return c.Redirect("/knowledge")
 }
 
+func (h *Handler) UpdateKnowledgeForm(c *fiber.Ctx) error {
+	id := c.Params("id")
+	title := c.FormValue("title")
+	description := c.FormValue("description")
+	category := c.FormValue("category")
+	topics := c.FormValue("topics")
+	scope := c.FormValue("scope")
+	sourceURL := c.FormValue("source_url")
+
+	if title == "" || category == "" {
+		return c.Redirect("/knowledge/" + id)
+	}
+
+	var topicSlice []string
+	for _, t := range strings.Split(topics, ",") {
+		trimmed := strings.TrimSpace(t)
+		if trimmed != "" {
+			topicSlice = append(topicSlice, trimmed)
+		}
+	}
+
+	_, _ = h.queries.UpdateKnowledgeItem(c.Context(), generated.UpdateKnowledgeItemParams{
+		ID:          middleware.StringToUUID(id),
+		Title:       title,
+		Description: sql.NullString{String: description, Valid: description != ""},
+		Category:    category,
+		Topics:      topicSlice,
+		Scope:       scope,
+		SourceURL:   sql.NullString{String: sourceURL, Valid: sourceURL != ""},
+	})
+	return c.Redirect("/knowledge/" + id)
+}
+
+func (h *Handler) DeleteKnowledge(c *fiber.Ctx) error {
+	id := c.Params("id")
+	_ = h.queries.SoftDeleteKnowledgeItem(c.Context(), middleware.StringToUUID(id))
+	return c.Redirect("/knowledge")
+}
+
 func toTemplKnowledge(items []generated.KnowledgeItem) []pages.KnowledgeItemData {
 	result := make([]pages.KnowledgeItemData, len(items))
 	for i, k := range items {

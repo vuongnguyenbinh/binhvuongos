@@ -20,9 +20,13 @@ func (h *Handler) CompanyDetail(c *fiber.Ctx) error {
 	data := pages.CompanyDetailData{
 		Company: companyToDetail(company),
 	}
-	// Load tasks for this company
+	// Load related data
 	tasks, _ := h.queries.ListTasksByCompany(c.Context(), id, 10, 0)
-	data.RecentTasks = toTemplTasks(tasks)
+	data.Tasks = toTemplTasks(tasks)
+	content, _ := h.queries.ListContentByCompany(c.Context(), id, 10, 0)
+	data.Content = toTemplContents(content)
+	campaigns, _ := h.queries.ListCampaignsByCompany(c.Context(), id)
+	data.Campaigns = toTemplCampaigns(campaigns)
 	return render(c, pages.CompanyDetailDataPage(data))
 }
 

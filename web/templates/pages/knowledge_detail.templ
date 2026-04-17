@@ -1,30 +1,83 @@
 package pages
 
-import "binhvuongos/web/templates"
+import (
+	"binhvuongos/web/templates"
+	"strings"
+)
 
 templ KnowledgeDetailDataPage(item KnowledgeItemData) {
 	@templates.Layout(item.Title, "knowledge") {
 		<div class="mb-8">
 			<a href="/knowledge" class="text-xs text-muted hover:text-ink mono">← Quay lại Kho kiến thức</a>
-			<div class="mt-4">
-				<div class="flex items-center gap-2 mb-2">
-					<span class={ "pill", kbCatPill(item.Category) }>{ kbCatLabel(item.Category) }</span>
-					<span class="text-xs text-muted mono">{ item.Scope }</span>
+			<div class="flex items-end justify-between mt-4">
+				<div>
+					<div class="flex items-center gap-2 mb-2">
+						<span class={ "pill", kbCatPill(item.Category) }>{ kbCatLabel(item.Category) }</span>
+						<span class="text-xs text-muted mono">{ item.Scope }</span>
+					</div>
+					<h1 class="display text-4xl md:text-5xl font-bold leading-none">{ item.Title }</h1>
+					if item.Description != "" {
+						<p class="text-muted mt-3">{ item.Description }</p>
+					}
 				</div>
-				<h1 class="display text-4xl md:text-5xl font-bold leading-none">{ item.Title }</h1>
-				if item.Description != "" {
-					<p class="text-muted mt-3">{ item.Description }</p>
-				}
+				<form method="POST" action={ templ.SafeURL("/knowledge/" + item.ID + "/delete") }>
+					<button type="submit" class="px-3 py-1.5 bg-rust text-white rounded text-xs mono" onclick="return confirm('Xoá tài liệu?')">Xoá</button>
+				</form>
 			</div>
 		</div>
 		<div class="grid grid-cols-1 xl:grid-cols-12 gap-6">
-			<div class="xl:col-span-8">
+			<div class="xl:col-span-8 space-y-6">
 				if item.SourceURL != "" {
-					<div class="bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-lg p-6 mb-6">
+					<div class="bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-lg p-6">
 						<h3 class="display text-lg font-bold mb-3">Nguồn</h3>
 						<a href={ templ.SafeURL(item.SourceURL) } target="_blank" class="text-forest mono underline decoration-dotted">{ item.SourceURL }</a>
 					</div>
 				}
+				<!-- Edit form -->
+				<div class="bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-lg p-6">
+					<h3 class="display text-lg font-bold mb-4">Chỉnh sửa</h3>
+					<form method="POST" action={ templ.SafeURL("/knowledge/" + item.ID) } class="space-y-4">
+						<div>
+							<label class="block text-sm font-medium mb-1">Tiêu đề</label>
+							<input type="text" name="title" value={ item.Title } required class="w-full px-3 py-2 border border-hairline rounded bg-ivory dark:bg-dark-bg text-ink focus:outline-none focus:border-forest"/>
+						</div>
+						<div>
+							<label class="block text-sm font-medium mb-1">Mô tả</label>
+							<textarea name="description" rows="2" class="w-full px-3 py-2 border border-hairline rounded bg-ivory dark:bg-dark-bg text-ink focus:outline-none focus:border-forest">{ item.Description }</textarea>
+						</div>
+						<div class="grid grid-cols-2 gap-4">
+							<div>
+								<label class="block text-sm font-medium mb-1">Phân loại</label>
+								<select name="category" required class="w-full px-3 py-2 border border-hairline rounded bg-ivory dark:bg-dark-bg text-ink">
+									<option value="lecture" selected?={ item.Category == "lecture" }>Bài giảng</option>
+									<option value="sop" selected?={ item.Category == "sop" }>SOP</option>
+									<option value="template" selected?={ item.Category == "template" }>Template</option>
+									<option value="training" selected?={ item.Category == "training" }>Training</option>
+									<option value="raw_material" selected?={ item.Category == "raw_material" }>Nguyên liệu</option>
+									<option value="research" selected?={ item.Category == "research" }>Nghiên cứu</option>
+									<option value="curated" selected?={ item.Category == "curated" }>Curated</option>
+								</select>
+							</div>
+							<div>
+								<label class="block text-sm font-medium mb-1">Phạm vi</label>
+								<select name="scope" class="w-full px-3 py-2 border border-hairline rounded bg-ivory dark:bg-dark-bg text-ink">
+									<option value="shared" selected?={ item.Scope == "shared" }>Dùng chung</option>
+									<option value="company_specific" selected?={ item.Scope == "company_specific" }>Theo công ty</option>
+									<option value="personal" selected?={ item.Scope == "personal" }>Cá nhân</option>
+								</select>
+							</div>
+						</div>
+						<div>
+							<label class="block text-sm font-medium mb-1">Topics <span class="text-muted text-xs">(dấu phẩy)</span></label>
+							<input type="text" name="topics" value={ strings.Join(item.Topics, ", ") } class="w-full px-3 py-2 border border-hairline rounded bg-ivory dark:bg-dark-bg text-ink focus:outline-none focus:border-forest"/>
+						</div>
+						<div>
+							<label class="block text-sm font-medium mb-1">URL nguồn</label>
+							<input type="url" name="source_url" value={ item.SourceURL } class="w-full px-3 py-2 border border-hairline rounded bg-ivory dark:bg-dark-bg text-ink focus:outline-none focus:border-forest"/>
+						</div>
+						<button type="submit" class="px-6 py-2.5 bg-forest text-white font-semibold rounded mono">LƯU THAY ĐỔI</button>
+					</form>
+				</div>
 			</div>
 			<div class="xl:col-span-4">
 				<div class="bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-lg p-5">

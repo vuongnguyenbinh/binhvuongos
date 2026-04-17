@@ -83,6 +83,23 @@ func (q *Queries) CreateKnowledgeItem(ctx context.Context, arg CreateKnowledgeIt
 		arg.Scope, arg.CompanyID, arg.Format, arg.SourceURL, arg.CreatedBy).Scan)
 }
 
+type UpdateKnowledgeItemParams struct {
+	ID          pgtype.UUID    `json:"id"`
+	Title       string         `json:"title"`
+	Description sql.NullString `json:"description"`
+	Category    string         `json:"category"`
+	Topics      []string       `json:"topics"`
+	Scope       string         `json:"scope"`
+	SourceURL   sql.NullString `json:"source_url"`
+}
+
+func (q *Queries) UpdateKnowledgeItem(ctx context.Context, arg UpdateKnowledgeItemParams) (KnowledgeItem, error) {
+	return scanKnowledge(q.pool.QueryRow(ctx,
+		`UPDATE knowledge_items SET title=$2, description=$3, category=$4, topics=$5, scope=$6, source_url=$7
+		 WHERE id=$1 AND deleted_at IS NULL RETURNING `+knowledgeCols,
+		arg.ID, arg.Title, arg.Description, arg.Category, arg.Topics, arg.Scope, arg.SourceURL).Scan)
+}
+
 func (q *Queries) SoftDeleteKnowledgeItem(ctx context.Context, id pgtype.UUID) error {
 	return q.exec(ctx, "UPDATE knowledge_items SET deleted_at=NOW() WHERE id=$1", id)
 }

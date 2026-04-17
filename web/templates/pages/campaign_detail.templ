@@ -6,37 +6,89 @@ templ CampaignDetailDataPage(camp CampaignItem) {
 	@templates.Layout(camp.Name, "campaigns") {
 		<div class="mb-8">
 			<a href="/campaigns" class="text-xs text-muted hover:text-ink mono">← Quay lại Chiến dịch</a>
-			<div class="mt-4">
-				<div class="flex items-center gap-2 mb-2">
-					<span class={ "pill", campStatusPill(camp.Status) }>{ campStatusLabel(camp.Status) }</span>
-					if camp.CampaignType != "" {
-						<span class="text-xs text-muted mono">{ camp.CampaignType }</span>
+			<div class="flex items-end justify-between mt-4">
+				<div>
+					<div class="flex items-center gap-2 mb-2">
+						<span class={ "pill", campStatusPill(camp.Status) }>{ campStatusLabel(camp.Status) }</span>
+						if camp.CampaignType != "" {
+							<span class="text-xs text-muted mono">{ camp.CampaignType }</span>
+						}
+					</div>
+					<h1 class="display text-4xl md:text-5xl font-bold leading-none">{ camp.Name }</h1>
+					if camp.Description != "" {
+						<p class="text-muted mt-3">{ camp.Description }</p>
 					}
 				</div>
-				<h1 class="display text-4xl md:text-5xl font-bold leading-none">{ camp.Name }</h1>
-				if camp.Description != "" {
-					<p class="text-muted mt-3">{ camp.Description }</p>
-				}
-				<div class="text-xs text-muted mono mt-3">
-					if camp.StartDate != "" && camp.EndDate != "" {
-						{ camp.StartDate } — { camp.EndDate }
-					}
-				</div>
+				<form method="POST" action={ templ.SafeURL("/campaigns/" + camp.ID + "/delete") }>
+					<button type="submit" class="px-3 py-1.5 bg-rust text-white rounded text-xs mono" onclick="return confirm('Xoá chiến dịch?')">Xoá</button>
+				</form>
 			</div>
 		</div>
-		<div class="bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-lg p-5">
-			<h3 class="eyebrow mb-3">Thông tin chiến dịch</h3>
-			<div class="space-y-3 text-xs">
-				<div class="flex justify-between"><span class="text-muted">Trạng thái</span><span>{ campStatusLabel(camp.Status) }</span></div>
-				if camp.CampaignType != "" {
-					<div class="flex justify-between"><span class="text-muted">Loại</span><span>{ camp.CampaignType }</span></div>
-				}
-				if camp.StartDate != "" {
-					<div class="flex justify-between"><span class="text-muted">Bắt đầu</span><span class="mono">{ camp.StartDate }</span></div>
-				}
-				if camp.EndDate != "" {
-					<div class="flex justify-between"><span class="text-muted">Kết thúc</span><span class="mono">{ camp.EndDate }</span></div>
-				}
+		<div class="grid grid-cols-1 xl:grid-cols-12 gap-6">
+			<div class="xl:col-span-8">
+				<div class="bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-lg p-6">
+					<h3 class="display text-lg font-bold mb-4">Chỉnh sửa</h3>
+					<form method="POST" action={ templ.SafeURL("/campaigns/" + camp.ID) } class="space-y-4">
+						<div>
+							<label class="block text-sm font-medium mb-1">Tên chiến dịch</label>
+							<input type="text" name="name" value={ camp.Name } required class="w-full px-3 py-2 border border-hairline rounded bg-ivory dark:bg-dark-bg text-ink focus:outline-none focus:border-forest"/>
+						</div>
+						<div>
+							<label class="block text-sm font-medium mb-1">Mô tả</label>
+							<textarea name="description" rows="2" class="w-full px-3 py-2 border border-hairline rounded bg-ivory dark:bg-dark-bg text-ink focus:outline-none focus:border-forest">{ camp.Description }</textarea>
+						</div>
+						<div class="grid grid-cols-3 gap-4">
+							<div>
+								<label class="block text-sm font-medium mb-1">Loại</label>
+								<select name="campaign_type" class="w-full px-3 py-2 border border-hairline rounded bg-ivory dark:bg-dark-bg text-ink">
+									<option value="seo" selected?={ camp.CampaignType == "seo" }>SEO</option>
+									<option value="product_launch" selected?={ camp.CampaignType == "product_launch" }>Ra mắt SP</option>
+									<option value="brand" selected?={ camp.CampaignType == "brand" }>Branding</option>
+									<option value="content_series" selected?={ camp.CampaignType == "content_series" }>Series</option>
+									<option value="training" selected?={ camp.CampaignType == "training" }>Training</option>
+									<option value="event" selected?={ camp.CampaignType == "event" }>Event</option>
+								</select>
+							</div>
+							<div>
+								<label class="block text-sm font-medium mb-1">Trạng thái</label>
+								<select name="status" class="w-full px-3 py-2 border border-hairline rounded bg-ivory dark:bg-dark-bg text-ink">
+									<option value="planning" selected?={ camp.Status == "planning" }>Lên KH</option>
+									<option value="running" selected?={ camp.Status == "running" }>Đang chạy</option>
+									<option value="paused" selected?={ camp.Status == "paused" }>Tạm dừng</option>
+									<option value="ended" selected?={ camp.Status == "ended" }>Kết thúc</option>
+								</select>
+							</div>
+						</div>
+						<div class="grid grid-cols-2 gap-4">
+							<div>
+								<label class="block text-sm font-medium mb-1">Bắt đầu</label>
+								<input type="date" name="start_date" value={ camp.StartDate } class="w-full px-3 py-2 border border-hairline rounded bg-ivory dark:bg-dark-bg text-ink"/>
+							</div>
+							<div>
+								<label class="block text-sm font-medium mb-1">Kết thúc</label>
+								<input type="date" name="end_date" value={ camp.EndDate } class="w-full px-3 py-2 border border-hairline rounded bg-ivory dark:bg-dark-bg text-ink"/>
+							</div>
+						</div>
+						<button type="submit" class="px-6 py-2.5 bg-forest text-white font-semibold rounded mono">LƯU THAY ĐỔI</button>
+					</form>
+				</div>
+			</div>
+			<div class="xl:col-span-4">
+				<div class="bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-lg p-5">
+					<h3 class="eyebrow mb-3">Thông tin</h3>
+					<div class="space-y-3 text-xs">
+						<div class="flex justify-between"><span class="text-muted">Trạng thái</span><span>{ campStatusLabel(camp.Status) }</span></div>
+						if camp.CampaignType != "" {
+							<div class="flex justify-between"><span class="text-muted">Loại</span><span>{ camp.CampaignType }</span></div>
+						}
+						if camp.StartDate != "" {
+							<div class="flex justify-between"><span class="text-muted">Bắt đầu</span><span class="mono">{ camp.StartDate }</span></div>
+						}
+						if camp.EndDate != "" {
+							<div class="flex justify-between"><span class="text-muted">Kết thúc</span><span class="mono">{ camp.EndDate }</span></div>
+						}
+					</div>
+				</div>
 			</div>
 		</div>
 	}

@@ -114,6 +114,21 @@ func (q *Queries) PublishContent(ctx context.Context, id pgtype.UUID, publishDat
 		id, publishDate, publishedURL).Scan)
 }
 
+type UpdateContentParams struct {
+	ID          pgtype.UUID    `json:"id"`
+	Title       string         `json:"title"`
+	ContentType string         `json:"content_type"`
+	Status      string         `json:"status"`
+	Notes       sql.NullString `json:"notes"`
+}
+
+func (q *Queries) UpdateContent(ctx context.Context, arg UpdateContentParams) (Content, error) {
+	return scanContent(q.pool.QueryRow(ctx,
+		`UPDATE content SET title=$2, content_type=$3, status=$4, notes=$5
+		 WHERE id=$1 AND deleted_at IS NULL RETURNING `+contentCols,
+		arg.ID, arg.Title, arg.ContentType, arg.Status, arg.Notes).Scan)
+}
+
 func (q *Queries) SoftDeleteContent(ctx context.Context, id pgtype.UUID) error {
 	return q.exec(ctx, "UPDATE content SET deleted_at=NOW() WHERE id=$1", id)
 }

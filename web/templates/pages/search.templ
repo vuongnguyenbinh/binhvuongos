@@ -1,0 +1,92 @@
+package pages
+
+import (
+	"binhvuongos/web/templates"
+	"fmt"
+	"strings"
+)
+
+type SearchResult struct {
+	Type  string
+	ID    string
+	Title string
+	URL   string
+	Extra string
+}
+
+type SearchPageData struct {
+	Query   string
+	Results []SearchResult
+	Total   int
+}
+
+func searchTypePill(t string) string {
+	switch t {
+	case "task":
+		return "bg-ember/10 text-ember"
+	case "content":
+		return "bg-forest-50 text-forest"
+	case "knowledge":
+		return "bg-sage/20 text-forest-600"
+	case "bookmark":
+		return "bg-muted/10 text-muted"
+	default:
+		return "bg-muted/10 text-muted"
+	}
+}
+
+func searchTypeLabel(t string) string {
+	switch t {
+	case "task":
+		return "Công việc"
+	case "content":
+		return "Nội dung"
+	case "knowledge":
+		return "Kiến thức"
+	case "bookmark":
+		return "Bookmark"
+	default:
+		return strings.ToUpper(t)
+	}
+}
+
+templ SearchPage(data SearchPageData) {
+	@templates.Layout("Tìm kiếm", "dashboard") {
+		<div class="max-w-3xl mx-auto">
+			<div class="mb-8">
+				<h1 class="display text-4xl font-bold mb-4">Tìm kiếm</h1>
+				<form method="GET" action="/search" class="flex gap-2">
+					<input type="text" name="q" value={ data.Query } autofocus
+						class="flex-1 px-4 py-3 border border-hairline dark:border-dark-border rounded-lg bg-surface dark:bg-dark-surface text-ink focus:outline-none focus:border-forest text-sm"
+						placeholder="Tìm task, nội dung, kiến thức, bookmark..."/>
+					<button type="submit" class="px-6 py-3 bg-forest text-white rounded-lg text-sm mono font-semibold">TÌM</button>
+				</form>
+			</div>
+			if data.Query != "" {
+				<p class="text-sm text-muted mb-6">
+					{ fmt.Sprintf("%d kết quả", data.Total) } cho "{ data.Query }"
+				</p>
+				if data.Total == 0 {
+					<div class="text-center py-12">
+						<div class="text-5xl mb-4">🔍</div>
+						<p class="text-muted">Không tìm thấy kết quả nào.</p>
+					</div>
+				} else {
+					<div class="bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-lg divide-y divide-hairline">
+						for _, r := range data.Results {
+							<a href={ templ.SafeURL(r.URL) } class="block p-4 row-hover">
+								<div class="flex items-center gap-3">
+									<span class={ "pill text-[10px]", searchTypePill(r.Type) }>{ searchTypeLabel(r.Type) }</span>
+									<span class="font-semibold text-sm">{ r.Title }</span>
+								</div>
+								if r.Extra != "" {
+									<div class="text-xs text-muted mt-1 mono ml-[70px]">{ r.Extra }</div>
+								}
+							</a>
+						}
+					</div>
+				}
+			}
+		</div>
+	}
+}

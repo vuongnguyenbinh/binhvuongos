@@ -80,6 +80,23 @@ func (q *Queries) CreateCampaign(ctx context.Context, arg CreateCampaignParams) 
 		arg.StartDate, arg.EndDate, arg.TargetJSON, arg.Budget, arg.CreatedBy).Scan)
 }
 
+type UpdateCampaignParams struct {
+	ID           pgtype.UUID    `json:"id"`
+	Name         string         `json:"name"`
+	Description  sql.NullString `json:"description"`
+	CampaignType sql.NullString `json:"campaign_type"`
+	Status       string         `json:"status"`
+	StartDate    pgtype.Date    `json:"start_date"`
+	EndDate      pgtype.Date    `json:"end_date"`
+}
+
+func (q *Queries) UpdateCampaign(ctx context.Context, arg UpdateCampaignParams) (Campaign, error) {
+	return scanCampaign(q.pool.QueryRow(ctx,
+		`UPDATE campaigns SET name=$2, description=$3, campaign_type=$4, status=$5, start_date=$6, end_date=$7
+		 WHERE id=$1 AND deleted_at IS NULL RETURNING `+campaignCols,
+		arg.ID, arg.Name, arg.Description, arg.CampaignType, arg.Status, arg.StartDate, arg.EndDate).Scan)
+}
+
 func (q *Queries) SoftDeleteCampaign(ctx context.Context, id pgtype.UUID) error {
 	return q.exec(ctx, "UPDATE campaigns SET deleted_at=NOW() WHERE id=$1", id)
 }

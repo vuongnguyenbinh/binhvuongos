@@ -14,10 +14,13 @@ templ ContentDetailDataPage(item ContentItem) {
 					</div>
 					<h1 class="display text-4xl md:text-5xl font-bold leading-none">{ item.Title }</h1>
 				</div>
+				<form method="POST" action={ templ.SafeURL("/content/" + item.ID + "/delete") }>
+					<button type="submit" class="px-3 py-1.5 bg-rust text-white rounded text-xs mono" onclick="return confirm('Xoá nội dung này?')">Xoá</button>
+				</form>
 			</div>
 		</div>
 		<div class="grid grid-cols-1 xl:grid-cols-12 gap-6">
-			<div class="xl:col-span-8">
+			<div class="xl:col-span-8 space-y-6">
 				<!-- Review form -->
 				if item.Status == "review" || item.Status == "drafting" {
 					<div class="bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-lg p-6">
@@ -27,11 +30,48 @@ templ ContentDetailDataPage(item ContentItem) {
 							<div class="flex gap-2">
 								<button type="submit" name="status" value="approved" class="px-4 py-2 bg-forest text-white rounded text-sm mono">DUYỆT</button>
 								<button type="submit" name="status" value="revise" class="px-4 py-2 bg-ember text-white rounded text-sm mono">SỬA LẠI</button>
-								<button type="submit" name="status" value="killed" class="px-4 py-2 bg-rust text-white rounded text-sm mono">HUỶ</button>
 							</div>
 						</form>
 					</div>
 				}
+				<!-- Edit form -->
+				<div class="bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-lg p-6">
+					<h3 class="display text-lg font-bold mb-4">Chỉnh sửa</h3>
+					<form method="POST" action={ templ.SafeURL("/content/" + item.ID) } class="space-y-4">
+						<div>
+							<label class="block text-sm font-medium mb-1">Tiêu đề</label>
+							<input type="text" name="title" value={ item.Title } required class="w-full px-3 py-2 border border-hairline rounded bg-ivory dark:bg-dark-bg text-ink focus:outline-none focus:border-forest"/>
+						</div>
+						<div class="grid grid-cols-2 gap-4">
+							<div>
+								<label class="block text-sm font-medium mb-1">Loại</label>
+								<select name="content_type" class="w-full px-3 py-2 border border-hairline rounded bg-ivory dark:bg-dark-bg text-ink">
+									<option value="blog" selected?={ item.ContentType == "blog" }>Blog</option>
+									<option value="social_post" selected?={ item.ContentType == "social_post" }>Social Post</option>
+									<option value="video" selected?={ item.ContentType == "video" }>Video</option>
+									<option value="reel" selected?={ item.ContentType == "reel" }>Reel</option>
+									<option value="email" selected?={ item.ContentType == "email" }>Email</option>
+									<option value="slide" selected?={ item.ContentType == "slide" }>Slide</option>
+								</select>
+							</div>
+							<div>
+								<label class="block text-sm font-medium mb-1">Trạng thái</label>
+								<select name="status" class="w-full px-3 py-2 border border-hairline rounded bg-ivory dark:bg-dark-bg text-ink">
+									<option value="idea" selected?={ item.Status == "idea" }>Ý tưởng</option>
+									<option value="drafting" selected?={ item.Status == "drafting" }>Đang viết</option>
+									<option value="review" selected?={ item.Status == "review" }>Cần duyệt</option>
+									<option value="approved" selected?={ item.Status == "approved" }>Đã duyệt</option>
+									<option value="published" selected?={ item.Status == "published" }>Đã đăng</option>
+								</select>
+							</div>
+						</div>
+						<div>
+							<label class="block text-sm font-medium mb-1">Ghi chú</label>
+							<textarea name="notes" rows="3" class="w-full px-3 py-2 border border-hairline rounded bg-ivory dark:bg-dark-bg text-ink focus:outline-none focus:border-forest"></textarea>
+						</div>
+						<button type="submit" class="px-6 py-2.5 bg-forest text-white font-semibold rounded mono">LƯU THAY ĐỔI</button>
+					</form>
+				</div>
 			</div>
 			<div class="xl:col-span-4">
 				<div class="bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-lg p-5">

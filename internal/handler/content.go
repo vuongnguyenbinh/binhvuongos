@@ -58,6 +58,33 @@ func (h *Handler) CreateContent(c *fiber.Ctx) error {
 	return c.Redirect("/content")
 }
 
+func (h *Handler) UpdateContentForm(c *fiber.Ctx) error {
+	id := c.Params("id")
+	title := c.FormValue("title")
+	contentType := c.FormValue("content_type")
+	status := c.FormValue("status")
+	notes := c.FormValue("notes")
+
+	if title == "" {
+		return c.Redirect("/content/" + id)
+	}
+
+	_, _ = h.queries.UpdateContent(c.Context(), generated.UpdateContentParams{
+		ID:          middleware.StringToUUID(id),
+		Title:       title,
+		ContentType: contentType,
+		Status:      status,
+		Notes:       sql.NullString{String: notes, Valid: notes != ""},
+	})
+	return c.Redirect("/content/" + id)
+}
+
+func (h *Handler) DeleteContent(c *fiber.Ctx) error {
+	id := c.Params("id")
+	_ = h.queries.SoftDeleteContent(c.Context(), middleware.StringToUUID(id))
+	return c.Redirect("/content")
+}
+
 func (h *Handler) ReviewContentForm(c *fiber.Ctx) error {
 	id := c.Params("id")
 	status := c.FormValue("status")
