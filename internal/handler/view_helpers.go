@@ -2,11 +2,13 @@ package handler
 
 import (
 	"database/sql"
+	"strconv"
 	"strings"
 
 	"binhvuongos/internal/db/generated"
 	"binhvuongos/internal/middleware"
 
+	"github.com/gofiber/fiber/v2"
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
@@ -116,4 +118,27 @@ func formatDate(d pgtype.Date) string {
 		return ""
 	}
 	return d.Time.Format("02/01/2006")
+}
+
+const pageSize = 20
+
+// getPage extracts page number from query param, returns (page, limit, offset)
+func getPage(c *fiber.Ctx) (int, int32, int32) {
+	page, _ := strconv.Atoi(c.Query("page", "1"))
+	if page < 1 {
+		page = 1
+	}
+	return page, int32(pageSize), int32((page - 1) * pageSize)
+}
+
+// totalPages calculates total pages from total count
+func totalPages(total int64) int {
+	pages := int(total) / pageSize
+	if int(total)%pageSize > 0 {
+		pages++
+	}
+	if pages < 1 {
+		pages = 1
+	}
+	return pages
 }

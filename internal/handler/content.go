@@ -11,7 +11,8 @@ import (
 )
 
 func (h *Handler) Content(c *fiber.Ctx) error {
-	items, err := h.queries.ListContent(c.Context(), 50, 0)
+	page, limit, offset := getPage(c)
+	items, err := h.queries.ListContent(c.Context(), limit, offset)
 	if err != nil {
 		return render(c, pages.ContentListPage(pages.ContentPageData{}))
 	}
@@ -30,6 +31,8 @@ func (h *Handler) Content(c *fiber.Ctx) error {
 		Total:        total,
 		StatusCounts: counts,
 		Companies:    toTemplCompanies(companies),
+		Page:         page,
+		TotalPages:   totalPages(total),
 	}
 	return render(c, pages.ContentListPage(data))
 }

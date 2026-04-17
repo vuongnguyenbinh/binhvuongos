@@ -11,21 +11,22 @@ import (
 )
 
 func (h *Handler) Inbox(c *fiber.Ctx) error {
-	items, err := h.queries.ListInboxItems(c.Context(), 50, 0)
+	page, limit, offset := getPage(c)
+	items, err := h.queries.ListInboxItems(c.Context(), limit, offset)
 	if err != nil {
 		return render(c, pages.InboxListPage(pages.InboxPageData{}))
 	}
 	rawCount, _ := h.queries.CountInboxItemsByStatus(c.Context(), "raw")
 	total, _ := h.queries.CountInboxItems(c.Context())
-
-	// Get companies for triage dropdown
 	companies, _ := h.queries.ListCompanies(c.Context(), 50, 0)
 
 	data := pages.InboxPageData{
-		Items:     toTemplInboxItems(items),
-		RawCount:  rawCount,
-		Total:     total,
-		Companies: toTemplCompanies(companies),
+		Items:      toTemplInboxItems(items),
+		RawCount:   rawCount,
+		Total:      total,
+		Companies:  toTemplCompanies(companies),
+		Page:       page,
+		TotalPages: totalPages(total),
 	}
 	return render(c, pages.InboxListPage(data))
 }

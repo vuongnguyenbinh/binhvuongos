@@ -2,6 +2,7 @@ package pages
 
 import (
 	"binhvuongos/web/templates"
+	"binhvuongos/web/templates/components"
 	"fmt"
 )
 
@@ -15,8 +16,10 @@ type BookmarkItem struct {
 }
 
 type BookmarksPageData struct {
-	Bookmarks []BookmarkItem
-	Total     int64
+	Bookmarks  []BookmarkItem
+	Total      int64
+	Page       int
+	TotalPages int
 }
 
 templ BookmarksListPage(data BookmarksPageData) {
@@ -45,6 +48,9 @@ templ BookmarksListPage(data BookmarksPageData) {
 					@bmCardDB(bm)
 				}
 			</div>
+			if data.TotalPages > 1 {
+				@components.Pagination(data.Page, data.TotalPages)
+			}
 		}
 		@bookmarkFormModal()
 	}

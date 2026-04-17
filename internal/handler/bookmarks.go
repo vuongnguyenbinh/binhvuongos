@@ -12,15 +12,18 @@ import (
 )
 
 func (h *Handler) Bookmarks(c *fiber.Ctx) error {
-	bookmarks, err := h.queries.ListBookmarks(c.Context(), 50, 0)
+	page, limit, offset := getPage(c)
+	bookmarks, err := h.queries.ListBookmarks(c.Context(), limit, offset)
 	if err != nil {
 		return render(c, pages.BookmarksListPage(pages.BookmarksPageData{}))
 	}
 	total, _ := h.queries.CountBookmarks(c.Context())
 
 	data := pages.BookmarksPageData{
-		Bookmarks: toTemplBookmarks(bookmarks),
-		Total:     total,
+		Bookmarks:  toTemplBookmarks(bookmarks),
+		Total:      total,
+		Page:       page,
+		TotalPages: totalPages(total),
 	}
 	return render(c, pages.BookmarksListPage(data))
 }
@@ -54,6 +57,37 @@ func (h *Handler) CreateBookmark(c *fiber.Ctx) error {
 		CreatedBy:   user.ID,
 	})
 	return c.Redirect("/bookmarks")
+}
+
+func (h *Handler) UpdateBookmarkForm(c *fiber.Ctx) error {
+	id := c.Params("id")
+	title := c.FormValue("title")
+	url := c.FormValue("url")
+	description := c.FormValue("description")
+	tags := c.FormValue("tags")
+	notes := c.FormValue("notes")
+
+	if title == "" || url == "" {
+		return c.Redirect("/bookmarks/" + id)
+	}
+
+	var tagSlice []string
+	for _, t := range strings.Split(tags, ",") {
+		trimmed := strings.TrimSpace(t)
+		if trimmed != "" {
+			tagSlice = append(tagSlice, trimmed)
+		}
+	}
+
+	_, _ = h.queries.UpdateBookmark(c.Context(), generated.UpdateBookmarkParams{
+		ID:          middleware.StringToUUID(id),
+		Title:       title,
+		URL:         url,
+		Description: sql.NullString{String: description, Valid: description != ""},
+		Tags:        tagSlice,
+		Notes:       sql.NullString{String: notes, Valid: notes != ""},
+	})
+	return c.Redirect("/bookmarks/" + id)
 }
 
 func (h *Handler) DeleteBookmark(c *fiber.Ctx) error {

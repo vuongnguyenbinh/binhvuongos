@@ -90,7 +90,9 @@ func main() {
 	app.Post("/inbox", h.CreateInboxItem)
 	app.Post("/inbox/:id/triage", h.TriageInbox)
 	app.Post("/tasks", h.CreateTask)
+	app.Post("/tasks/:id", h.UpdateTaskForm)
 	app.Post("/tasks/:id/status", h.UpdateTaskStatusForm)
+	app.Post("/tasks/:id/delete", h.DeleteTask)
 	app.Post("/content", h.CreateContent)
 	app.Post("/content/:id/review", h.ReviewContentForm)
 	app.Post("/work-logs", h.CreateWorkLog)
@@ -99,6 +101,7 @@ func main() {
 	app.Post("/campaigns", h.CreateCampaign)
 	app.Post("/knowledge", h.CreateKnowledgeItem)
 	app.Post("/bookmarks", h.CreateBookmark)
+	app.Post("/bookmarks/:id", h.UpdateBookmarkForm)
 	app.Post("/bookmarks/:id/delete", h.DeleteBookmark)
 
 	log.Printf("Bình Vương OS starting on :%s", cfg.Port)

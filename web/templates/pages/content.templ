@@ -2,6 +2,7 @@ package pages
 
 import (
 	"binhvuongos/web/templates"
+	"binhvuongos/web/templates/components"
 	"fmt"
 	"strings"
 )
@@ -19,6 +20,8 @@ type ContentPageData struct {
 	Total        int64
 	StatusCounts map[string]int64
 	Companies    []CompanyItem
+	Page         int
+	TotalPages   int
 }
 
 func contentStatusPill(s string) string {
@@ -128,6 +131,9 @@ templ ContentListPage(data ContentPageData) {
 					</tbody>
 				</table>
 			</div>
+		}
+		if data.TotalPages > 1 {
+			@components.Pagination(data.Page, data.TotalPages)
 		}
 		@contentFormModalWithCompanies(data.Companies)
 	}

@@ -57,6 +57,22 @@ func (q *Queries) CreateBookmark(ctx context.Context, arg CreateBookmarkParams) 
 		arg.Title, arg.URL, arg.Description, arg.Tags, arg.Notes, arg.CreatedBy).Scan)
 }
 
+type UpdateBookmarkParams struct {
+	ID          pgtype.UUID    `json:"id"`
+	Title       string         `json:"title"`
+	URL         string         `json:"url"`
+	Description sql.NullString `json:"description"`
+	Tags        []string       `json:"tags"`
+	Notes       sql.NullString `json:"notes"`
+}
+
+func (q *Queries) UpdateBookmark(ctx context.Context, arg UpdateBookmarkParams) (Bookmark, error) {
+	return scanBookmark(q.pool.QueryRow(ctx,
+		`UPDATE bookmarks SET title=$2, url=$3, description=$4, tags=$5, notes=$6
+		 WHERE id=$1 AND deleted_at IS NULL RETURNING `+bookmarkCols,
+		arg.ID, arg.Title, arg.URL, arg.Description, arg.Tags, arg.Notes).Scan)
+}
+
 func (q *Queries) SoftDeleteBookmark(ctx context.Context, id pgtype.UUID) error {
 	return q.exec(ctx, "UPDATE bookmarks SET deleted_at=NOW() WHERE id=$1", id)
 }

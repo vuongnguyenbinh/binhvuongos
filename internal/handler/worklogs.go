@@ -13,20 +13,22 @@ import (
 )
 
 func (h *Handler) WorkLogs(c *fiber.Ctx) error {
-	items, err := h.queries.ListWorkLogs(c.Context(), 50, 0)
+	page, limit, offset := getPage(c)
+	items, err := h.queries.ListWorkLogs(c.Context(), limit, offset)
 	if err != nil {
 		return render(c, pages.WorkLogsListPage(pages.WorkLogsPageData{}))
 	}
 	total, _ := h.queries.CountWorkLogs(c.Context())
 	pendingCount, _ := h.queries.CountPendingWorkLogs(c.Context())
 	workTypes, _ := h.queries.ListActiveWorkTypes(c.Context())
-
 	companies, _ := h.queries.ListCompanies(c.Context(), 50, 0)
 
 	data := pages.WorkLogsPageData{
 		Items:        toTemplWorkLogs(items, workTypes),
 		Total:        total,
 		PendingCount: pendingCount,
+		Page:         page,
+		TotalPages:   totalPages(total),
 		Companies:    toTemplCompanies(companies),
 		WorkTypes:    toTemplWorkTypes(workTypes),
 	}
@@ -69,6 +71,10 @@ func (h *Handler) ApproveWorkLogForm(c *fiber.Ctx) error {
 	adminNotes := c.FormValue("admin_notes")
 	_, _ = h.queries.ApproveWorkLog(c.Context(), middleware.StringToUUID(id), user.ID,
 		sql.NullString{String: adminNotes, Valid: adminNotes != ""})
+	// HTMX: return inline status badge
+	if c.Get("HX-Request") == "true" {
+		return c.SendString(`<span class="pill bg-sage/20 text-forest">ĐÃ DUYỆT</span>`)
+	}
 	return c.Redirect("/work-logs")
 }
 
@@ -78,6 +84,9 @@ func (h *Handler) RejectWorkLogForm(c *fiber.Ctx) error {
 	adminNotes := c.FormValue("admin_notes")
 	_, _ = h.queries.RejectWorkLog(c.Context(), middleware.StringToUUID(id), user.ID,
 		sql.NullString{String: adminNotes, Valid: adminNotes != ""})
+	if c.Get("HX-Request") == "true" {
+		return c.SendString(`<span class="pill bg-rust/10 text-rust">TỪ CHỐI</span>`)
+	}
 	return c.Redirect("/work-logs")
 }
 

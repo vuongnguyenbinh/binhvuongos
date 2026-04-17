@@ -15,16 +15,17 @@ import (
 func (h *Handler) Knowledge(c *fiber.Ctx) error {
 	q := c.Query("q")
 	category := c.Query("category")
+	page, limit, offset := getPage(c)
 
 	var items []generated.KnowledgeItem
 	var err error
 
 	if q != "" {
-		items, err = h.queries.SearchKnowledgeItems(c.Context(), q, 50, 0)
+		items, err = h.queries.SearchKnowledgeItems(c.Context(), q, limit, offset)
 	} else if category != "" {
-		items, err = h.queries.ListKnowledgeItemsByCategory(c.Context(), category, 50, 0)
+		items, err = h.queries.ListKnowledgeItemsByCategory(c.Context(), category, limit, offset)
 	} else {
-		items, err = h.queries.ListKnowledgeItems(c.Context(), 50, 0)
+		items, err = h.queries.ListKnowledgeItems(c.Context(), limit, offset)
 	}
 	if err != nil {
 		return render(c, pages.KnowledgeListPage(pages.KnowledgePageData{}))
@@ -33,10 +34,12 @@ func (h *Handler) Knowledge(c *fiber.Ctx) error {
 	total, _ := h.queries.CountKnowledgeItems(c.Context())
 
 	data := pages.KnowledgePageData{
-		Items:    toTemplKnowledge(items),
-		Total:    total,
-		Query:    q,
-		Category: category,
+		Items:      toTemplKnowledge(items),
+		Total:      total,
+		Query:      q,
+		Category:   category,
+		Page:       page,
+		TotalPages: totalPages(total),
 	}
 	return render(c, pages.KnowledgeListPage(data))
 }

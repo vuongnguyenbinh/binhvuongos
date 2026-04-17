@@ -119,6 +119,22 @@ func (q *Queries) UpdateTaskStatus(ctx context.Context, id pgtype.UUID, status s
 		 WHERE id=$1 AND deleted_at IS NULL RETURNING `+taskCols, id, status).Scan)
 }
 
+type UpdateTaskParams struct {
+	ID          pgtype.UUID    `json:"id"`
+	Title       string         `json:"title"`
+	Description sql.NullString `json:"description"`
+	Category    sql.NullString `json:"category"`
+	Priority    string         `json:"priority"`
+	DueDate     pgtype.Date    `json:"due_date"`
+}
+
+func (q *Queries) UpdateTask(ctx context.Context, arg UpdateTaskParams) (Task, error) {
+	return scanTask(q.pool.QueryRow(ctx,
+		`UPDATE tasks SET title=$2, description=$3, category=$4, priority=$5, due_date=$6
+		 WHERE id=$1 AND deleted_at IS NULL RETURNING `+taskCols,
+		arg.ID, arg.Title, arg.Description, arg.Category, arg.Priority, arg.DueDate).Scan)
+}
+
 func (q *Queries) SoftDeleteTask(ctx context.Context, id pgtype.UUID) error {
 	return q.exec(ctx, "UPDATE tasks SET deleted_at=NOW() WHERE id=$1", id)
 }

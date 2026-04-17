@@ -1,6 +1,9 @@
 package pages
 
-import "binhvuongos/web/templates"
+import (
+	"binhvuongos/web/templates"
+	"strings"
+)
 
 templ BookmarkDetailDataPage(bm BookmarkItem) {
 	@templates.Layout(bm.Title, "bookmarks") {
@@ -17,13 +20,40 @@ templ BookmarkDetailDataPage(bm BookmarkItem) {
 			</div>
 		</div>
 		<div class="grid grid-cols-1 xl:grid-cols-12 gap-6">
-			<div class="xl:col-span-8">
+			<div class="xl:col-span-8 space-y-6">
 				if bm.Description != "" {
 					<div class="bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-lg p-6">
 						<h3 class="display text-lg font-bold mb-3">Mô tả</h3>
 						<p class="text-sm leading-relaxed">{ bm.Description }</p>
 					</div>
 				}
+				<!-- Edit form -->
+				<div class="bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-lg p-6">
+					<h3 class="display text-lg font-bold mb-4">Chỉnh sửa</h3>
+					<form method="POST" action={ templ.SafeURL("/bookmarks/" + bm.ID) } class="space-y-4">
+						<div>
+							<label class="block text-sm font-medium mb-1">Tiêu đề</label>
+							<input type="text" name="title" value={ bm.Title } required class="w-full px-3 py-2 border border-hairline rounded bg-ivory dark:bg-dark-bg text-ink focus:outline-none focus:border-forest"/>
+						</div>
+						<div>
+							<label class="block text-sm font-medium mb-1">URL</label>
+							<input type="url" name="url" value={ bm.URL } required class="w-full px-3 py-2 border border-hairline rounded bg-ivory dark:bg-dark-bg text-ink focus:outline-none focus:border-forest"/>
+						</div>
+						<div>
+							<label class="block text-sm font-medium mb-1">Mô tả</label>
+							<textarea name="description" rows="2" class="w-full px-3 py-2 border border-hairline rounded bg-ivory dark:bg-dark-bg text-ink focus:outline-none focus:border-forest">{ bm.Description }</textarea>
+						</div>
+						<div>
+							<label class="block text-sm font-medium mb-1">Tags <span class="text-muted text-xs">(phân cách dấu phẩy)</span></label>
+							<input type="text" name="tags" value={ strings.Join(bm.Tags, ", ") } class="w-full px-3 py-2 border border-hairline rounded bg-ivory dark:bg-dark-bg text-ink focus:outline-none focus:border-forest"/>
+						</div>
+						<div>
+							<label class="block text-sm font-medium mb-1">Ghi chú</label>
+							<textarea name="notes" rows="4" class="w-full px-3 py-2 border border-hairline rounded bg-ivory dark:bg-dark-bg text-ink mono text-sm focus:outline-none focus:border-forest"></textarea>
+						</div>
+						<button type="submit" class="px-6 py-2.5 bg-forest text-white font-semibold rounded mono">LƯU THAY ĐỔI</button>
+					</form>
+				</div>
 			</div>
 			<div class="xl:col-span-4">
 				<div class="bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-lg p-5">

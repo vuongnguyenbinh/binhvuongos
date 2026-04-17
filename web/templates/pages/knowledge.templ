@@ -2,6 +2,7 @@ package pages
 
 import (
 	"binhvuongos/web/templates"
+	"binhvuongos/web/templates/components"
 	"fmt"
 	"strings"
 )
@@ -18,10 +19,12 @@ type KnowledgeItemData struct {
 }
 
 type KnowledgePageData struct {
-	Items    []KnowledgeItemData
-	Total    int64
-	Query    string
-	Category string
+	Items      []KnowledgeItemData
+	Total      int64
+	Query      string
+	Category   string
+	Page       int
+	TotalPages int
 }
 
 func kbCatPill(cat string) string {
@@ -113,6 +116,9 @@ templ KnowledgeListPage(data KnowledgePageData) {
 					@kbCardDB(item)
 				}
 			</div>
+		}
+		if data.TotalPages > 1 {
+			@components.Pagination(data.Page, data.TotalPages)
 		}
 		@knowledgeFormModal()
 	}

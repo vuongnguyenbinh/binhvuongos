@@ -1,6 +1,9 @@
 package pages
 
-import "binhvuongos/web/templates"
+import (
+	"binhvuongos/web/templates"
+	"strings"
+)
 
 templ TaskDetailDataPage(task TaskItem, description string) {
 	@templates.Layout(task.Title, "tasks") {
@@ -10,13 +13,16 @@ templ TaskDetailDataPage(task TaskItem, description string) {
 				<div>
 					<div class="flex items-center gap-2 mb-2">
 						<span class={ "pill", priorityPill(task.Priority) }>{ priorityLabel(task.Priority) }</span>
-						<span class="pill bg-muted/10 text-muted">{ task.Status }</span>
+						<span class="pill bg-muted/10 text-muted">{ strings.ToUpper(task.Status) }</span>
 						if task.Category != "" {
 							<span class="text-xs text-muted mono">{ task.Category }</span>
 						}
 					</div>
 					<h1 class="display text-4xl md:text-5xl font-bold leading-none">{ task.Title }</h1>
 				</div>
+				<form method="POST" action={ templ.SafeURL("/tasks/" + task.ID + "/delete") }>
+					<button type="submit" class="px-3 py-1.5 bg-rust text-white rounded text-xs mono" onclick="return confirm('Xoá task này?')">Xoá</button>
+				</form>
 			</div>
 		</div>
 		<div class="grid grid-cols-1 xl:grid-cols-12 gap-6">
@@ -27,18 +33,60 @@ templ TaskDetailDataPage(task TaskItem, description string) {
 						<p class="text-sm text-muted leading-relaxed">{ description }</p>
 					</div>
 				}
-				<!-- Status change form -->
+				<!-- Status change -->
 				<div class="bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-lg p-6">
 					<h3 class="display text-lg font-bold mb-3">Đổi trạng thái</h3>
 					<form method="POST" action={ templ.SafeURL("/tasks/" + task.ID + "/status") } class="flex items-center gap-3">
-						<select name="status" class="px-3 py-2 border border-hairline dark:border-dark-border rounded bg-ivory dark:bg-dark-bg text-sm">
-							<option value="todo">Cần làm</option>
-							<option value="in_progress">Đang làm</option>
-							<option value="waiting">Chờ</option>
-							<option value="review">Cần duyệt</option>
-							<option value="done">Hoàn thành</option>
+						<select name="status" class="px-3 py-2 border border-hairline rounded bg-ivory dark:bg-dark-bg text-sm">
+							<option value="todo" selected?={ task.Status == "todo" }>Cần làm</option>
+							<option value="in_progress" selected?={ task.Status == "in_progress" }>Đang làm</option>
+							<option value="waiting" selected?={ task.Status == "waiting" }>Chờ</option>
+							<option value="review" selected?={ task.Status == "review" }>Cần duyệt</option>
+							<option value="done" selected?={ task.Status == "done" }>Hoàn thành</option>
 						</select>
 						<button type="submit" class="px-4 py-2 bg-forest text-white rounded text-sm mono font-semibold">CẬP NHẬT</button>
+					</form>
+				</div>
+				<!-- Edit form -->
+				<div class="bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-lg p-6">
+					<h3 class="display text-lg font-bold mb-4">Chỉnh sửa</h3>
+					<form method="POST" action={ templ.SafeURL("/tasks/" + task.ID) } class="space-y-4">
+						<div>
+							<label class="block text-sm font-medium mb-1">Tiêu đề</label>
+							<input type="text" name="title" value={ task.Title } required class="w-full px-3 py-2 border border-hairline rounded bg-ivory dark:bg-dark-bg text-ink focus:outline-none focus:border-forest"/>
+						</div>
+						<div>
+							<label class="block text-sm font-medium mb-1">Mô tả</label>
+							<textarea name="description" rows="3" class="w-full px-3 py-2 border border-hairline rounded bg-ivory dark:bg-dark-bg text-ink focus:outline-none focus:border-forest">{ description }</textarea>
+						</div>
+						<div class="grid grid-cols-3 gap-4">
+							<div>
+								<label class="block text-sm font-medium mb-1">Ưu tiên</label>
+								<select name="priority" class="w-full px-3 py-2 border border-hairline rounded bg-ivory dark:bg-dark-bg text-ink">
+									<option value="urgent" selected?={ task.Priority == "urgent" }>Gấp</option>
+									<option value="high" selected?={ task.Priority == "high" }>Cao</option>
+									<option value="normal" selected?={ task.Priority == "normal" }>Trung bình</option>
+									<option value="low" selected?={ task.Priority == "low" }>Thấp</option>
+								</select>
+							</div>
+							<div>
+								<label class="block text-sm font-medium mb-1">Phân loại</label>
+								<select name="category" class="w-full px-3 py-2 border border-hairline rounded bg-ivory dark:bg-dark-bg text-ink">
+									<option value="">—</option>
+									<option value="content" selected?={ task.Category == "content" }>Content</option>
+									<option value="seo" selected?={ task.Category == "seo" }>SEO</option>
+									<option value="training" selected?={ task.Category == "training" }>Training</option>
+									<option value="admin" selected?={ task.Category == "admin" }>Admin</option>
+									<option value="design" selected?={ task.Category == "design" }>Design</option>
+									<option value="meeting" selected?={ task.Category == "meeting" }>Meeting</option>
+								</select>
+							</div>
+							<div>
+								<label class="block text-sm font-medium mb-1">Hạn chót</label>
+								<input type="date" name="due_date" value={ task.DueDate } class="w-full px-3 py-2 border border-hairline rounded bg-ivory dark:bg-dark-bg text-ink"/>
+							</div>
+						</div>
+						<button type="submit" class="px-6 py-2.5 bg-forest text-white font-semibold rounded mono">LƯU THAY ĐỔI</button>
 					</form>
 				</div>
 			</div>

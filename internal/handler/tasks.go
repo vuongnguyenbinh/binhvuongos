@@ -73,6 +73,40 @@ func (h *Handler) CreateTask(c *fiber.Ctx) error {
 	return c.Redirect("/tasks")
 }
 
+func (h *Handler) UpdateTaskForm(c *fiber.Ctx) error {
+	id := c.Params("id")
+	title := c.FormValue("title")
+	description := c.FormValue("description")
+	category := c.FormValue("category")
+	priority := c.FormValue("priority")
+	dueDate := c.FormValue("due_date")
+
+	if title == "" {
+		return c.Redirect("/tasks/" + id)
+	}
+
+	var dd pgtype.Date
+	if dueDate != "" {
+		_ = dd.Scan(dueDate)
+	}
+
+	_, _ = h.queries.UpdateTask(c.Context(), generated.UpdateTaskParams{
+		ID:          middleware.StringToUUID(id),
+		Title:       title,
+		Description: sql.NullString{String: description, Valid: description != ""},
+		Category:    sql.NullString{String: category, Valid: category != ""},
+		Priority:    priority,
+		DueDate:     dd,
+	})
+	return c.Redirect("/tasks/" + id)
+}
+
+func (h *Handler) DeleteTask(c *fiber.Ctx) error {
+	id := c.Params("id")
+	_ = h.queries.SoftDeleteTask(c.Context(), middleware.StringToUUID(id))
+	return c.Redirect("/tasks")
+}
+
 func (h *Handler) UpdateTaskStatusForm(c *fiber.Ctx) error {
 	id := c.Params("id")
 	status := c.FormValue("status")

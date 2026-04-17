@@ -2,6 +2,7 @@ package pages
 
 import (
 	"binhvuongos/web/templates"
+	"binhvuongos/web/templates/components"
 	"fmt"
 	"strings"
 )
@@ -28,6 +29,8 @@ type WorkLogsPageData struct {
 	Items        []WorkLogItem
 	Total        int64
 	PendingCount int64
+	Page         int
+	TotalPages   int
 	Companies    []CompanyItem
 	WorkTypes    []WorkTypeItem
 }
@@ -103,6 +106,9 @@ templ WorkLogsListPage(data WorkLogsPageData) {
 					</tbody>
 				</table>
 			</div>
+			if data.TotalPages > 1 {
+				@components.Pagination(data.Page, data.TotalPages)
+			}
 		}
 		@workLogFormModal(data.Companies, data.WorkTypes)
 	}
@@ -177,21 +183,25 @@ templ wlRowDB(wl WorkLogItem) {
 			<div class="tnum text-xl stat-hero">{ wl.Quantity }</div>
 			<div class="text-xs text-muted mono">{ wl.Unit }</div>
 		</td>
-		<td class="px-4 py-4"><span class={ "pill", wlStatusPill(wl.Status) }>{ wlStatusLabel(wl.Status) }</span></td>
+		<td class="px-4 py-4" id={ "wl-status-" + wl.ID }><span class={ "pill", wlStatusPill(wl.Status) }>{ wlStatusLabel(wl.Status) }</span></td>
 		<td class="px-4 py-4 text-xs text-muted max-w-xs">{ wl.Notes }</td>
 		<td class="px-4 py-4 text-right">
 			if wl.Status == "submitted" {
-				<div class="flex items-center gap-1 justify-end">
-					<form method="POST" action={ templ.SafeURL("/work-logs/" + wl.ID + "/approve") } class="inline">
-						<button type="submit" class="w-7 h-7 rounded border border-hairline text-muted hover:bg-sage hover:text-white hover:border-sage flex items-center justify-center transition-all" title="Duyệt">
-							<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"></path></svg>
-						</button>
-					</form>
-					<form method="POST" action={ templ.SafeURL("/work-logs/" + wl.ID + "/reject") } class="inline">
-						<button type="submit" class="w-7 h-7 rounded border border-hairline text-muted hover:bg-rust hover:text-white hover:border-rust flex items-center justify-center transition-all" title="Từ chối">
-							<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-						</button>
-					</form>
+				<div class="flex items-center gap-1 justify-end" id={ "wl-btn-" + wl.ID }>
+					<button
+						hx-post={ "/work-logs/" + wl.ID + "/approve" }
+						hx-target={ "#wl-status-" + wl.ID }
+						hx-swap="innerHTML"
+						class="w-7 h-7 rounded border border-hairline text-muted hover:bg-sage hover:text-white hover:border-sage flex items-center justify-center transition-all htmx-hide-parent" title="Duyệt">
+						<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"></path></svg>
+					</button>
+					<button
+						hx-post={ "/work-logs/" + wl.ID + "/reject" }
+						hx-target={ "#wl-status-" + wl.ID }
+						hx-swap="innerHTML"
+						class="w-7 h-7 rounded border border-hairline text-muted hover:bg-rust hover:text-white hover:border-rust flex items-center justify-center transition-all htmx-hide-parent" title="Từ chối">
+						<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+					</button>
 				</div>
 			}
 		</td>

@@ -2,6 +2,7 @@ package pages
 
 import (
 	"binhvuongos/web/templates"
+	"binhvuongos/web/templates/components"
 	"fmt"
 	"strings"
 )
@@ -19,9 +20,11 @@ type InboxItemData struct {
 
 type InboxPageData struct {
 	Items     []InboxItemData
-	RawCount  int64
-	Total     int64
-	Companies []CompanyItem
+	RawCount   int64
+	Total      int64
+	Companies  []CompanyItem
+	Page       int
+	TotalPages int
 }
 
 func sourcePill(source string) string {
@@ -67,6 +70,9 @@ templ InboxListPage(data InboxPageData) {
 					@inboxItemDB(item)
 				}
 			</div>
+			if data.TotalPages > 1 {
+				@components.Pagination(data.Page, data.TotalPages)
+			}
 		}
 	}
 }
