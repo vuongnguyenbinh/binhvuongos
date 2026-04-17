@@ -1,0 +1,64 @@
+package pages
+
+import "binhvuongos/web/templates"
+
+templ AdminSettingsPage(settings map[string]string, message string) {
+	@templates.Layout("Cài đặt hệ thống", "dashboard") {
+		<div class="max-w-3xl mx-auto">
+			<div class="flex items-center justify-between mb-8">
+				<h1 class="display text-4xl font-bold">Cài đặt <span class="accent">hệ thống</span></h1>
+				<a href="/admin/work-types" class="text-xs text-forest mono underline">Quản lý loại công việc →</a>
+			</div>
+			if message != "" {
+				<div class="mb-6 p-3 bg-sage/10 border border-sage/20 rounded text-sm text-forest">{ message }</div>
+			}
+			<form method="POST" action="/admin/settings" class="space-y-8">
+				<!-- SMTP -->
+				<div class="bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-lg p-6">
+					<h3 class="display text-lg font-bold mb-4">📧 SMTP (Email)</h3>
+					<div class="grid grid-cols-2 gap-4">
+						@settingField("smtp_host", "Host", settings["smtp_host"], "smtp.gmail.com")
+						@settingField("smtp_port", "Port", settings["smtp_port"], "587")
+						@settingField("smtp_user", "Username", settings["smtp_user"], "email@gmail.com")
+						@settingField("smtp_pass", "Password", settings["smtp_pass"], "app-password")
+						@settingField("smtp_from", "From email", settings["smtp_from"], "noreply@binhvuong.vn")
+					</div>
+				</div>
+				<!-- Google OAuth -->
+				<div class="bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-lg p-6">
+					<h3 class="display text-lg font-bold mb-4">🔐 Google OAuth</h3>
+					<div class="space-y-4">
+						@settingField("google_oauth_client_id", "Client ID", settings["google_oauth_client_id"], "xxx.apps.googleusercontent.com")
+						@settingField("google_oauth_client_secret", "Client Secret", settings["google_oauth_client_secret"], "GOCSPX-xxx")
+					</div>
+				</div>
+				<!-- Notion -->
+				<div class="bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-lg p-6">
+					<h3 class="display text-lg font-bold mb-4">📝 Notion Sync</h3>
+					<div class="space-y-4">
+						@settingField("notion_api_key", "API Key", settings["notion_api_key"], "secret_xxx")
+						@settingField("notion_database_ids", "Database IDs (JSON)", settings["notion_database_ids"], "{}")
+					</div>
+				</div>
+				<!-- n8n -->
+				<div class="bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-lg p-6">
+					<h3 class="display text-lg font-bold mb-4">💬 Chat (n8n Webhook)</h3>
+					@settingField("n8n_webhook_url", "Webhook URL", settings["n8n_webhook_url"], "https://n8n.example.com/webhook/xxx")
+				</div>
+				<!-- Other -->
+				<div class="bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-lg p-6">
+					<h3 class="display text-lg font-bold mb-4">🖼 Unsplash</h3>
+					@settingField("unsplash_keywords", "Keywords (phân cách dấu phẩy)", settings["unsplash_keywords"], "vietnam,hanoi,nature")
+				</div>
+				<button type="submit" class="w-full py-3 bg-forest text-white font-semibold rounded-lg mono text-sm">LƯU CÀI ĐẶT</button>
+			</form>
+		</div>
+	}
+}
+
+templ settingField(name string, label string, value string, placeholder string) {
+	<div>
+		<label class="block text-sm font-medium mb-1">{ label }</label>
+		<input type="text" name={ name } value={ value } placeholder={ placeholder } class="w-full px-3 py-2 border border-hairline dark:border-dark-border rounded bg-ivory dark:bg-dark-bg text-ink text-sm focus:outline-none focus:border-forest mono"/>
+	</div>
+}

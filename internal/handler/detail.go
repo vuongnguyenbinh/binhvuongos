@@ -41,12 +41,14 @@ func (h *Handler) TaskDetail(c *fiber.Ctx) error {
 		return c.Redirect("/tasks")
 	}
 	item := pages.TaskItem{
-		ID:       middleware.UUIDToString(task.ID),
-		Title:    task.Title,
-		Status:   task.Status,
-		Priority: task.Priority,
-		Category: nullStr(task.Category),
-		DueDate:  formatDate(task.DueDate),
+		ID:         middleware.UUIDToString(task.ID),
+		Title:      task.Title,
+		Status:     task.Status,
+		StatusVi:   LabelVi("task_status", task.Status),
+		Priority:   task.Priority,
+		PriorityVi: LabelVi("priority", task.Priority),
+		Category:   nullStr(task.Category),
+		DueDate:    formatDate(task.DueDate),
 	}
 	desc := nullStr(task.Description)
 	return render(c, pages.TaskDetailDataPage(item, desc))

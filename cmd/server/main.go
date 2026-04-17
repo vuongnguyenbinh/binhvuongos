@@ -65,12 +65,24 @@ func main() {
 	app.Get("/profile", h.ProfilePageHandler)
 	app.Post("/profile/password", h.ChangePassword)
 
+	// Notifications
+	app.Get("/notifications", h.Notifications)
+	app.Get("/notifications/count", h.NotificationCount)
+	app.Post("/notifications/:id/read", h.MarkNotificationRead)
+	app.Post("/notifications/read-all", h.MarkAllRead)
+
 	// Search
 	app.Get("/search", h.Search)
 
 	// Admin-only routes (owner + core_staff)
 	admin := app.Group("", middleware.RequireRole("owner", "core_staff"))
 	admin.Get("/users", h.Users)
+	admin.Get("/admin/settings", h.AdminSettings)
+	admin.Post("/admin/settings", h.SaveSettings)
+	admin.Get("/admin/work-types", h.AdminWorkTypes)
+	admin.Post("/admin/work-types", h.CreateWorkType)
+	admin.Post("/admin/work-types/:id", h.UpdateWorkType)
+	admin.Post("/admin/work-types/:id/delete", h.DeleteWorkType)
 	admin.Post("/users", h.CreateUser)
 
 	// Pages

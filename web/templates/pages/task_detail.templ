@@ -2,7 +2,6 @@ package pages
 
 import (
 	"binhvuongos/web/templates"
-	"strings"
 )
 
 templ TaskDetailDataPage(task TaskItem, description string) {
@@ -13,7 +12,7 @@ templ TaskDetailDataPage(task TaskItem, description string) {
 				<div>
 					<div class="flex items-center gap-2 mb-2">
 						<span class={ "pill", priorityPill(task.Priority) }>{ priorityLabel(task.Priority) }</span>
-						<span class="pill bg-muted/10 text-muted">{ strings.ToUpper(task.Status) }</span>
+						<span class="pill bg-muted/10 text-muted">{ task.StatusVi }</span>
 						if task.Category != "" {
 							<span class="text-xs text-muted mono">{ task.Category }</span>
 						}
@@ -94,8 +93,8 @@ templ TaskDetailDataPage(task TaskItem, description string) {
 				<div class="bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-lg p-5">
 					<h3 class="eyebrow mb-3">Thông tin</h3>
 					<div class="space-y-3 text-xs">
-						<div class="flex justify-between"><span class="text-muted">Trạng thái</span><span>{ task.Status }</span></div>
-						<div class="flex justify-between"><span class="text-muted">Ưu tiên</span><span>{ task.Priority }</span></div>
+						<div class="flex justify-between"><span class="text-muted">Trạng thái</span><span>{ task.StatusVi }</span></div>
+						<div class="flex justify-between"><span class="text-muted">Ưu tiên</span><span>{ task.PriorityVi }</span></div>
 						if task.DueDate != "" {
 							<div class="flex justify-between"><span class="text-muted">Hạn chót</span><span class="mono">{ task.DueDate }</span></div>
 						}

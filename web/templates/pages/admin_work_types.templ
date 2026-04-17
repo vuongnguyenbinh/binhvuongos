@@ -1,0 +1,89 @@
+package pages
+
+import "binhvuongos/web/templates"
+
+type AdminWorkTypeItem struct {
+	ID    string
+	Name  string
+	Slug  string
+	Unit  string
+	Icon  string
+	Color string
+}
+
+templ AdminWorkTypesPage(types []AdminWorkTypeItem) {
+	@templates.Layout("Quản lý loại công việc", "dashboard") {
+		<div class="max-w-3xl mx-auto">
+			<div class="flex items-center justify-between mb-8">
+				<h1 class="display text-4xl font-bold">Loại <span class="accent">công việc</span></h1>
+				<a href="/admin/settings" class="text-xs text-forest mono underline">← Cài đặt hệ thống</a>
+			</div>
+			<!-- List -->
+			<div class="bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-lg overflow-x-auto mb-8">
+				<table class="w-full text-sm">
+					<thead class="bg-cream/40 dark:bg-dark-cream/40 border-b border-hairline">
+						<tr class="text-left">
+							<th class="eyebrow px-4 py-3">Icon</th>
+							<th class="eyebrow px-4 py-3">Tên</th>
+							<th class="eyebrow px-4 py-3">Slug</th>
+							<th class="eyebrow px-4 py-3">Đơn vị</th>
+							<th class="eyebrow px-4 py-3">Màu</th>
+							<th class="eyebrow px-4 py-3 text-right">Hành động</th>
+						</tr>
+					</thead>
+					<tbody class="divide-y divide-hairline">
+						for _, wt := range types {
+							<tr class="row-hover">
+								<td class="px-4 py-3 text-xl">{ wt.Icon }</td>
+								<td class="px-4 py-3 font-semibold">{ wt.Name }</td>
+								<td class="px-4 py-3 mono text-muted">{ wt.Slug }</td>
+								<td class="px-4 py-3 mono">{ wt.Unit }</td>
+								<td class="px-4 py-3">
+									if wt.Color != "" {
+										<span class="mono text-xs">{ wt.Color }</span>
+									}
+								</td>
+								<td class="px-4 py-3 text-right">
+									<form method="POST" action={ templ.SafeURL("/admin/work-types/" + wt.ID + "/delete") } class="inline">
+										<button type="submit" class="text-xs text-rust mono hover:underline" onclick="return confirm('Vô hiệu hoá?')">Xoá</button>
+									</form>
+								</td>
+							</tr>
+						}
+					</tbody>
+				</table>
+			</div>
+			<!-- Create form -->
+			<div class="bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-lg p-6">
+				<h3 class="display text-lg font-bold mb-4">Thêm loại mới</h3>
+				<form method="POST" action="/admin/work-types" class="space-y-4">
+					<div class="grid grid-cols-3 gap-4">
+						<div>
+							<label class="block text-sm font-medium mb-1">Tên *</label>
+							<input type="text" name="name" required class="w-full px-3 py-2 border border-hairline rounded bg-ivory dark:bg-dark-bg text-ink text-sm" placeholder="Xây backlink"/>
+						</div>
+						<div>
+							<label class="block text-sm font-medium mb-1">Slug *</label>
+							<input type="text" name="slug" required class="w-full px-3 py-2 border border-hairline rounded bg-ivory dark:bg-dark-bg text-ink text-sm mono" placeholder="backlink"/>
+						</div>
+						<div>
+							<label class="block text-sm font-medium mb-1">Đơn vị *</label>
+							<input type="text" name="unit" required class="w-full px-3 py-2 border border-hairline rounded bg-ivory dark:bg-dark-bg text-ink text-sm" placeholder="link"/>
+						</div>
+					</div>
+					<div class="grid grid-cols-2 gap-4">
+						<div>
+							<label class="block text-sm font-medium mb-1">Icon (emoji)</label>
+							<input type="text" name="icon" class="w-full px-3 py-2 border border-hairline rounded bg-ivory dark:bg-dark-bg text-ink text-sm" placeholder="🔗"/>
+						</div>
+						<div>
+							<label class="block text-sm font-medium mb-1">Màu (hex)</label>
+							<input type="text" name="color" class="w-full px-3 py-2 border border-hairline rounded bg-ivory dark:bg-dark-bg text-ink text-sm mono" placeholder="#4F46E5"/>
+						</div>
+					</div>
+					<button type="submit" class="px-6 py-2.5 bg-forest text-white font-semibold rounded mono text-sm">THÊM</button>
+				</form>
+			</div>
+		</div>
+	}
+}

@@ -125,12 +125,14 @@ func toTemplTasks(tasks []generated.Task) []pages.TaskItem {
 	items := make([]pages.TaskItem, len(tasks))
 	for i, t := range tasks {
 		items[i] = pages.TaskItem{
-			ID:       middleware.UUIDToString(t.ID),
-			Title:    t.Title,
-			Status:   t.Status,
-			Priority: t.Priority,
-			Category: nullStr(t.Category),
-			DueDate:  formatDate(t.DueDate),
+			ID:         middleware.UUIDToString(t.ID),
+			Title:      t.Title,
+			Status:     t.Status,
+			StatusVi:   LabelVi("task_status", t.Status),
+			Priority:   t.Priority,
+			PriorityVi: LabelVi("priority", t.Priority),
+			Category:   nullStr(t.Category),
+			DueDate:    formatDate(t.DueDate),
 		}
 	}
 	return items

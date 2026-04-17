@@ -2,12 +2,37 @@ package handler
 
 import (
 	"fmt"
+	"time"
 
 	"binhvuongos/internal/middleware"
 	"binhvuongos/web/templates/pages"
 
 	"github.com/gofiber/fiber/v2"
 )
+
+// getGreeting returns Vietnamese greeting + Unsplash image keyword based on Hanoi time
+func getGreeting() (string, string) {
+	loc, _ := time.LoadLocation("Asia/Ho_Chi_Minh")
+	hour := time.Now().In(loc).Hour()
+	day := time.Now().In(loc).YearDay()
+
+	// Rotate image query per day for variety
+	seasons := []string{"spring", "summer", "autumn", "winter"}
+	season := seasons[day%4]
+
+	switch {
+	case hour >= 5 && hour < 11:
+		return "Chào buổi sáng", fmt.Sprintf("https://source.unsplash.com/1600x400/?morning,%s,vietnam&sig=%d", season, day)
+	case hour >= 11 && hour < 13:
+		return "Chào buổi trưa", fmt.Sprintf("https://source.unsplash.com/1600x400/?noon,%s,city&sig=%d", season, day)
+	case hour >= 13 && hour < 18:
+		return "Chào buổi chiều", fmt.Sprintf("https://source.unsplash.com/1600x400/?afternoon,%s,landscape&sig=%d", season, day)
+	case hour >= 18 && hour < 22:
+		return "Chào buổi tối", fmt.Sprintf("https://source.unsplash.com/1600x400/?evening,%s,sunset&sig=%d", season, day)
+	default:
+		return "Chào đêm muộn", fmt.Sprintf("https://source.unsplash.com/1600x400/?night,%s,stars&sig=%d", season, day)
+	}
+}
 
 func (h *Handler) Dashboard(c *fiber.Ctx) error {
 	user := GetUser(c)
@@ -54,9 +79,13 @@ func (h *Handler) ownerDashboard(c *fiber.Ctx) error {
 		})
 	}
 
+	greeting, bgImage := getGreeting()
+
 	data := pages.DashboardPageData{
 		UserName:         u.FullName,
 		UserRole:         u.Role,
+		Greeting:         greeting,
+		BgImage:          bgImage,
 		PendingReviews:   counts.PendingReviews,
 		ContentReview:    counts.ContentReview,
 		OverdueTasks:     counts.OverdueTasks,
@@ -81,9 +110,13 @@ func (h *Handler) userDashboard(c *fiber.Ctx) error {
 	myWorkLogs, _ := h.queries.ListWorkLogsByUser(c.Context(), u.ID, 10, 0)
 	workTypes, _ := h.queries.ListActiveWorkTypes(c.Context())
 
+	greeting, bgImage := getGreeting()
+
 	data := pages.DashboardPageData{
 		UserName:   u.FullName,
 		UserRole:   u.Role,
+		Greeting:   greeting,
+		BgImage:    bgImage,
 		TodayTasks: toTemplTasks(myTasks),
 		MyWorkLogs: toTemplWorkLogs(myWorkLogs, workTypes),
 	}

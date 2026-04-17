@@ -20,6 +20,8 @@ type DashCampaignItem struct {
 type DashboardPageData struct {
 	UserName         string
 	UserRole         string
+	Greeting         string
+	BgImage          string
 	PendingReviews   int64
 	ContentReview    int64
 	OverdueTasks     int64
@@ -36,13 +38,27 @@ type DashboardPageData struct {
 
 templ DashboardDataPage(data DashboardPageData) {
 	@templates.Layout("Tổng quan", "dashboard") {
-		<div class="mb-10">
-			<div class="flex items-baseline justify-between mb-2">
-				<p class="eyebrow">Tổng quan</p>
+		<!-- Hero greeting with background -->
+		if data.BgImage != "" {
+			<div class="mb-10 rounded-lg overflow-hidden relative" style="min-height:180px">
+				<img src={ data.BgImage } alt="" class="absolute inset-0 w-full h-full object-cover" loading="lazy"/>
+				<div class="absolute inset-0 bg-gradient-to-r from-ink/80 to-ink/40"></div>
+				<div class="relative p-8 text-white">
+					<p class="eyebrow text-white/60 mb-2">Tổng quan</p>
+					<h1 class="display text-5xl md:text-6xl font-bold leading-none">
+						{ data.Greeting }, <span class="text-sage">{ data.UserName }.</span>
+					</h1>
+				</div>
 			</div>
-			<h1 class="display text-6xl font-bold leading-none text-ink">
-				Chào, <span class="accent">{ data.UserName }.</span>
-			</h1>
+		} else {
+			<div class="mb-10">
+				<p class="eyebrow mb-2">Tổng quan</p>
+				<h1 class="display text-6xl font-bold leading-none text-ink">
+					{ data.Greeting }, <span class="accent">{ data.UserName }.</span>
+				</h1>
+			</div>
+		}
+		<div class="mb-6">
 			<p class="mt-4 text-muted max-w-2xl text-base">
 				if data.PendingReviews > 0 || data.ContentReview > 0 || data.OverdueTasks > 0 {
 					Hôm nay có

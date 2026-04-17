@@ -1,0 +1,53 @@
+package pages
+
+import "binhvuongos/web/templates"
+
+type NotifItem struct {
+	ID      string
+	Title   string
+	Link    string
+	IsRead  bool
+	TimeAgo string
+}
+
+templ NotificationsPage(items []NotifItem) {
+	@templates.Layout("Thông báo", "dashboard") {
+		<div class="max-w-2xl mx-auto">
+			<div class="flex items-center justify-between mb-8">
+				<h1 class="display text-4xl font-bold">Thông báo</h1>
+				if len(items) > 0 {
+					<form method="POST" action="/notifications/read-all">
+						<button type="submit" class="text-xs text-forest mono underline">Đánh dấu tất cả đã đọc</button>
+					</form>
+				}
+			</div>
+			if len(items) == 0 {
+				<div class="text-center py-16 text-muted">
+					<div class="text-5xl mb-4">🔔</div>
+					<p>Không có thông báo nào.</p>
+				</div>
+			} else {
+				<div class="bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-lg divide-y divide-hairline">
+					for _, n := range items {
+						if n.Link != "" {
+							<a href={ templ.SafeURL(n.Link) } class={ "block p-4 row-hover", templ.KV("opacity-60", n.IsRead) }
+								hx-post={ "/notifications/" + n.ID + "/read" } hx-swap="none">
+								<div class="flex items-center justify-between">
+									<span class="text-sm font-semibold">{ n.Title }</span>
+									<span class="text-xs text-muted mono">{ n.TimeAgo }</span>
+								</div>
+							</a>
+						} else {
+							<div class={ "p-4", templ.KV("opacity-60", n.IsRead) }>
+								<div class="flex items-center justify-between">
+									<span class="text-sm">{ n.Title }</span>
+									<span class="text-xs text-muted mono">{ n.TimeAgo }</span>
+								</div>
+							</div>
+						}
+					}
+				</div>
+			}
+		</div>
+	}
+}
