@@ -126,7 +126,19 @@ func (h *Handler) CampaignDetail(c *fiber.Ctx) error {
 		StartDate:    formatDate(camp.StartDate),
 		EndDate:      formatDate(camp.EndDate),
 	}
-	return render(c, pages.CampaignDetailDataPage(item))
+	// Load progress from view
+	progressRows, _ := h.queries.GetCampaignProgress(c.Context(), id)
+	var progress []pages.CampaignProgressItem
+	for _, r := range progressRows {
+		progress = append(progress, pages.CampaignProgressItem{
+			WorkTypeName: r.WorkTypeName,
+			Unit:         r.Unit,
+			Actual:       numericToStr(r.Actual),
+			Target:       numericToStr(r.Target),
+			ProgressPct:  int(numericToFloat(r.ProgressPct)),
+		})
+	}
+	return render(c, pages.CampaignDetailWithProgress(item, progress))
 }
 
 func (h *Handler) KnowledgeDetail(c *fiber.Ctx) error {
@@ -175,6 +187,17 @@ func companyToDetail(c generated.Company) pages.CompanyItem {
 		Status:    c.Status,
 		Health:    nullStr(c.Health),
 	}
+}
+
+func numericToFloat(n pgtype.Numeric) float64 {
+	if !n.Valid {
+		return 0
+	}
+	f, err := n.Float64Value()
+	if err != nil {
+		return 0
+	}
+	return f.Float64
 }
 
 func numericToStr(n pgtype.Numeric) string {

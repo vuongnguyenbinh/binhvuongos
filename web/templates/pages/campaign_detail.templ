@@ -1,8 +1,19 @@
 package pages
 
-import "binhvuongos/web/templates"
+import (
+	"binhvuongos/web/templates"
+	"fmt"
+)
 
-templ CampaignDetailDataPage(camp CampaignItem) {
+type CampaignProgressItem struct {
+	WorkTypeName string
+	Unit         string
+	Actual       string
+	Target       string
+	ProgressPct  int
+}
+
+templ CampaignDetailWithProgress(camp CampaignItem, progress []CampaignProgressItem) {
 	@templates.Layout(camp.Name, "campaigns") {
 		<div class="mb-8">
 			<a href="/campaigns" class="text-xs text-muted hover:text-ink mono">← Quay lại Chiến dịch</a>
@@ -18,14 +29,55 @@ templ CampaignDetailDataPage(camp CampaignItem) {
 					if camp.Description != "" {
 						<p class="text-muted mt-3">{ camp.Description }</p>
 					}
+					<div class="text-xs text-muted mono mt-3">
+						if camp.StartDate != "" && camp.EndDate != "" {
+							{ camp.StartDate } — { camp.EndDate }
+						}
+					</div>
 				</div>
 				<form method="POST" action={ templ.SafeURL("/campaigns/" + camp.ID + "/delete") }>
 					<button type="submit" class="px-3 py-1.5 bg-rust text-white rounded text-xs mono" onclick="return confirm('Xoá chiến dịch?')">Xoá</button>
 				</form>
 			</div>
 		</div>
+		<!-- Progress bars -->
+		if len(progress) > 0 {
+			<div class="bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-lg p-6 mb-6">
+				<h3 class="display text-xl font-bold mb-5">Tiến độ</h3>
+				<div class="space-y-5">
+					for _, p := range progress {
+						<div>
+							<div class="flex items-center justify-between mb-2">
+								<span class="font-semibold text-sm">{ p.WorkTypeName }</span>
+								<div class="tnum text-sm mono">
+									<span class="font-semibold">{ p.Actual }</span>
+									<span class="text-muted">/ { p.Target } { p.Unit }</span>
+									if p.ProgressPct >= 80 {
+										<span class="ml-2 font-semibold text-sage">{ fmt.Sprintf("%d%%", p.ProgressPct) }</span>
+									} else if p.ProgressPct >= 50 {
+										<span class="ml-2 font-semibold">{ fmt.Sprintf("%d%%", p.ProgressPct) }</span>
+									} else {
+										<span class="ml-2 font-semibold text-ember">{ fmt.Sprintf("%d%%", p.ProgressPct) }</span>
+									}
+								</div>
+							</div>
+							<div class="progress-track h-2">
+								if p.ProgressPct >= 80 {
+									<div class="h-full rounded-full bg-gradient-to-r from-forest to-sage" { templates.WidthStyle(p.ProgressPct)... }></div>
+								} else if p.ProgressPct >= 50 {
+									<div class="h-full rounded-full bg-gradient-to-r from-forest to-sage" { templates.WidthStyle(p.ProgressPct)... }></div>
+								} else {
+									<div class="h-full rounded-full bg-gradient-to-r from-flame to-ember" { templates.WidthStyle(p.ProgressPct)... }></div>
+								}
+							</div>
+						</div>
+					}
+				</div>
+			</div>
+		}
 		<div class="grid grid-cols-1 xl:grid-cols-12 gap-6">
 			<div class="xl:col-span-8">
+				<!-- Edit form -->
 				<div class="bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-lg p-6">
 					<h3 class="display text-lg font-bold mb-4">Chỉnh sửa</h3>
 					<form method="POST" action={ templ.SafeURL("/campaigns/" + camp.ID) } class="space-y-4">
@@ -35,7 +87,7 @@ templ CampaignDetailDataPage(camp CampaignItem) {
 						</div>
 						<div>
 							<label class="block text-sm font-medium mb-1">Mô tả</label>
-							<textarea name="description" rows="2" class="w-full px-3 py-2 border border-hairline rounded bg-ivory dark:bg-dark-bg text-ink focus:outline-none focus:border-forest">{ camp.Description }</textarea>
+							<textarea name="description" rows="2" class="w-full px-3 py-2 border border-hairline rounded bg-ivory dark:bg-dark-bg text-ink">{ camp.Description }</textarea>
 						</div>
 						<div class="grid grid-cols-3 gap-4">
 							<div>
@@ -46,7 +98,6 @@ templ CampaignDetailDataPage(camp CampaignItem) {
 									<option value="brand" selected?={ camp.CampaignType == "brand" }>Branding</option>
 									<option value="content_series" selected?={ camp.CampaignType == "content_series" }>Series</option>
 									<option value="training" selected?={ camp.CampaignType == "training" }>Training</option>
-									<option value="event" selected?={ camp.CampaignType == "event" }>Event</option>
 								</select>
 							</div>
 							<div>
@@ -92,6 +143,11 @@ templ CampaignDetailDataPage(camp CampaignItem) {
 			</div>
 		</div>
 	}
+}
+
+// Keep old function as fallback
+templ CampaignDetailDataPage(camp CampaignItem) {
+	@CampaignDetailWithProgress(camp, nil)
 }
 
 templ CampaignDetailPage() {

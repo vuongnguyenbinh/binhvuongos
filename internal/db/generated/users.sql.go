@@ -89,6 +89,23 @@ func (q *Queries) UpdateLastLogin(ctx context.Context, id pgtype.UUID) error {
 	return err
 }
 
+func (q *Queries) GetUserByTelegramID(ctx context.Context, telegramID string) (User, error) {
+	row := q.pool.QueryRow(ctx,
+		"SELECT * FROM users WHERE telegram_id = $1 AND deleted_at IS NULL", telegramID)
+	var u User
+	err := row.Scan(&u.ID, &u.Email, &u.PasswordHash, &u.FullName, &u.Role,
+		&u.AvatarURL, &u.Phone, &u.TelegramID, &u.ZaloContact, &u.Specialties,
+		&u.RateNote, &u.Status, &u.StartDate, &u.LastLoginAt, &u.InternalNotes,
+		&u.NotionPageID, &u.SyncedAt, &u.SyncStatus, &u.SyncError,
+		&u.CreatedAt, &u.UpdatedAt, &u.DeletedAt)
+	return u, err
+}
+
+func (q *Queries) UpdatePassword(ctx context.Context, id pgtype.UUID, passwordHash string) error {
+	_, err := q.pool.Exec(ctx, "UPDATE users SET password_hash = $2 WHERE id = $1", id, passwordHash)
+	return err
+}
+
 func (q *Queries) SoftDeleteUser(ctx context.Context, id pgtype.UUID) error {
 	_, err := q.pool.Exec(ctx, "UPDATE users SET deleted_at = NOW() WHERE id = $1", id)
 	return err

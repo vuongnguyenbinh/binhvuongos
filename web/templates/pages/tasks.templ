@@ -23,6 +23,7 @@ type TasksPageData struct {
 	Done         []TaskItem
 	StatusCounts map[string]int64
 	Companies    []CompanyItem
+	Users        []UserItem
 }
 
 func totalTasks(data TasksPageData) int {
@@ -84,7 +85,7 @@ templ TasksListPage(data TasksPageData) {
 				@kanbanCol("Hoàn thành", "bg-forest", data.Done, "done")
 			</div>
 		}
-		@taskFormModalWithCompanies(data.Companies)
+		@taskFormModalFull(data.Companies, data.Users)
 	}
 }
 
@@ -134,7 +135,7 @@ templ kDoneDB(task TaskItem) {
 	</a>
 }
 
-templ taskFormModalWithCompanies(companies []CompanyItem) {
+templ taskFormModalFull(companies []CompanyItem, users []UserItem) {
 	<div id="task-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-ink/40 dark:bg-black/60" onclick="if(event.target===this)this.classList.add('hidden')">
 		<div class="bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-lg p-8 w-full max-w-lg mx-4">
 			<h2 class="display text-2xl font-bold mb-6">Tạo Công việc</h2>
@@ -187,6 +188,15 @@ templ taskFormModalWithCompanies(companies []CompanyItem) {
 									{ comp.Name }
 								}
 							</option>
+						}
+					</select>
+				</div>
+				<div>
+					<label class="block text-sm font-medium mb-1">Giao cho</label>
+					<select name="assignee_id" class="w-full px-3 py-2 border border-hairline dark:border-dark-border rounded bg-ivory dark:bg-dark-bg text-ink">
+						<option value="">— Chưa giao —</option>
+						for _, u := range users {
+							<option value={ u.ID }>{ u.FullName + " (" + u.Email + ")" }</option>
 						}
 					</select>
 				</div>

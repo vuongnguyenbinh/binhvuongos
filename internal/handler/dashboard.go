@@ -11,6 +11,18 @@ import (
 
 func (h *Handler) Dashboard(c *fiber.Ctx) error {
 	user := GetUser(c)
+
+	// Role-based dashboard
+	switch user.Role {
+	case "owner", "core_staff":
+		return h.ownerDashboard(c)
+	default:
+		return h.userDashboard(c)
+	}
+}
+
+func (h *Handler) ownerDashboard(c *fiber.Ctx) error {
+	u := GetUser(c)
 	counts, err := h.queries.GetDashboardCounts(c.Context())
 	if err != nil {
 		return render(c, pages.DashboardPage())
@@ -21,7 +33,6 @@ func (h *Handler) Dashboard(c *fiber.Ctx) error {
 	monthOutput, _ := h.queries.GetDashboardOutputThisMonth(c.Context())
 	campaigns, _ := h.queries.ListCampaignsByStatus(c.Context(), "running")
 
-	// Convert output to view
 	var outputItems []pages.DashOutputItem
 	for _, o := range monthOutput {
 		var total string
@@ -32,24 +43,20 @@ func (h *Handler) Dashboard(c *fiber.Ctx) error {
 			total = "0"
 		}
 		outputItems = append(outputItems, pages.DashOutputItem{
-			Name:  o.Name,
-			Icon:  o.Icon,
-			Unit:  o.Unit,
-			Total: total,
+			Name: o.Name, Icon: o.Icon, Unit: o.Unit, Total: total,
 		})
 	}
 
-	// Convert campaigns
 	var campItems []pages.DashCampaignItem
 	for _, camp := range campaigns {
 		campItems = append(campItems, pages.DashCampaignItem{
-			ID:   middleware.UUIDToString(camp.ID),
-			Name: camp.Name,
+			ID: middleware.UUIDToString(camp.ID), Name: camp.Name,
 		})
 	}
 
 	data := pages.DashboardPageData{
-		UserName:         user.FullName,
+		UserName:         u.FullName,
+		UserRole:         u.Role,
 		PendingReviews:   counts.PendingReviews,
 		ContentReview:    counts.ContentReview,
 		OverdueTasks:     counts.OverdueTasks,
@@ -61,6 +68,24 @@ func (h *Handler) Dashboard(c *fiber.Ctx) error {
 		TodayTasks:       toTemplTasks(todayTasks),
 		MonthOutput:      outputItems,
 		RunCampaigns:     campItems,
+	}
+	return render(c, pages.DashboardDataPage(data))
+}
+
+// userDashboard — personal view for CTV and client_staff
+func (h *Handler) userDashboard(c *fiber.Ctx) error {
+	u := GetUser(c)
+
+	// My tasks
+	myTasks, _ := h.queries.ListTasksByAssignee(c.Context(), u.ID)
+	myWorkLogs, _ := h.queries.ListWorkLogsByUser(c.Context(), u.ID, 10, 0)
+	workTypes, _ := h.queries.ListActiveWorkTypes(c.Context())
+
+	data := pages.DashboardPageData{
+		UserName:   u.FullName,
+		UserRole:   u.Role,
+		TodayTasks: toTemplTasks(myTasks),
+		MyWorkLogs: toTemplWorkLogs(myWorkLogs, workTypes),
 	}
 	return render(c, pages.DashboardDataPage(data))
 }

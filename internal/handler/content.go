@@ -8,6 +8,7 @@ import (
 	"binhvuongos/web/templates/pages"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 func (h *Handler) Content(c *fiber.Ctx) error {
@@ -94,6 +95,21 @@ func (h *Handler) ReviewContentForm(c *fiber.Ctx) error {
 	}
 	_, _ = h.queries.ReviewContent(c.Context(), middleware.StringToUUID(id), status,
 		sql.NullString{String: reviewNotes, Valid: reviewNotes != ""})
+	return c.Redirect("/content/" + id)
+}
+
+func (h *Handler) PublishContent(c *fiber.Ctx) error {
+	id := c.Params("id")
+	publishedURL := c.FormValue("published_url")
+	publishDate := c.FormValue("publish_date")
+
+	var pd pgtype.Date
+	if publishDate != "" {
+		_ = pd.Scan(publishDate)
+	}
+
+	_, _ = h.queries.PublishContent(c.Context(), middleware.StringToUUID(id), pd,
+		sql.NullString{String: publishedURL, Valid: publishedURL != ""})
 	return c.Redirect("/content/" + id)
 }
 

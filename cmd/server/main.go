@@ -40,7 +40,7 @@ func main() {
 
 	// Public routes
 	app.Get("/login", h.LoginPage)
-	app.Post("/auth/login", h.Login)
+	app.Post("/auth/login", middleware.LoginRateLimit(), h.Login)
 	app.Post("/auth/logout", h.Logout)
 
 	// JSON API routes (API key auth — must be before protected group)
@@ -60,8 +60,10 @@ func main() {
 	// Protected routes (require authentication)
 	app.Use(middleware.AuthRequired(queries, cfg))
 
-	// Auth info
+	// Auth info + Profile
 	app.Get("/auth/me", h.AuthMe)
+	app.Get("/profile", h.ProfilePageHandler)
+	app.Post("/profile/password", h.ChangePassword)
 
 	// Search
 	app.Get("/search", h.Search)
@@ -110,6 +112,7 @@ func main() {
 	app.Post("/content", h.CreateContent)
 	app.Post("/content/:id", h.UpdateContentForm)
 	app.Post("/content/:id/review", h.ReviewContentForm)
+	app.Post("/content/:id/publish", h.PublishContent)
 	app.Post("/content/:id/delete", h.DeleteContent)
 	app.Post("/work-logs", h.CreateWorkLog)
 	app.Post("/work-logs/batch-approve", h.BatchApproveWorkLogs)

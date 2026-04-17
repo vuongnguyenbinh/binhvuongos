@@ -26,6 +26,7 @@ func (h *Handler) Tasks(c *fiber.Ctx) error {
 	}
 
 	companies, _ := h.queries.ListCompanies(c.Context(), 50, 0)
+	users, _ := h.queries.ListUsers(c.Context(), 50, 0)
 
 	data := pages.TasksPageData{
 		Todo:         toTemplTasks(todo),
@@ -35,6 +36,7 @@ func (h *Handler) Tasks(c *fiber.Ctx) error {
 		Done:         toTemplTasks(done),
 		StatusCounts: counts,
 		Companies:    toTemplCompanies(companies),
+		Users:        toTemplUsers(users),
 	}
 	return render(c, pages.TasksListPage(data))
 }
@@ -46,6 +48,7 @@ func (h *Handler) CreateTask(c *fiber.Ctx) error {
 	category := c.FormValue("category")
 	priority := c.FormValue("priority")
 	companyID := c.FormValue("company_id")
+	assigneeID := c.FormValue("assignee_id")
 	dueDate := c.FormValue("due_date")
 
 	if title == "" {
@@ -67,6 +70,7 @@ func (h *Handler) CreateTask(c *fiber.Ctx) error {
 		Status:      "todo",
 		Priority:    priority,
 		CompanyID:   middleware.StringToUUID(companyID),
+		AssigneeID:  middleware.StringToUUID(assigneeID),
 		DueDate:     dd,
 		CreatedBy:   user.ID,
 	})

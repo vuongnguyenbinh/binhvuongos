@@ -2,6 +2,7 @@ package handler
 
 import (
 	"database/sql"
+	"fmt"
 	"log"
 
 	"binhvuongos/internal/db/generated"
@@ -9,14 +10,13 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-// NotionSyncStatus returns sync status (stub - ready for Notion API integration)
+// NotionSyncStatus returns sync status
 func (h *Handler) NotionSyncStatus(c *fiber.Ctx) error {
 	return c.JSON(fiber.Map{
 		"success": true,
 		"data": fiber.Map{
 			"status":       "not_configured",
 			"message":      "Notion sync chưa được cấu hình. Cần NOTION_API_KEY trong .env",
-			"last_sync":    nil,
 			"tables_ready": []string{"users", "companies", "tasks", "content", "campaigns", "work_logs", "knowledge_items"},
 		},
 	})
@@ -24,24 +24,14 @@ func (h *Handler) NotionSyncStatus(c *fiber.Ctx) error {
 
 // NotionSyncTrigger triggers a manual sync (stub)
 func (h *Handler) NotionSyncTrigger(c *fiber.Ctx) error {
-	// TODO: Implement Notion API sync
-	// 1. Read NOTION_API_KEY from config
-	// 2. For each table with sync_status='pending', push to Notion
-	// 3. Log results to notion_sync_log table
 	return c.JSON(fiber.Map{
 		"success": false,
 		"error":   "Notion sync chưa được triển khai. Cấu hình NOTION_API_KEY để bắt đầu.",
 	})
 }
 
-// TelegramWebhook handles incoming Telegram bot messages (stub)
+// TelegramWebhook handles incoming Telegram bot messages
 func (h *Handler) TelegramWebhook(c *fiber.Ctx) error {
-	// TODO: Implement Telegram bot webhook
-	// 1. Parse Update from Telegram
-	// 2. Extract message text/photos
-	// 3. Create inbox_items with source='telegram'
-	// 4. Reply with confirmation
-
 	var body struct {
 		Message struct {
 			Text string `json:"text"`
@@ -57,15 +47,40 @@ func (h *Handler) TelegramWebhook(c *fiber.Ctx) error {
 
 	if err := c.BodyParser(&body); err != nil {
 		log.Printf("Telegram webhook parse error: %v", err)
-		return c.SendStatus(200) // Always return 200 to Telegram
+		return c.SendStatus(200)
+	}
+
+	// Verify telegram user exists in DB
+	if body.Message.From.ID == 0 {
+		return c.SendStatus(200)
+	}
+
+	telegramID := fmt.Sprintf("%d", body.Message.From.ID)
+
+	// Check if telegram_id matches a user (basic verification)
+	user, err := h.queries.GetUserByTelegramID(c.Context(), telegramID)
+	if err != nil {
+		log.Printf("Telegram: unknown user telegram_id=%s", telegramID)
+		return c.SendStatus(200)
 	}
 
 	if body.Message.Text != "" {
-		// Auto-create inbox item from Telegram message
+		// Detect URL in message
+		var url sql.NullString
+		var itemType sql.NullString
+		if isURL(body.Message.Text) {
+			url = sql.NullString{String: body.Message.Text, Valid: true}
+			itemType = sql.NullString{String: "link", Valid: true}
+		} else {
+			itemType = sql.NullString{String: "note", Valid: true}
+		}
+
 		_, err := h.queries.CreateInboxItem(c.Context(), generated.CreateInboxItemParams{
-			Content:  body.Message.Text,
-			Source:   sql.NullString{String: "telegram", Valid: true},
-			ItemType: sql.NullString{String: "note", Valid: true},
+			Content:     body.Message.Text,
+			URL:         url,
+			Source:      sql.NullString{String: "telegram", Valid: true},
+			ItemType:    itemType,
+			SubmittedBy: user.ID,
 		})
 		if err != nil {
 			log.Printf("Telegram inbox create error: %v", err)
@@ -73,4 +88,8 @@ func (h *Handler) TelegramWebhook(c *fiber.Ctx) error {
 	}
 
 	return c.SendStatus(200)
+}
+
+func isURL(s string) bool {
+	return len(s) > 8 && (s[:7] == "http://" || s[:8] == "https://")
 }

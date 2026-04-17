@@ -80,6 +80,34 @@ func (q *Queries) CreateCampaign(ctx context.Context, arg CreateCampaignParams) 
 		arg.StartDate, arg.EndDate, arg.TargetJSON, arg.Budget, arg.CreatedBy).Scan)
 }
 
+type CampaignProgressRow struct {
+	WorkTypeSlug string         `json:"work_type_slug"`
+	WorkTypeName string         `json:"work_type_name"`
+	Unit         string         `json:"unit"`
+	Actual       pgtype.Numeric `json:"actual"`
+	Target       pgtype.Numeric `json:"target"`
+	ProgressPct  pgtype.Numeric `json:"progress_pct"`
+}
+
+func (q *Queries) GetCampaignProgress(ctx context.Context, campaignID pgtype.UUID) ([]CampaignProgressRow, error) {
+	rows, err := q.pool.Query(ctx,
+		`SELECT work_type_slug, work_type_name, unit, actual, target, progress_pct
+		 FROM v_campaign_progress WHERE campaign_id = $1`, campaignID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []CampaignProgressRow{}
+	for rows.Next() {
+		var r CampaignProgressRow
+		if err := rows.Scan(&r.WorkTypeSlug, &r.WorkTypeName, &r.Unit, &r.Actual, &r.Target, &r.ProgressPct); err != nil {
+			return nil, err
+		}
+		items = append(items, r)
+	}
+	return items, rows.Err()
+}
+
 type UpdateCampaignParams struct {
 	ID           pgtype.UUID    `json:"id"`
 	Name         string         `json:"name"`
