@@ -52,6 +52,10 @@ func main() {
 	api.Post("/bookmarks", h.APICreateBookmark)
 	api.Post("/work-logs", h.APICreateWorkLog)
 	api.Post("/knowledge", h.APICreateKnowledge)
+	// Integration endpoints
+	api.Get("/notion/status", h.NotionSyncStatus)
+	api.Post("/notion/sync", h.NotionSyncTrigger)
+	api.Post("/telegram/webhook", h.TelegramWebhook)
 
 	// Protected routes (require authentication)
 	app.Use(middleware.AuthRequired(queries, cfg))
@@ -59,10 +63,13 @@ func main() {
 	// Auth info
 	app.Get("/auth/me", h.AuthMe)
 
-	// Search + Users
+	// Search
 	app.Get("/search", h.Search)
-	app.Get("/users", h.Users)
-	app.Post("/users", h.CreateUser)
+
+	// Admin-only routes (owner + core_staff)
+	admin := app.Group("", middleware.RequireRole("owner", "core_staff"))
+	admin.Get("/users", h.Users)
+	admin.Post("/users", h.CreateUser)
 
 	// Pages
 	app.Get("/", h.Dashboard)
@@ -92,6 +99,8 @@ func main() {
 	// CRUD POST/PUT/DELETE routes
 	app.Post("/companies", h.CreateCompany)
 	app.Post("/companies/:id", h.UpdateCompanyForm)
+	app.Post("/companies/:id/assign", h.AssignUserToCompany)
+	app.Post("/assignments/:id/delete", h.RemoveAssignment)
 	app.Post("/inbox", h.CreateInboxItem)
 	app.Post("/inbox/:id/triage", h.TriageInbox)
 	app.Post("/tasks", h.CreateTask)
@@ -103,6 +112,7 @@ func main() {
 	app.Post("/content/:id/review", h.ReviewContentForm)
 	app.Post("/content/:id/delete", h.DeleteContent)
 	app.Post("/work-logs", h.CreateWorkLog)
+	app.Post("/work-logs/batch-approve", h.BatchApproveWorkLogs)
 	app.Post("/work-logs/:id/approve", h.ApproveWorkLogForm)
 	app.Post("/work-logs/:id/reject", h.RejectWorkLogForm)
 	app.Post("/campaigns", h.CreateCampaign)

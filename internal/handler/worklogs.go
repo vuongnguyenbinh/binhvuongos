@@ -90,6 +90,16 @@ func (h *Handler) RejectWorkLogForm(c *fiber.Ctx) error {
 	return c.Redirect("/work-logs")
 }
 
+func (h *Handler) BatchApproveWorkLogs(c *fiber.Ctx) error {
+	user := GetUser(c)
+	// Get all submitted work logs and approve them
+	submitted, _ := h.queries.ListWorkLogsByStatus(c.Context(), "submitted", 100, 0)
+	for _, wl := range submitted {
+		_, _ = h.queries.ApproveWorkLog(c.Context(), wl.ID, user.ID, sql.NullString{})
+	}
+	return c.Redirect("/work-logs")
+}
+
 func toTemplWorkLogs(items []generated.WorkLog, workTypes []generated.WorkType) []pages.WorkLogItem {
 	// Build work type lookup
 	wtMap := make(map[string]generated.WorkType)

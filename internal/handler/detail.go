@@ -27,6 +27,10 @@ func (h *Handler) CompanyDetail(c *fiber.Ctx) error {
 	data.Content = toTemplContents(content)
 	campaigns, _ := h.queries.ListCampaignsByCompany(c.Context(), id)
 	data.Campaigns = toTemplCampaigns(campaigns)
+	assignments, _ := h.queries.ListAssignmentsByCompany(c.Context(), id)
+	data.Assignments = toTemplAssignments(assignments)
+	users, _ := h.queries.ListUsers(c.Context(), 50, 0)
+	data.AllUsers = toTemplUsers(users)
 	return render(c, pages.CompanyDetailDataPage(data))
 }
 

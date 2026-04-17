@@ -77,7 +77,14 @@ templ WorkLogsListPage(data WorkLogsPageData) {
 						<span class="accent">Nhật ký</span> công việc
 					}
 				</h1>
-				<button onclick="document.getElementById('wl-modal').classList.remove('hidden')" class="px-4 py-2 bg-forest text-white rounded-md text-sm mono font-semibold">+ GỬI BÁO CÁO</button>
+				<div class="flex items-center gap-2">
+					if data.PendingCount > 0 {
+						<form method="POST" action="/work-logs/batch-approve" class="inline">
+							<button type="submit" class="px-3 py-2 bg-sage text-white rounded-md text-xs mono font-semibold" onclick="return confirm('Duyệt tất cả báo cáo chờ?')">DUYỆT TẤT CẢ</button>
+						</form>
+					}
+					<button onclick="document.getElementById('wl-modal').classList.remove('hidden')" class="px-4 py-2 bg-forest text-white rounded-md text-sm mono font-semibold">+ GỬI BÁO CÁO</button>
+				</div>
 			</div>
 		</div>
 		if len(data.Items) == 0 {

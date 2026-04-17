@@ -6,11 +6,22 @@ import (
 	"strings"
 )
 
+type AssignmentItem struct {
+	ID            string
+	UserID        string
+	FullName      string
+	Email         string
+	RoleInCompany string
+	UserRole      string
+}
+
 type CompanyDetailData struct {
-	Company   CompanyItem
-	Tasks     []TaskItem
-	Content   []ContentItem
-	Campaigns []CampaignItem
+	Company     CompanyItem
+	Tasks       []TaskItem
+	Content     []ContentItem
+	Campaigns   []CampaignItem
+	Assignments []AssignmentItem
+	AllUsers    []UserItem
 }
 
 templ CompanyDetailDataPage(data CompanyDetailData) {
@@ -96,6 +107,53 @@ templ CompanyDetailDataPage(data CompanyDetailData) {
 					<p class="text-xs text-muted">Chưa có chiến dịch nào.</p>
 				}
 			</div>
+		</div>
+		<!-- People -->
+		<div class="mt-8 bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-lg p-6">
+			<h3 class="display text-xl font-bold mb-4">Nhân sự <span class="text-muted text-sm mono">({ fmt.Sprintf("%d", len(data.Assignments)) })</span></h3>
+			if len(data.Assignments) > 0 {
+				<div class="divide-y divide-hairline mb-4">
+					for _, a := range data.Assignments {
+						<div class="py-3 flex items-center justify-between">
+							<div class="flex items-center gap-3">
+								<div class="w-8 h-8 rounded-full bg-forest text-white text-xs flex items-center justify-center font-bold">{ string([]rune(a.FullName)[:1]) }</div>
+								<div>
+									<div class="text-sm font-semibold">{ a.FullName }</div>
+									<div class="text-xs text-muted mono">{ a.Email }
+										if a.RoleInCompany != "" {
+											{ " · " + a.RoleInCompany }
+										}
+									</div>
+								</div>
+							</div>
+							<div class="flex items-center gap-2">
+								<span class={ "pill text-[10px]", rolePill(a.UserRole) }>{ roleLabel(a.UserRole) }</span>
+								<form method="POST" action={ templ.SafeURL("/assignments/" + a.ID + "/delete") } class="inline">
+									<input type="hidden" name="company_id" value={ data.Company.ID }/>
+									<button type="submit" class="text-xs text-muted hover:text-rust mono" onclick="return confirm('Gỡ người này?')">×</button>
+								</form>
+							</div>
+						</div>
+					}
+				</div>
+			}
+			<!-- Assign form -->
+			<form method="POST" action={ templ.SafeURL("/companies/" + data.Company.ID + "/assign") } class="flex items-end gap-2">
+				<div class="flex-1">
+					<label class="block text-xs font-medium mb-1">Thêm người</label>
+					<select name="user_id" required class="w-full px-3 py-2 border border-hairline rounded bg-ivory dark:bg-dark-bg text-sm">
+						<option value="">— Chọn —</option>
+						for _, u := range data.AllUsers {
+							<option value={ u.ID }>{ u.FullName + " · " + u.Email }</option>
+						}
+					</select>
+				</div>
+				<div>
+					<label class="block text-xs font-medium mb-1">Vai trò</label>
+					<input type="text" name="role_in_company" class="w-32 px-3 py-2 border border-hairline rounded bg-ivory dark:bg-dark-bg text-sm" placeholder="content_writer"/>
+				</div>
+				<button type="submit" class="px-4 py-2 bg-forest text-white rounded text-sm mono font-semibold">THÊM</button>
+			</form>
 		</div>
 		<!-- Edit form -->
 		<div class="mt-8 bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-lg p-6">

@@ -5,6 +5,18 @@ import (
 	"fmt"
 )
 
+type DashOutputItem struct {
+	Name  string
+	Icon  string
+	Unit  string
+	Total string
+}
+
+type DashCampaignItem struct {
+	ID   string
+	Name string
+}
+
 type DashboardPageData struct {
 	UserName         string
 	PendingReviews   int64
@@ -15,6 +27,9 @@ type DashboardPageData struct {
 	DoneTasks        int64
 	RunningCampaigns int64
 	Companies        []CompanyItem
+	TodayTasks       []TaskItem
+	MonthOutput      []DashOutputItem
+	RunCampaigns     []DashCampaignItem
 }
 
 templ DashboardDataPage(data DashboardPageData) {
@@ -68,6 +83,67 @@ templ DashboardDataPage(data DashboardPageData) {
 							@dashCompanyRow(comp)
 						}
 					</div>
+				}
+			</div>
+		</div>
+		<!-- Output tháng + Tasks hôm nay + Campaigns -->
+		<div class="grid grid-cols-1 xl:grid-cols-3 gap-6 mt-8">
+			<!-- Monthly output -->
+			if len(data.MonthOutput) > 0 {
+				<div class="bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-lg p-5">
+					<h3 class="display text-lg font-bold mb-4">Output <span class="accent">tháng này</span></h3>
+					<div class="space-y-3">
+						for _, o := range data.MonthOutput {
+							<div class="flex items-center justify-between">
+								<div class="flex items-center gap-2 text-sm">
+									<span>{ o.Icon }</span>
+									<span>{ o.Name }</span>
+								</div>
+								<div class="text-right">
+									<span class="tnum stat-hero text-xl">{ o.Total }</span>
+									<span class="text-xs text-muted mono ml-1">{ o.Unit }</span>
+								</div>
+							</div>
+						}
+					</div>
+				</div>
+			}
+			<!-- Today tasks -->
+			<div class="bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-lg p-5">
+				<div class="flex items-baseline justify-between mb-4">
+					<h3 class="display text-lg font-bold">Hôm <span class="accent">nay</span></h3>
+					<span class="text-xs text-muted mono">{ fmt.Sprintf("%d việc", len(data.TodayTasks)) }</span>
+				</div>
+				if len(data.TodayTasks) > 0 {
+					<div class="space-y-2">
+						for _, task := range data.TodayTasks {
+							<a href={ templ.SafeURL("/tasks/" + task.ID) } class="flex items-start gap-2 p-2 rounded hover:bg-cream/40 dark:hover:bg-dark-cream/40">
+								<span class={ "pill text-[10px] mt-0.5", priorityPill(task.Priority) }>{ priorityLabel(task.Priority) }</span>
+								<span class="text-sm leading-snug">{ task.Title }</span>
+							</a>
+						}
+					</div>
+				} else {
+					<p class="text-sm text-muted">Không có task nào đến hạn hôm nay.</p>
+				}
+			</div>
+			<!-- Running campaigns -->
+			<div class="bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-lg p-5">
+				<div class="flex items-baseline justify-between mb-4">
+					<h3 class="display text-lg font-bold">Chiến dịch <span class="accent">đang chạy</span></h3>
+					<a href="/campaigns" class="text-xs text-muted hover:text-ink mono">xem tất cả →</a>
+				</div>
+				if len(data.RunCampaigns) > 0 {
+					<div class="space-y-2">
+						for _, camp := range data.RunCampaigns {
+							<a href={ templ.SafeURL("/campaigns/" + camp.ID) } class="block p-2 rounded hover:bg-cream/40 dark:hover:bg-dark-cream/40 text-sm">
+								<span class="dot bg-forest inline-block mr-2"></span>
+								{ camp.Name }
+							</a>
+						}
+					</div>
+				} else {
+					<p class="text-sm text-muted">Không có chiến dịch nào đang chạy.</p>
 				}
 			</div>
 		</div>
