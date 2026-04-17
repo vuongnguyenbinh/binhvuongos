@@ -1,0 +1,145 @@
+package pages
+
+import (
+	"binhvuongos/web/templates"
+	"binhvuongos/web/templates/components"
+	"fmt"
+	"strings"
+)
+
+type UserItem struct {
+	ID       string
+	Email    string
+	FullName string
+	Role     string
+	Status   string
+	Phone    string
+}
+
+type UsersPageData struct {
+	Users      []UserItem
+	Total      int64
+	Page       int
+	TotalPages int
+}
+
+func rolePill(r string) string {
+	switch strings.ToLower(r) {
+	case "owner":
+		return "bg-forest text-white"
+	case "core_staff":
+		return "bg-ember/10 text-ember"
+	case "ctv":
+		return "bg-sage/20 text-forest"
+	case "intern":
+		return "bg-muted/10 text-muted"
+	default:
+		return "bg-muted/10 text-muted"
+	}
+}
+
+func roleLabel(r string) string {
+	switch strings.ToLower(r) {
+	case "owner":
+		return "Owner"
+	case "core_staff":
+		return "Staff"
+	case "ctv":
+		return "CTV"
+	case "client_staff":
+		return "Client"
+	case "intern":
+		return "Intern"
+	default:
+		return r
+	}
+}
+
+templ UsersListPage(data UsersPageData) {
+	@templates.Layout("Quản lý người dùng", "dashboard") {
+		<div class="mb-10 flex items-end justify-between">
+			<div>
+				<p class="eyebrow mb-2">Người dùng · quản lý nhân sự</p>
+				<h1 class="display text-5xl md:text-6xl font-bold leading-none"><span class="accent">{ fmt.Sprintf("%d", data.Total) }</span> người dùng</h1>
+			</div>
+			<button onclick="document.getElementById('user-modal').classList.remove('hidden')" class="px-4 py-2 bg-forest text-white rounded-md text-sm mono font-semibold">+ THÊM NGƯỜI DÙNG</button>
+		</div>
+		if len(data.Users) == 0 {
+			<div class="text-center py-20">
+				<div class="text-6xl mb-4">👥</div>
+				<h3 class="display text-2xl font-bold mb-2">Chưa có người dùng nào</h3>
+				<p class="text-muted text-sm mb-6">Thêm nhân sự, CTV đầu tiên.</p>
+			</div>
+		} else {
+			<div class="bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-lg overflow-x-auto">
+				<table class="w-full text-sm min-w-[600px]">
+					<thead class="bg-cream/40 dark:bg-dark-cream/40 border-b border-hairline">
+						<tr class="text-left">
+							<th class="eyebrow px-4 py-3">Tên</th>
+							<th class="eyebrow px-4 py-3">Email</th>
+							<th class="eyebrow px-4 py-3">Vai trò</th>
+							<th class="eyebrow px-4 py-3">SĐT</th>
+							<th class="eyebrow px-4 py-3">Trạng thái</th>
+						</tr>
+					</thead>
+					<tbody class="divide-y divide-hairline">
+						for _, u := range data.Users {
+							<tr class="row-hover">
+								<td class="px-4 py-4 font-semibold">{ u.FullName }</td>
+								<td class="px-4 py-4 text-xs mono">{ u.Email }</td>
+								<td class="px-4 py-4"><span class={ "pill", rolePill(u.Role) }>{ roleLabel(u.Role) }</span></td>
+								<td class="px-4 py-4 text-xs mono">{ u.Phone }</td>
+								<td class="px-4 py-4"><span class="text-xs text-sage mono">{ u.Status }</span></td>
+							</tr>
+						}
+					</tbody>
+				</table>
+			</div>
+			if data.TotalPages > 1 {
+				@components.Pagination(data.Page, data.TotalPages)
+			}
+		}
+		@userFormModal()
+	}
+}
+
+templ userFormModal() {
+	<div id="user-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-ink/40 dark:bg-black/60" onclick="if(event.target===this)this.classList.add('hidden')">
+		<div class="bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-lg p-8 w-full max-w-lg mx-4">
+			<h2 class="display text-2xl font-bold mb-6">Thêm Người dùng</h2>
+			<form method="POST" action="/users" class="space-y-4">
+				<div>
+					<label class="block text-sm font-medium mb-1">Họ tên *</label>
+					<input type="text" name="full_name" required class="w-full px-3 py-2 border border-hairline dark:border-dark-border rounded bg-ivory dark:bg-dark-bg text-ink focus:outline-none focus:border-forest" placeholder="Nguyễn Văn A"/>
+				</div>
+				<div>
+					<label class="block text-sm font-medium mb-1">Email *</label>
+					<input type="email" name="email" required class="w-full px-3 py-2 border border-hairline dark:border-dark-border rounded bg-ivory dark:bg-dark-bg text-ink focus:outline-none focus:border-forest" placeholder="email@example.com"/>
+				</div>
+				<div>
+					<label class="block text-sm font-medium mb-1">Mật khẩu *</label>
+					<input type="password" name="password" required minlength="6" class="w-full px-3 py-2 border border-hairline dark:border-dark-border rounded bg-ivory dark:bg-dark-bg text-ink focus:outline-none focus:border-forest"/>
+				</div>
+				<div class="grid grid-cols-2 gap-4">
+					<div>
+						<label class="block text-sm font-medium mb-1">Vai trò</label>
+						<select name="role" class="w-full px-3 py-2 border border-hairline dark:border-dark-border rounded bg-ivory dark:bg-dark-bg text-ink">
+							<option value="ctv">CTV</option>
+							<option value="core_staff">Staff cốt lõi</option>
+							<option value="client_staff">Nhân sự client</option>
+							<option value="intern">Intern</option>
+						</select>
+					</div>
+					<div>
+						<label class="block text-sm font-medium mb-1">SĐT</label>
+						<input type="tel" name="phone" class="w-full px-3 py-2 border border-hairline dark:border-dark-border rounded bg-ivory dark:bg-dark-bg text-ink focus:outline-none focus:border-forest"/>
+					</div>
+				</div>
+				<div class="flex gap-2 pt-2">
+					<button type="submit" class="flex-1 py-2.5 bg-forest text-white font-semibold rounded hover:bg-forest/90 mono">TẠO TÀI KHOẢN</button>
+					<button type="button" onclick="document.getElementById('user-modal').classList.add('hidden')" class="px-4 py-2.5 border border-hairline rounded text-muted hover:text-ink">Huỷ</button>
+				</div>
+			</form>
+		</div>
+	</div>
+}

@@ -1,0 +1,21 @@
+package components
+
+// FileUpload renders a file upload button that uploads to Google Drive via HTMX
+// targetID is the DOM element ID where the result link will appear
+templ FileUpload(targetID string) {
+	<div class="space-y-2">
+		<label class="block text-sm font-medium mb-1">Đính kèm file <span class="text-muted text-xs">(upload lên Google Drive)</span></label>
+		<div class="flex items-center gap-2">
+			<input
+				type="file"
+				name="file"
+				hx-post="/upload"
+				hx-target={ "#" + targetID }
+				hx-swap="innerHTML"
+				hx-encoding="multipart/form-data"
+				class="text-xs file:mr-2 file:py-1.5 file:px-3 file:rounded file:border-0 file:text-xs file:bg-forest file:text-white file:mono file:font-semibold file:cursor-pointer hover:file:bg-forest/90"
+			/>
+			<div id={ targetID } class="text-xs text-muted"></div>
+		</div>
+	</div>
+}

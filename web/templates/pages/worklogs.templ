@@ -161,6 +161,7 @@ templ workLogFormModal(companies []CompanyItem, workTypes []WorkTypeItem) {
 					<label class="block text-sm font-medium mb-1">Ghi chú</label>
 					<textarea name="notes" rows="2" class="w-full px-3 py-2 border border-hairline dark:border-dark-border rounded bg-ivory dark:bg-dark-bg text-ink"></textarea>
 				</div>
+				@components.FileUpload("wl-upload-result")
 				<div class="flex gap-2 pt-2">
 					<button type="submit" class="flex-1 py-2.5 bg-forest text-white font-semibold rounded hover:bg-forest/90 mono">GỬI BÁO CÁO</button>
 					<button type="button" onclick="document.getElementById('wl-modal').classList.add('hidden')" class="px-4 py-2.5 border border-hairline rounded text-muted hover:text-ink">Huỷ</button>

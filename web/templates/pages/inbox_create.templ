@@ -1,6 +1,9 @@
 package pages
 
-import "binhvuongos/web/templates"
+import (
+	"binhvuongos/web/templates"
+	"binhvuongos/web/templates/components"
+)
 
 templ InboxCreatePage() {
 	@templates.Layout("Tạo Inbox", "inbox") {
@@ -44,6 +47,7 @@ templ InboxCreatePage() {
 						</select>
 					</div>
 				</div>
+				@components.FileUpload("inbox-upload-result")
 				<div class="flex gap-2 pt-2">
 					<button type="submit" class="flex-1 py-2.5 bg-forest text-white font-semibold rounded hover:bg-forest/90 mono">LƯU VÀO INBOX</button>
 					<a href="/inbox" class="px-6 py-2.5 border border-hairline rounded text-muted hover:text-ink text-center">Huỷ</a>

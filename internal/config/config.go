@@ -7,21 +7,28 @@ import (
 )
 
 type Config struct {
-	DatabaseURL string
-	JWTSecret   string
-	APIKey      string
-	Port        string
+	DatabaseURL        string
+	JWTSecret          string
+	APIKey             string
+	Port               string
+	GoogleClientID     string
+	GoogleClientSecret string
+	GoogleRefreshToken string
+	GoogleDriveFolderID string
 }
 
 func Load() *Config {
-	// Load .env file if it exists (ignore error in production)
 	_ = godotenv.Load()
 
 	cfg := &Config{
-		DatabaseURL: os.Getenv("DATABASE_URL"),
-		JWTSecret:   os.Getenv("JWT_SECRET"),
-		APIKey:      os.Getenv("API_KEY"),
-		Port:        os.Getenv("PORT"),
+		DatabaseURL:        os.Getenv("DATABASE_URL"),
+		JWTSecret:          os.Getenv("JWT_SECRET"),
+		APIKey:             os.Getenv("API_KEY"),
+		Port:               os.Getenv("PORT"),
+		GoogleClientID:     os.Getenv("GOOGLE_CLIENT_ID"),
+		GoogleClientSecret: os.Getenv("GOOGLE_CLIENT_SECRET"),
+		GoogleRefreshToken: os.Getenv("GOOGLE_REFRESH_TOKEN"),
+		GoogleDriveFolderID: os.Getenv("GOOGLE_DRIVE_FOLDER_ID"),
 	}
 
 	if cfg.Port == "" {
