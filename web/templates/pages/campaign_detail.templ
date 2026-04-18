@@ -2,6 +2,7 @@ package pages
 
 import (
 	"binhvuongos/web/templates"
+	"binhvuongos/web/templates/components"
 	"fmt"
 )
 
@@ -142,6 +143,7 @@ templ CampaignDetailWithProgress(camp CampaignItem, progress []CampaignProgressI
 				</div>
 			</div>
 		</div>
+		@components.CommentSection("campaign", camp.ID)
 	}
 }
 

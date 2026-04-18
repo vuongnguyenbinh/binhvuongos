@@ -1,6 +1,9 @@
 package pages
 
-import "binhvuongos/web/templates"
+import (
+	"binhvuongos/web/templates"
+	"binhvuongos/web/templates/components"
+)
 
 templ WorkLogDetailDataPage(wl WorkLogItem) {
 	@templates.Layout("Chi tiết Work Log", "worklogs") {
@@ -52,6 +55,7 @@ templ WorkLogDetailDataPage(wl WorkLogItem) {
 				</div>
 			</div>
 		</div>
+		@components.CommentSection("work_log", wl.ID)
 	}
 }
 

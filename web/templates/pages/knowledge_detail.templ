@@ -2,6 +2,7 @@ package pages
 
 import (
 	"binhvuongos/web/templates"
+	"binhvuongos/web/templates/components"
 	"strings"
 )
 
@@ -100,6 +101,7 @@ templ KnowledgeDetailDataPage(item KnowledgeItemData) {
 				</div>
 			</div>
 		</div>
+		@components.CommentSection("knowledge", item.ID)
 	}
 }
 

@@ -1,6 +1,9 @@
 package pages
 
-import "binhvuongos/web/templates"
+import (
+	"binhvuongos/web/templates"
+	"binhvuongos/web/templates/components"
+)
 
 templ ContentDetailDataPage(item ContentItem) {
 	@templates.Layout(item.Title, "content") {
@@ -105,6 +108,7 @@ templ ContentDetailDataPage(item ContentItem) {
 				</div>
 			</div>
 		</div>
+		@components.CommentSection("content", item.ID)
 	}
 }
 

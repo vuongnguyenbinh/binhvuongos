@@ -65,6 +65,11 @@ func main() {
 	app.Get("/profile", h.ProfilePageHandler)
 	app.Post("/profile/password", h.ChangePassword)
 
+	// Comments
+	app.Get("/comments", h.LoadComments)
+	app.Post("/comments", h.CreateComment)
+	app.Post("/comments/:id/delete", h.DeleteComment)
+
 	// Notifications
 	app.Get("/notifications", h.Notifications)
 	app.Get("/notifications/count", h.NotificationCount)

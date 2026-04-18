@@ -2,6 +2,7 @@ package pages
 
 import (
 	"binhvuongos/web/templates"
+	"binhvuongos/web/templates/components"
 )
 
 templ TaskDetailDataPage(task TaskItem, description string) {
@@ -105,6 +106,7 @@ templ TaskDetailDataPage(task TaskItem, description string) {
 				</div>
 			</div>
 		</div>
+		@components.CommentSection("task", task.ID)
 	}
 }
 

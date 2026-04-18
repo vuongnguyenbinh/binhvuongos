@@ -2,6 +2,7 @@ package pages
 
 import (
 	"binhvuongos/web/templates"
+	"binhvuongos/web/templates/components"
 	"fmt"
 	"strings"
 )
@@ -155,6 +156,7 @@ templ CompanyDetailDataPage(data CompanyDetailData) {
 				<button type="submit" class="px-4 py-2 bg-forest text-white rounded text-sm mono font-semibold">THÊM</button>
 			</form>
 		</div>
+		@components.CommentSection("company", data.Company.ID)
 		<!-- Edit form -->
 		<div class="mt-8 bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-lg p-6">
 			<h3 class="display text-xl font-bold mb-4">Chỉnh sửa</h3>

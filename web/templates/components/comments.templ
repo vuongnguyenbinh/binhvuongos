@@ -1,0 +1,71 @@
+package components
+
+import "fmt"
+
+type CommentData struct {
+	ID       string
+	Body     string
+	UserName string
+	UserInit string
+	TimeAgo  string
+	IsOwner  bool
+}
+
+// CommentSection renders full comment section with list + form (for embedding in detail pages)
+templ CommentSection(entityType string, entityID string) {
+	<div class="mt-6 bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-lg p-6">
+		<h3 class="display text-lg font-bold mb-4">Bình luận</h3>
+		<div id={ "comments-" + entityType + "-" + entityID }
+			hx-get={ fmt.Sprintf("/comments?entity_type=%s&entity_id=%s", entityType, entityID) }
+			hx-trigger="load"
+			hx-swap="innerHTML">
+			<p class="text-xs text-muted">Đang tải...</p>
+		</div>
+	</div>
+}
+
+// CommentList renders comment list + add form (returned by HTMX)
+templ CommentList(entityType string, entityID string, comments []CommentData) {
+	<div class="space-y-3 mb-4">
+		for _, c := range comments {
+			@commentItem(c, entityType, entityID)
+		}
+		if len(comments) == 0 {
+			<p class="text-xs text-muted py-2">Chưa có bình luận nào.</p>
+		}
+	</div>
+	<!-- Add comment form -->
+	<form hx-post="/comments"
+		hx-target={ "#comments-" + entityType + "-" + entityID }
+		hx-swap="innerHTML"
+		class="flex gap-2">
+		<input type="hidden" name="entity_type" value={ entityType }/>
+		<input type="hidden" name="entity_id" value={ entityID }/>
+		<input type="text" name="body" required placeholder="Viết bình luận..."
+			class="flex-1 px-3 py-2 border border-hairline dark:border-dark-border rounded bg-ivory dark:bg-dark-bg text-sm focus:outline-none focus:border-forest"/>
+		<button type="submit" class="px-4 py-2 bg-forest text-white rounded text-xs mono font-semibold">GỬI</button>
+	</form>
+}
+
+templ commentItem(c CommentData, entityType string, entityID string) {
+	<div class="flex gap-3">
+		<div class="w-7 h-7 rounded-full bg-forest text-white text-[10px] flex items-center justify-center font-bold shrink-0 mt-0.5">{ c.UserInit }</div>
+		<div class="flex-1 min-w-0">
+			<div class="flex items-center gap-2 mb-0.5">
+				<span class="text-xs font-semibold">{ c.UserName }</span>
+				<span class="text-[10px] text-muted mono">{ c.TimeAgo }</span>
+				if c.IsOwner {
+					<form hx-post={ "/comments/" + c.ID + "/delete" }
+						hx-target={ "#comments-" + entityType + "-" + entityID }
+						hx-swap="innerHTML"
+						class="inline">
+						<input type="hidden" name="entity_type" value={ entityType }/>
+						<input type="hidden" name="entity_id" value={ entityID }/>
+						<button type="submit" class="text-[10px] text-muted hover:text-rust" onclick="return confirm('Xoá?')">xoá</button>
+					</form>
+				}
+			</div>
+			<p class="text-sm leading-snug">{ c.Body }</p>
+		</div>
+	</div>
+}
