@@ -101,7 +101,17 @@ func (h *Handler) ownerDashboard(c *fiber.Ctx) error {
 		MonthOutput:      outputItems,
 		RunCampaigns:     campItems,
 	}
+	noteContent, _ := h.queries.GetUserNote(c.Context(), u.ID)
+	data.NoteContent = noteContent
 	return render(c, pages.DashboardDataPage(data))
+}
+
+// SaveDashboardNotes handles POST /dashboard/notes (HTMX auto-save)
+func (h *Handler) SaveDashboardNotes(c *fiber.Ctx) error {
+	user := GetUser(c)
+	content := c.FormValue("content")
+	_ = h.queries.UpsertUserNote(c.Context(), user.ID, content)
+	return c.SendStatus(204)
 }
 
 // userDashboard — personal view for CTV and client_staff

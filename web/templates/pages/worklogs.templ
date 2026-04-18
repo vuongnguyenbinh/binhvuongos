@@ -10,11 +10,13 @@ import (
 type WorkLogItem struct {
 	ID           string
 	WorkDate     string
+	UserName     string
 	WorkTypeName string
 	WorkTypeIcon string
 	Unit         string
 	Quantity     string
 	Status       string
+	StatusVi     string
 	Notes        string
 }
 
@@ -33,6 +35,11 @@ type WorkLogsPageData struct {
 	TotalPages   int
 	Companies    []CompanyItem
 	WorkTypes    []WorkTypeItem
+	Users        []UserItem
+	FilterFrom   string
+	FilterTo     string
+	FilterUserID string
+	FilterWTID   string
 }
 
 func wlStatusPill(s string) string {
@@ -94,11 +101,34 @@ templ WorkLogsListPage(data WorkLogsPageData) {
 				<p class="text-muted text-sm">Nhân sự sẽ submit báo cáo hàng ngày tại đây.</p>
 			</div>
 		} else {
-			<div class="bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-lg overflow-x-auto">
+			<!-- Filters -->
+			<div class="flex items-center gap-3 mb-4 flex-wrap text-xs">
+					<form method="GET" action="/work-logs" class="flex items-center gap-2 flex-wrap">
+						<input type="date" name="from" value={ data.FilterFrom } class="px-2 py-1 border border-hairline rounded bg-ivory dark:bg-dark-bg text-xs" placeholder="Từ ngày"/>
+						<span class="text-muted">→</span>
+						<input type="date" name="to" value={ data.FilterTo } class="px-2 py-1 border border-hairline rounded bg-ivory dark:bg-dark-bg text-xs" placeholder="Đến ngày"/>
+						<select name="user_id" class="px-2 py-1 border border-hairline rounded bg-ivory dark:bg-dark-bg text-xs">
+							<option value="">Tất cả người</option>
+							for _, u := range data.Users {
+								<option value={ u.ID } selected?={ u.ID == data.FilterUserID }>{ u.FullName }</option>
+							}
+						</select>
+						<select name="work_type_id" class="px-2 py-1 border border-hairline rounded bg-ivory dark:bg-dark-bg text-xs">
+							<option value="">Tất cả loại</option>
+							for _, wt := range data.WorkTypes {
+								<option value={ wt.ID } selected?={ wt.ID == data.FilterWTID }>{ wt.Icon + " " + wt.Name }</option>
+							}
+						</select>
+						<button type="submit" class="px-3 py-1 bg-forest text-white rounded mono font-semibold">Lọc</button>
+						<a href="/work-logs" class="text-muted hover:text-ink mono">Xoá lọc</a>
+					</form>
+				</div>
+				<div class="bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-lg overflow-x-auto">
 				<table class="w-full text-sm min-w-[700px]">
 					<thead class="bg-cream/40 dark:bg-dark-cream/40 border-b border-hairline">
 						<tr class="text-left">
 							<th class="eyebrow px-4 py-3">Ngày</th>
+							<th class="eyebrow px-4 py-3">Người báo cáo</th>
 							<th class="eyebrow px-4 py-3">Loại công việc</th>
 							<th class="eyebrow px-4 py-3 text-right">Số lượng</th>
 							<th class="eyebrow px-4 py-3">Trạng thái</th>
@@ -181,6 +211,7 @@ templ workLogFormModal(companies []CompanyItem, workTypes []WorkTypeItem) {
 templ wlRowDB(wl WorkLogItem) {
 	<tr class={ "row-hover", templ.KV("bg-flame/5", wl.Status == "submitted") }>
 		<td class="px-4 py-4 text-xs mono">{ wl.WorkDate }</td>
+		<td class="px-4 py-4 text-sm font-semibold">{ wl.UserName }</td>
 		<td class="px-4 py-4">
 			<div class="flex items-center gap-2">
 				<span>{ wl.WorkTypeIcon }</span>

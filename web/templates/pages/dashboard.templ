@@ -34,6 +34,7 @@ type DashboardPageData struct {
 	MonthOutput      []DashOutputItem
 	RunCampaigns     []DashCampaignItem
 	MyWorkLogs       []WorkLogItem
+	NoteContent      string
 }
 
 templ DashboardDataPage(data DashboardPageData) {
@@ -174,6 +175,14 @@ templ ownerDashContent(data DashboardPageData) {
 					<p class="text-sm text-muted">Không có chiến dịch nào đang chạy.</p>
 				}
 			</div>
+		</div>
+		<!-- Quick Notes -->
+		<div class="mt-8 bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-lg p-6">
+			<h3 class="display text-lg font-bold mb-4">Ghi chú <span class="accent">nhanh</span></h3>
+			<form hx-post="/dashboard/notes" hx-trigger="keyup changed delay:3s" hx-swap="none">
+				<textarea id="dashboard-note" name="content" rows="4" class="w-full px-3 py-2 border border-hairline dark:border-dark-border rounded bg-ivory dark:bg-dark-bg text-sm focus:outline-none focus:border-forest mono" placeholder="Ghi chú bất kỳ... (tự lưu sau 3 giây)">{ data.NoteContent }</textarea>
+			</form>
+			<p class="text-[10px] text-muted mt-1 mono">Tự động lưu khi ngừng gõ 3 giây</p>
 		</div>
 	}
 

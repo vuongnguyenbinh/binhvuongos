@@ -7,14 +7,15 @@ import (
 )
 
 type TaskItem struct {
-	ID       string
-	Title      string
-	Status     string
-	StatusVi   string
-	Priority   string
-	PriorityVi string
-	Category   string
-	DueDate    string
+	ID           string
+	Title        string
+	Status       string
+	StatusVi     string
+	Priority     string
+	PriorityVi   string
+	Category     string
+	DueDate      string
+	AssigneeName string
 }
 
 type TasksPageData struct {
@@ -122,9 +123,14 @@ templ kCardDB(task TaskItem) {
 			}
 		</div>
 		<div class="text-sm leading-snug mb-2">{ task.Title }</div>
-		if task.DueDate != "" {
-			<div class="text-[11px] text-muted mono">{ task.DueDate }</div>
-		}
+		<div class="flex items-center justify-between text-[11px] text-muted mono">
+			if task.DueDate != "" {
+				<span>{ task.DueDate }</span>
+			}
+			if task.AssigneeName != "" {
+				<span class="text-forest">{ task.AssigneeName }</span>
+			}
+		</div>
 	</a>
 }
 

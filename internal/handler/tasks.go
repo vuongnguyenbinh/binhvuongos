@@ -27,13 +27,14 @@ func (h *Handler) Tasks(c *fiber.Ctx) error {
 
 	companies, _ := h.queries.ListCompanies(c.Context(), 50, 0)
 	users, _ := h.queries.ListUsers(c.Context(), 50, 0)
+	userNames := h.getUserNameMap(c)
 
 	data := pages.TasksPageData{
-		Todo:         toTemplTasks(todo),
-		InProgress:   toTemplTasks(inProgress),
-		Waiting:      toTemplTasks(waiting),
-		Review:       toTemplTasks(review),
-		Done:         toTemplTasks(done),
+		Todo:         toTemplTasksWithNames(todo, userNames),
+		InProgress:   toTemplTasksWithNames(inProgress, userNames),
+		Waiting:      toTemplTasksWithNames(waiting, userNames),
+		Review:       toTemplTasksWithNames(review, userNames),
+		Done:         toTemplTasksWithNames(done, userNames),
 		StatusCounts: counts,
 		Companies:    toTemplCompanies(companies),
 		Users:        toTemplUsers(users),
@@ -121,18 +122,39 @@ func (h *Handler) UpdateTaskStatusForm(c *fiber.Ctx) error {
 	return c.Redirect("/tasks")
 }
 
+// userNameMap builds a lookup from UUID to full_name
+var cachedUserNames map[string]string
+
+func (h *Handler) getUserNameMap(c *fiber.Ctx) map[string]string {
+	users, _ := h.queries.ListUsers(c.Context(), 100, 0)
+	m := make(map[string]string)
+	for _, u := range users {
+		m[middleware.UUIDToString(u.ID)] = u.FullName
+	}
+	return m
+}
+
 func toTemplTasks(tasks []generated.Task) []pages.TaskItem {
+	return toTemplTasksWithNames(tasks, nil)
+}
+
+func toTemplTasksWithNames(tasks []generated.Task, userNames map[string]string) []pages.TaskItem {
 	items := make([]pages.TaskItem, len(tasks))
 	for i, t := range tasks {
+		assignee := ""
+		if userNames != nil && t.AssigneeID.Valid {
+			assignee = userNames[middleware.UUIDToString(t.AssigneeID)]
+		}
 		items[i] = pages.TaskItem{
-			ID:         middleware.UUIDToString(t.ID),
-			Title:      t.Title,
-			Status:     t.Status,
-			StatusVi:   LabelVi("task_status", t.Status),
-			Priority:   t.Priority,
-			PriorityVi: LabelVi("priority", t.Priority),
-			Category:   nullStr(t.Category),
-			DueDate:    formatDate(t.DueDate),
+			ID:           middleware.UUIDToString(t.ID),
+			Title:        t.Title,
+			Status:       t.Status,
+			StatusVi:     LabelVi("task_status", t.Status),
+			Priority:     t.Priority,
+			PriorityVi:   LabelVi("priority", t.Priority),
+			Category:     nullStr(t.Category),
+			DueDate:      formatDate(t.DueDate),
+			AssigneeName: assignee,
 		}
 	}
 	return items

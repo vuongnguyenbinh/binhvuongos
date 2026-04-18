@@ -65,6 +65,9 @@ func main() {
 	app.Get("/profile", h.ProfilePageHandler)
 	app.Post("/profile/password", h.ChangePassword)
 
+	// Dashboard notes
+	app.Post("/dashboard/notes", h.SaveDashboardNotes)
+
 	// Comments
 	app.Get("/comments", h.LoadComments)
 	app.Post("/comments", h.CreateComment)
@@ -131,6 +134,7 @@ func main() {
 	app.Post("/content/:id/review", h.ReviewContentForm)
 	app.Post("/content/:id/publish", h.PublishContent)
 	app.Post("/content/:id/delete", h.DeleteContent)
+	app.Get("/work-logs/chart", h.WorkLogChart)
 	app.Post("/work-logs", h.CreateWorkLog)
 	app.Post("/work-logs/batch-approve", h.BatchApproveWorkLogs)
 	app.Post("/work-logs/:id/approve", h.ApproveWorkLogForm)

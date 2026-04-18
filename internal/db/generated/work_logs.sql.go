@@ -3,6 +3,7 @@ package generated
 import (
 	"context"
 	"database/sql"
+	"fmt"
 
 	"github.com/jackc/pgx/v5/pgtype"
 )
@@ -94,6 +95,89 @@ func (q *Queries) ApproveWorkLog(ctx context.Context, id pgtype.UUID, reviewedBy
 	return scanWorkLog(q.pool.QueryRow(ctx,
 		`UPDATE work_logs SET status='approved', reviewed_at=NOW(), reviewed_by=$2, admin_notes=$3 WHERE id=$1 RETURNING `+workLogCols,
 		id, reviewedBy, adminNotes).Scan)
+}
+
+// WorkLogWithUser includes reporter name
+type WorkLogWithUser struct {
+	WorkLog
+	UserName string `json:"user_name"`
+}
+
+// ListWorkLogsFiltered returns work logs with user name, supporting date range + user + type filters
+func (q *Queries) ListWorkLogsFiltered(ctx context.Context, fromDate, toDate string, userID, workTypeID pgtype.UUID, limit, offset int32) ([]WorkLogWithUser, error) {
+	query := `SELECT ` + workLogCols + `, u.full_name FROM work_logs wl JOIN users u ON u.id = wl.user_id WHERE 1=1`
+	args := []interface{}{}
+	argIdx := 1
+
+	if fromDate != "" {
+		query += fmt.Sprintf(" AND wl.work_date >= $%d", argIdx)
+		args = append(args, fromDate)
+		argIdx++
+	}
+	if toDate != "" {
+		query += fmt.Sprintf(" AND wl.work_date <= $%d", argIdx)
+		args = append(args, toDate)
+		argIdx++
+	}
+	if userID.Valid {
+		query += fmt.Sprintf(" AND wl.user_id = $%d", argIdx)
+		args = append(args, userID)
+		argIdx++
+	}
+	if workTypeID.Valid {
+		query += fmt.Sprintf(" AND wl.work_type_id = $%d", argIdx)
+		args = append(args, workTypeID)
+		argIdx++
+	}
+
+	query += fmt.Sprintf(" ORDER BY wl.work_date DESC, wl.created_at DESC LIMIT $%d OFFSET $%d", argIdx, argIdx+1)
+	args = append(args, limit, offset)
+
+	rows, err := q.pool.Query(ctx, query, args...)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []WorkLogWithUser{}
+	for rows.Next() {
+		var w WorkLogWithUser
+		err := rows.Scan(&w.ID, &w.WorkDate, &w.UserID, &w.CompanyID, &w.WorkTypeID, &w.CampaignID, &w.Quantity,
+			&w.SheetURL, &w.EvidenceURL, &w.Screenshots, &w.Notes, &w.AdminNotes, &w.Status,
+			&w.SubmittedAt, &w.ReviewedAt, &w.ReviewedBy, &w.NotionPageID, &w.SyncedAt, &w.SyncStatus, &w.SyncError,
+			&w.CreatedAt, &w.UpdatedAt, &w.UserName)
+		if err != nil {
+			return nil, err
+		}
+		items = append(items, w)
+	}
+	return items, rows.Err()
+}
+
+// GetMonthlyChart returns aggregate by work_type for a given month
+func (q *Queries) GetMonthlyWorkLogChart(ctx context.Context, month string) ([]DashboardOutput, error) {
+	rows, err := q.pool.Query(ctx,
+		`SELECT wt.name, wt.unit, COALESCE(wt.icon,'') AS icon, wt.slug,
+		 COALESCE(SUM(wl.quantity), 0)::DECIMAL AS total
+		 FROM work_types wt
+		 LEFT JOIN work_logs wl ON wl.work_type_id = wt.id
+		     AND wl.work_date >= $1::DATE AND wl.work_date < ($1::DATE + INTERVAL '1 month')
+		     AND wl.status = 'approved'
+		 WHERE wt.active = TRUE
+		 GROUP BY wt.id, wt.name, wt.unit, wt.icon, wt.slug, wt.sort_order
+		 ORDER BY wt.sort_order`, month+"-01")
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []DashboardOutput{}
+	for rows.Next() {
+		var d DashboardOutput
+		if err := rows.Scan(&d.Name, &d.Unit, &d.Icon, &d.Slug, &d.Total); err != nil {
+			return nil, err
+		}
+		items = append(items, d)
+	}
+	return items, rows.Err()
 }
 
 func (q *Queries) RejectWorkLog(ctx context.Context, id pgtype.UUID, reviewedBy pgtype.UUID, adminNotes sql.NullString) (WorkLog, error) {

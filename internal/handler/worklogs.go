@@ -3,6 +3,7 @@ package handler
 import (
 	"database/sql"
 	"fmt"
+	"time"
 
 	"binhvuongos/internal/db/generated"
 	"binhvuongos/internal/middleware"
@@ -14,25 +15,61 @@ import (
 
 func (h *Handler) WorkLogs(c *fiber.Ctx) error {
 	page, limit, offset := getPage(c)
-	items, err := h.queries.ListWorkLogs(c.Context(), limit, offset)
+	fromDate := c.Query("from")
+	toDate := c.Query("to")
+	filterUserID := c.Query("user_id")
+	filterWorkTypeID := c.Query("work_type_id")
+
+	items, err := h.queries.ListWorkLogsFiltered(c.Context(),
+		fromDate, toDate,
+		middleware.StringToUUID(filterUserID),
+		middleware.StringToUUID(filterWorkTypeID),
+		limit, offset)
 	if err != nil {
 		return render(c, pages.WorkLogsListPage(pages.WorkLogsPageData{}))
 	}
+
 	total, _ := h.queries.CountWorkLogs(c.Context())
 	pendingCount, _ := h.queries.CountPendingWorkLogs(c.Context())
 	workTypes, _ := h.queries.ListActiveWorkTypes(c.Context())
 	companies, _ := h.queries.ListCompanies(c.Context(), 50, 0)
+	users, _ := h.queries.ListUsers(c.Context(), 50, 0)
 
 	data := pages.WorkLogsPageData{
-		Items:        toTemplWorkLogs(items, workTypes),
+		Items:        toTemplWorkLogsWithUser(items, workTypes),
 		Total:        total,
 		PendingCount: pendingCount,
 		Page:         page,
 		TotalPages:   totalPages(total),
 		Companies:    toTemplCompanies(companies),
 		WorkTypes:    toTemplWorkTypes(workTypes),
+		Users:        toTemplUsers(users),
+		FilterFrom:   fromDate,
+		FilterTo:     toDate,
+		FilterUserID: filterUserID,
+		FilterWTID:   filterWorkTypeID,
 	}
 	return render(c, pages.WorkLogsListPage(data))
+}
+
+// WorkLogChart returns JSON for Chart.js
+func (h *Handler) WorkLogChart(c *fiber.Ctx) error {
+	month := c.Query("month")
+	if month == "" {
+		month = time.Now().Format("2006-01")
+	}
+	chart, _ := h.queries.GetMonthlyWorkLogChart(c.Context(), month)
+	var labels, values []interface{}
+	for _, d := range chart {
+		labels = append(labels, d.Name)
+		if d.Total.Valid {
+			f, _ := d.Total.Float64Value()
+			values = append(values, f.Float64)
+		} else {
+			values = append(values, 0)
+		}
+	}
+	return c.JSON(fiber.Map{"labels": labels, "values": values})
 }
 
 func (h *Handler) CreateWorkLog(c *fiber.Ctx) error {
@@ -126,6 +163,35 @@ func toTemplWorkLogs(items []generated.WorkLog, workTypes []generated.WorkType) 
 			Unit:         wt.Unit,
 			Quantity:     qtyStr,
 			Status:       wl.Status,
+			Notes:        nullStr(wl.Notes),
+		}
+	}
+	return result
+}
+
+func toTemplWorkLogsWithUser(items []generated.WorkLogWithUser, workTypes []generated.WorkType) []pages.WorkLogItem {
+	wtMap := make(map[string]generated.WorkType)
+	for _, wt := range workTypes {
+		wtMap[middleware.UUIDToString(wt.ID)] = wt
+	}
+	result := make([]pages.WorkLogItem, len(items))
+	for i, wl := range items {
+		wt := wtMap[middleware.UUIDToString(wl.WorkTypeID)]
+		var qtyStr string
+		if wl.Quantity.Valid {
+			f, _ := wl.Quantity.Float64Value()
+			qtyStr = fmt.Sprintf("%.0f", f.Float64)
+		}
+		result[i] = pages.WorkLogItem{
+			ID:           middleware.UUIDToString(wl.ID),
+			WorkDate:     formatDate(wl.WorkDate),
+			UserName:     wl.UserName,
+			WorkTypeName: wt.Name,
+			WorkTypeIcon: nullStr(wt.Icon),
+			Unit:         wt.Unit,
+			Quantity:     qtyStr,
+			Status:       wl.Status,
+			StatusVi:     LabelVi("worklog_status", wl.Status),
 			Notes:        nullStr(wl.Notes),
 		}
 	}
