@@ -13,6 +13,7 @@ type ContentItem struct {
 	ContentType string
 	Status      string
 	PublishDate string
+	Body        string
 }
 
 type ContentPageData struct {
@@ -22,6 +23,7 @@ type ContentPageData struct {
 	Companies    []CompanyItem
 	Page         int
 	TotalPages   int
+	FilterStatus string
 }
 
 func contentStatusPill(s string) string {
@@ -97,13 +99,16 @@ templ ContentListPage(data ContentPageData) {
 		<!-- Status counts bar -->
 		if data.Total > 0 {
 			<div class="grid grid-cols-3 md:grid-cols-7 gap-px bg-hairline dark:bg-dark-border border border-hairline dark:border-dark-border rounded-lg overflow-hidden mb-8">
-				@cntStat("💡 Ý tưởng", data.StatusCounts["idea"], false)
-				@cntStat("📝 Đang viết", data.StatusCounts["drafting"], false)
-				@cntStat("👀 Cần duyệt", data.StatusCounts["review"], data.StatusCounts["review"] > 0)
-				@cntStat("🔄 Sửa lại", data.StatusCounts["revise"], false)
-				@cntStat("✓ Duyệt", data.StatusCounts["approved"], false)
-				@cntStat("📤 Đã đăng", data.StatusCounts["published"], false)
-				@cntStatTotal(data.Total)
+				@cntStatLink("💡 Ý tưởng", data.StatusCounts["idea"], "idea", data.FilterStatus)
+				@cntStatLink("📝 Đang viết", data.StatusCounts["drafting"], "drafting", data.FilterStatus)
+				@cntStatLink("👀 Cần duyệt", data.StatusCounts["review"], "review", data.FilterStatus)
+				@cntStatLink("🔄 Sửa lại", data.StatusCounts["revise"], "revise", data.FilterStatus)
+				@cntStatLink("✓ Duyệt", data.StatusCounts["approved"], "approved", data.FilterStatus)
+				@cntStatLink("📤 Đã đăng", data.StatusCounts["published"], "published", data.FilterStatus)
+				<a href="/content" class="bg-cream/40 dark:bg-dark-cream/40 p-4 text-center hover:bg-cream/60 transition-colors">
+					<div class="stat-hero text-3xl tnum text-muted">{ fmt.Sprintf("%d", data.Total) }</div>
+					<div class="eyebrow mt-2">Tất cả</div>
+				</a>
 			</div>
 		}
 		if len(data.Items) == 0 {
@@ -139,15 +144,15 @@ templ ContentListPage(data ContentPageData) {
 	}
 }
 
-templ cntStat(label string, count int64, isAlert bool) {
-	<div class="bg-surface dark:bg-dark-surface p-4 text-center">
-		if isAlert {
+templ cntStatLink(label string, count int64, status string, activeStatus string) {
+	<a href={ templ.SafeURL("/content?status=" + status) } class={ "bg-surface dark:bg-dark-surface p-4 text-center hover:bg-cream/40 transition-colors cursor-pointer", templ.KV("ring-2 ring-forest", activeStatus == status) }>
+		if count > 0 && status == "review" {
 			<div class="stat-hero text-3xl tnum text-ember">{ fmt.Sprintf("%d", count) }</div>
 		} else {
 			<div class="stat-hero text-3xl tnum">{ fmt.Sprintf("%d", count) }</div>
 		}
 		<div class="eyebrow mt-2">{ label }</div>
-	</div>
+	</a>
 }
 
 templ cntStatTotal(total int64) {

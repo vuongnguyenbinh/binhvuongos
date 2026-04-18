@@ -13,7 +13,15 @@ import (
 
 func (h *Handler) Content(c *fiber.Ctx) error {
 	page, limit, offset := getPage(c)
-	items, err := h.queries.ListContent(c.Context(), limit, offset)
+	filterStatus := c.Query("status")
+
+	var items []generated.Content
+	var err error
+	if filterStatus != "" {
+		items, err = h.queries.ListContentByStatus(c.Context(), filterStatus, limit, offset)
+	} else {
+		items, err = h.queries.ListContent(c.Context(), limit, offset)
+	}
 	if err != nil {
 		return render(c, pages.ContentListPage(pages.ContentPageData{}))
 	}
@@ -30,6 +38,7 @@ func (h *Handler) Content(c *fiber.Ctx) error {
 	data := pages.ContentPageData{
 		Items:        toTemplContents(items),
 		Total:        total,
+		FilterStatus: filterStatus,
 		StatusCounts: counts,
 		Companies:    toTemplCompanies(companies),
 		Page:         page,
@@ -65,6 +74,12 @@ func (h *Handler) UpdateContentForm(c *fiber.Ctx) error {
 	contentType := c.FormValue("content_type")
 	status := c.FormValue("status")
 	notes := c.FormValue("notes")
+	body := c.FormValue("body")
+
+	// Update body separately (new column)
+	if body != "" {
+		h.queries.UpdateContentBody(c.Context(), middleware.StringToUUID(id), body)
+	}
 
 	if title == "" {
 		return c.Redirect("/content/" + id)

@@ -56,6 +56,13 @@ templ ContentDetailDataPage(item ContentItem) {
 						</form>
 					</div>
 				}
+				<!-- Body content -->
+				if item.Body != "" {
+					<div class="bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-lg p-6">
+						<h3 class="display text-lg font-bold mb-3">Nội dung</h3>
+						<div class="prose prose-sm max-w-none text-sm leading-relaxed whitespace-pre-wrap">{ item.Body }</div>
+					</div>
+				}
 				<!-- Edit form -->
 				<div class="bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-lg p-6">
 					<h3 class="display text-lg font-bold mb-4">Chỉnh sửa</h3>
@@ -86,6 +93,15 @@ templ ContentDetailDataPage(item ContentItem) {
 									<option value="published" selected?={ item.Status == "published" }>Đã đăng</option>
 								</select>
 							</div>
+						</div>
+						<div>
+							<label class="block text-sm font-medium mb-1">Nội dung bài viết (Markdown)</label>
+							<textarea id="content-body-editor" name="body" rows="10" class="w-full px-3 py-2 border border-hairline rounded bg-ivory dark:bg-dark-bg text-ink focus:outline-none focus:border-forest mono text-sm">{ item.Body }</textarea>
+							<script>
+								if (typeof SimpleMDE !== 'undefined') {
+									new SimpleMDE({ element: document.getElementById('content-body-editor'), spellChecker: false, status: false });
+								}
+							</script>
 						</div>
 						<div>
 							<label class="block text-sm font-medium mb-1">Ghi chú</label>

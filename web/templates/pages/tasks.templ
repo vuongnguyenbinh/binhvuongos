@@ -27,6 +27,8 @@ type TasksPageData struct {
 	StatusCounts map[string]int64
 	Companies    []CompanyItem
 	Users        []UserItem
+	ViewMode     string
+	AllTasks     []TaskItem
 }
 
 func totalTasks(data TasksPageData) int {
@@ -80,13 +82,50 @@ templ TasksListPage(data TasksPageData) {
 				<button onclick="document.getElementById('task-modal').classList.remove('hidden')" class="px-6 py-3 bg-forest text-white rounded-md text-sm mono font-semibold">+ TẠO CÔNG VIỆC ĐẦU TIÊN</button>
 			</div>
 		} else {
-			<div class="flex gap-4 overflow-x-auto pb-4">
-				@kanbanCol("Cần làm", "bg-muted", data.Todo, "todo")
-				@kanbanCol("Đang làm", "bg-ember", data.InProgress, "in_progress")
-				@kanbanCol("Chờ", "bg-flame", data.Waiting, "waiting")
-				@kanbanCol("Cần duyệt", "bg-sage", data.Review, "review")
-				@kanbanCol("Hoàn thành", "bg-forest", data.Done, "done")
+			<!-- View toggle -->
+			<div class="flex items-center gap-2 mb-4 text-xs">
+				<span class="eyebrow">Xem:</span>
+				<a href="/tasks?view=kanban" class={ "px-3 py-1.5 rounded-full mono font-semibold", templ.KV("bg-forest text-white", data.ViewMode == "kanban"), templ.KV("bg-surface border border-hairline text-muted", data.ViewMode != "kanban") }>KANBAN</a>
+				<a href="/tasks?view=table" class={ "px-3 py-1.5 rounded-full mono font-semibold", templ.KV("bg-forest text-white", data.ViewMode == "table"), templ.KV("bg-surface border border-hairline text-muted", data.ViewMode != "table") }>BẢNG</a>
 			</div>
+			if data.ViewMode == "table" {
+				<!-- Table view -->
+				<div class="bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-lg overflow-x-auto">
+					<table class="w-full text-sm min-w-[700px]">
+						<thead class="bg-cream/40 dark:bg-dark-cream/40 border-b border-hairline">
+							<tr class="text-left">
+								<th class="eyebrow px-4 py-3">Tiêu đề</th>
+								<th class="eyebrow px-4 py-3">Người thực hiện</th>
+								<th class="eyebrow px-4 py-3">Ưu tiên</th>
+								<th class="eyebrow px-4 py-3">Trạng thái</th>
+								<th class="eyebrow px-4 py-3">Phân loại</th>
+								<th class="eyebrow px-4 py-3">Hạn chót</th>
+							</tr>
+						</thead>
+						<tbody class="divide-y divide-hairline">
+							for _, task := range data.AllTasks {
+								<tr class="row-hover cursor-pointer">
+									<td class="px-4 py-3"><a href={ templ.SafeURL("/tasks/" + task.ID) } class="font-semibold hover:text-forest">{ task.Title }</a></td>
+									<td class="px-4 py-3 text-xs">{ task.AssigneeName }</td>
+									<td class="px-4 py-3"><span class={ "pill", priorityPill(task.Priority) }>{ priorityLabel(task.Priority) }</span></td>
+									<td class="px-4 py-3 text-xs mono">{ task.StatusVi }</td>
+									<td class="px-4 py-3 text-xs mono">{ task.Category }</td>
+									<td class="px-4 py-3 text-xs mono">{ task.DueDate }</td>
+								</tr>
+							}
+						</tbody>
+					</table>
+				</div>
+			} else {
+				<!-- Kanban view -->
+				<div class="flex gap-4 overflow-x-auto pb-4">
+					@kanbanCol("Cần làm", "bg-muted", data.Todo, "todo")
+					@kanbanCol("Đang làm", "bg-ember", data.InProgress, "in_progress")
+					@kanbanCol("Chờ", "bg-flame", data.Waiting, "waiting")
+					@kanbanCol("Cần duyệt", "bg-sage", data.Review, "review")
+					@kanbanCol("Hoàn thành", "bg-forest", data.Done, "done")
+				</div>
+			}
 		}
 		@taskFormModalFull(data.Companies, data.Users)
 	}

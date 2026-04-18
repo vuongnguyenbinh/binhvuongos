@@ -60,12 +60,14 @@ func (h *Handler) ContentDetail(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Redirect("/content")
 	}
+	body, _ := h.queries.GetContentBody(c.Context(), id)
 	item := pages.ContentItem{
 		ID:          middleware.UUIDToString(content.ID),
 		Title:       content.Title,
 		ContentType: content.ContentType,
 		Status:      content.Status,
 		PublishDate: formatDate(content.PublishDate),
+		Body:        body,
 	}
 	return render(c, pages.ContentDetailDataPage(item))
 }

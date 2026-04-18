@@ -17,8 +17,31 @@ func (h *Handler) Companies(c *fiber.Ctx) error {
 	}
 	total, _ := h.queries.CountCompanies(c.Context())
 
+	// Get task stats per company
+	taskStats, _ := h.queries.GetCompanyTaskStats(c.Context())
+	statsMap := make(map[string]pages.CompanyStats)
+	for _, s := range taskStats {
+		cid := middleware.UUIDToString(s.CompanyID)
+		pct := 0
+		if s.TotalTasks > 0 {
+			pct = int(s.DoneTasks * 100 / s.TotalTasks)
+		}
+		statsMap[cid] = pages.CompanyStats{
+			OpenTasks:      s.OpenTasks,
+			CompletionPct:  pct,
+		}
+	}
+
+	compViews := toTemplCompanies(companies)
+	for i := range compViews {
+		if stats, ok := statsMap[compViews[i].ID]; ok {
+			compViews[i].OpenTasks = stats.OpenTasks
+			compViews[i].CompletionPct = stats.CompletionPct
+		}
+	}
+
 	data := pages.CompaniesPageData{
-		Companies: toTemplCompanies(companies),
+		Companies: compViews,
 		Total:     total,
 	}
 	return render(c, pages.CompaniesListPage(data))

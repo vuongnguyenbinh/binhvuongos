@@ -38,6 +38,12 @@ func (h *Handler) Tasks(c *fiber.Ctx) error {
 		StatusCounts: counts,
 		Companies:    toTemplCompanies(companies),
 		Users:        toTemplUsers(users),
+		ViewMode:     c.Query("view", "kanban"),
+	}
+	// For table view, also provide flat list of all tasks
+	if data.ViewMode == "table" {
+		allTasks, _ := h.queries.ListTasks(c.Context(), 100, 0)
+		data.AllTasks = toTemplTasksWithNames(allTasks, userNames)
 	}
 	return render(c, pages.TasksListPage(data))
 }

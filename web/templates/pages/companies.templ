@@ -6,14 +6,21 @@ import (
 	"strings"
 )
 
+type CompanyStats struct {
+	OpenTasks     int64
+	CompletionPct int
+}
+
 type CompanyItem struct {
-	ID        string
-	Name      string
-	ShortCode string
-	Industry  string
-	MyRole    string
-	Status    string
-	Health    string
+	ID            string
+	Name          string
+	ShortCode     string
+	Industry      string
+	MyRole        string
+	Status        string
+	Health        string
+	OpenTasks     int64
+	CompletionPct int
 }
 
 type CompaniesPageData struct {
@@ -110,6 +117,12 @@ templ compCardDB(comp CompanyItem) {
 			}
 			{ " · " + comp.MyRole }
 		</p>
+		if comp.OpenTasks > 0 || comp.CompletionPct > 0 {
+			<div class="flex items-center gap-4 text-xs mono">
+				<div><span class="text-ember font-semibold">{ fmt.Sprintf("%d", comp.OpenTasks) }</span> <span class="text-muted">việc mở</span></div>
+				<div><span class="text-sage font-semibold">{ fmt.Sprintf("%d%%", comp.CompletionPct) }</span> <span class="text-muted">hoàn thành</span></div>
+			</div>
+		}
 	</a>
 }
 

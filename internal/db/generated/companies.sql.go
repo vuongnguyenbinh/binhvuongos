@@ -130,6 +130,36 @@ func (q *Queries) UpdateCompanyHealth(ctx context.Context, id pgtype.UUID, healt
 	return q.exec(ctx, "UPDATE companies SET health = $2 WHERE id = $1", id, health)
 }
 
+type CompanyTaskStats struct {
+	CompanyID  pgtype.UUID `json:"company_id"`
+	OpenTasks  int64       `json:"open_tasks"`
+	DoneTasks  int64       `json:"done_tasks"`
+	TotalTasks int64       `json:"total_tasks"`
+}
+
+func (q *Queries) GetCompanyTaskStats(ctx context.Context) ([]CompanyTaskStats, error) {
+	rows, err := q.pool.Query(ctx,
+		`SELECT company_id,
+		 COUNT(*) FILTER (WHERE status NOT IN ('done','cancelled')) AS open_tasks,
+		 COUNT(*) FILTER (WHERE status = 'done') AS done_tasks,
+		 COUNT(*) AS total_tasks
+		 FROM tasks WHERE deleted_at IS NULL AND company_id IS NOT NULL
+		 GROUP BY company_id`)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []CompanyTaskStats{}
+	for rows.Next() {
+		var s CompanyTaskStats
+		if err := rows.Scan(&s.CompanyID, &s.OpenTasks, &s.DoneTasks, &s.TotalTasks); err != nil {
+			return nil, err
+		}
+		items = append(items, s)
+	}
+	return items, rows.Err()
+}
+
 func (q *Queries) SoftDeleteCompany(ctx context.Context, id pgtype.UUID) error {
 	return q.exec(ctx, "UPDATE companies SET deleted_at = NOW() WHERE id = $1", id)
 }

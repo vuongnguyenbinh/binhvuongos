@@ -129,6 +129,17 @@ func (q *Queries) UpdateContent(ctx context.Context, arg UpdateContentParams) (C
 		arg.ID, arg.Title, arg.ContentType, arg.Status, arg.Notes).Scan)
 }
 
+func (q *Queries) UpdateContentBody(ctx context.Context, id pgtype.UUID, body string) error {
+	_, err := q.pool.Exec(ctx, "UPDATE content SET body = $2 WHERE id = $1", id, body)
+	return err
+}
+
+func (q *Queries) GetContentBody(ctx context.Context, id pgtype.UUID) (string, error) {
+	var body string
+	err := q.pool.QueryRow(ctx, "SELECT COALESCE(body, '') FROM content WHERE id = $1", id).Scan(&body)
+	return body, err
+}
+
 func (q *Queries) SoftDeleteContent(ctx context.Context, id pgtype.UUID) error {
 	return q.exec(ctx, "UPDATE content SET deleted_at=NOW() WHERE id=$1", id)
 }
