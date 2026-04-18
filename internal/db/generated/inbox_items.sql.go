@@ -101,6 +101,10 @@ func (q *Queries) TriageInboxItem(ctx context.Context, arg TriageInboxItemParams
 		arg.ID, arg.Destination, arg.TriageNotes, arg.ConvertedToType, arg.ConvertedToID).Scan)
 }
 
+func (q *Queries) ArchiveInboxItem(ctx context.Context, id pgtype.UUID) error {
+	return q.exec(ctx, "UPDATE inbox_items SET status='archived' WHERE id=$1", id)
+}
+
 func (q *Queries) ArchiveOldInboxItems(ctx context.Context) error {
 	return q.exec(ctx, "UPDATE inbox_items SET status='archived' WHERE status='raw' AND created_at < NOW() - INTERVAL '7 days'")
 }

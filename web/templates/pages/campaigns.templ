@@ -14,12 +14,16 @@ type CampaignItem struct {
 	Status       string
 	StartDate    string
 	EndDate      string
+	CompanyName  string
+	CompanyCode  string
 }
 
 type CampaignsPageData struct {
-	Campaigns []CampaignItem
-	Total     int64
-	Companies []CompanyItem
+	Campaigns       []CampaignItem
+	Total           int64
+	Companies       []CompanyItem
+	FilterCompanyID string
+	FilterType      string
 }
 
 func campStatusPill(s string) string {
@@ -73,6 +77,27 @@ templ CampaignsListPage(data CampaignsPageData) {
 				<button onclick="document.getElementById('camp-modal').classList.remove('hidden')" class="px-6 py-3 bg-forest text-white rounded-md text-sm mono font-semibold">+ TẠO CHIẾN DỊCH ĐẦU TIÊN</button>
 			</div>
 		} else {
+			<!-- Filters -->
+			<div class="flex items-center gap-3 mb-6 flex-wrap text-xs">
+				<form method="GET" action="/campaigns" class="flex items-center gap-2 flex-wrap">
+					<select name="company_id" class="px-2 py-1 border border-hairline rounded bg-ivory dark:bg-dark-bg text-xs">
+						<option value="">Tất cả công ty</option>
+						for _, comp := range data.Companies {
+							<option value={ comp.ID } selected?={ comp.ID == data.FilterCompanyID }>{ comp.Name }</option>
+						}
+					</select>
+					<select name="campaign_type" class="px-2 py-1 border border-hairline rounded bg-ivory dark:bg-dark-bg text-xs">
+						<option value="">Tất cả loại</option>
+						<option value="seo" selected?={ data.FilterType == "seo" }>SEO</option>
+						<option value="product_launch" selected?={ data.FilterType == "product_launch" }>Ra mắt SP</option>
+						<option value="brand" selected?={ data.FilterType == "brand" }>Branding</option>
+						<option value="content_series" selected?={ data.FilterType == "content_series" }>Series</option>
+						<option value="training" selected?={ data.FilterType == "training" }>Training</option>
+					</select>
+					<button type="submit" class="px-3 py-1 bg-forest text-white rounded mono font-semibold">Lọc</button>
+					<a href="/campaigns" class="text-muted hover:text-ink mono">Xoá lọc</a>
+				</form>
+			</div>
 			<div class="grid grid-cols-1 md:grid-cols-2 gap-5">
 				for _, camp := range data.Campaigns {
 					@campCardDB(camp)
@@ -92,8 +117,14 @@ templ campCardDB(camp CampaignItem) {
 			}
 		</div>
 		<h3 class="display text-2xl font-bold mb-1">{ camp.Name }</h3>
+		if camp.CompanyName != "" {
+			<div class="flex items-center gap-2 mb-2 text-xs">
+				<span class="w-5 h-5 rounded bg-forest text-white text-[8px] flex items-center justify-center mono font-bold">{ camp.CompanyCode }</span>
+				<span class="text-muted">{ camp.CompanyName }</span>
+			</div>
+		}
 		if camp.Description != "" {
-			<p class="text-sm text-muted mb-3">{ camp.Description }</p>
+			<p class="text-sm text-muted mb-3 line-clamp-2">{ camp.Description }</p>
 		}
 		<div class="text-xs text-muted mono">
 			if camp.StartDate != "" && camp.EndDate != "" {

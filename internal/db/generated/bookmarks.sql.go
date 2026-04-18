@@ -36,6 +36,40 @@ func (q *Queries) ListBookmarks(ctx context.Context, limit, offset int32) ([]Boo
 	return items, rows.Err()
 }
 
+func (q *Queries) ListBookmarksByTag(ctx context.Context, tag string, limit, offset int32) ([]Bookmark, error) {
+	rows, err := q.pool.Query(ctx, `SELECT `+bookmarkCols+` FROM bookmarks WHERE deleted_at IS NULL AND $1 = ANY(tags) ORDER BY created_at DESC LIMIT $2 OFFSET $3`, tag, limit, offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []Bookmark{}
+	for rows.Next() {
+		b, err := scanBookmark(rows.Scan)
+		if err != nil {
+			return nil, err
+		}
+		items = append(items, b)
+	}
+	return items, rows.Err()
+}
+
+func (q *Queries) SearchBookmarksByDomain(ctx context.Context, domain string, limit, offset int32) ([]Bookmark, error) {
+	rows, err := q.pool.Query(ctx, `SELECT `+bookmarkCols+` FROM bookmarks WHERE deleted_at IS NULL AND url ILIKE '%' || $1 || '%' ORDER BY created_at DESC LIMIT $2 OFFSET $3`, domain, limit, offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []Bookmark{}
+	for rows.Next() {
+		b, err := scanBookmark(rows.Scan)
+		if err != nil {
+			return nil, err
+		}
+		items = append(items, b)
+	}
+	return items, rows.Err()
+}
+
 func (q *Queries) CountBookmarks(ctx context.Context) (int64, error) {
 	var count int64
 	err := q.pool.QueryRow(ctx, "SELECT COUNT(*) FROM bookmarks WHERE deleted_at IS NULL").Scan(&count)

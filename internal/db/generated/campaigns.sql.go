@@ -3,6 +3,7 @@ package generated
 import (
 	"context"
 	"database/sql"
+	"fmt"
 
 	"github.com/jackc/pgx/v5/pgtype"
 )
@@ -46,6 +47,51 @@ func (q *Queries) ListCampaigns(ctx context.Context, limit, offset int32) ([]Cam
 
 func (q *Queries) ListCampaignsByCompany(ctx context.Context, companyID pgtype.UUID) ([]Campaign, error) {
 	return q.scanCampaigns(ctx, `SELECT `+campaignCols+` FROM campaigns WHERE company_id=$1 AND deleted_at IS NULL ORDER BY created_at DESC`, companyID)
+}
+
+type CampaignWithCompany struct {
+	Campaign
+	CompanyName string `json:"company_name"`
+	CompanyCode string `json:"company_code"`
+}
+
+func (q *Queries) ListCampaignsWithCompany(ctx context.Context, companyID pgtype.UUID, campaignType string, limit, offset int32) ([]CampaignWithCompany, error) {
+	query := `SELECT ` + campaignCols + `, c2.name, COALESCE(c2.short_code,'')
+		 FROM campaigns c JOIN companies c2 ON c2.id = c.company_id WHERE c.deleted_at IS NULL`
+	args := []interface{}{}
+	argIdx := 1
+
+	if companyID.Valid {
+		query += fmt.Sprintf(" AND c.company_id = $%d", argIdx)
+		args = append(args, companyID)
+		argIdx++
+	}
+	if campaignType != "" {
+		query += fmt.Sprintf(" AND c.campaign_type = $%d", argIdx)
+		args = append(args, campaignType)
+		argIdx++
+	}
+	query += fmt.Sprintf(" ORDER BY c.created_at DESC LIMIT $%d OFFSET $%d", argIdx, argIdx+1)
+	args = append(args, limit, offset)
+
+	rows, err := q.pool.Query(ctx, query, args...)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []CampaignWithCompany{}
+	for rows.Next() {
+		var cw CampaignWithCompany
+		err := rows.Scan(&cw.ID, &cw.Name, &cw.Description, &cw.CompanyID, &cw.OwnerID, &cw.CampaignType, &cw.Status,
+			&cw.StartDate, &cw.EndDate, &cw.TargetJSON, &cw.Budget, &cw.BudgetSpent, &cw.Notes,
+			&cw.NotionPageID, &cw.SyncedAt, &cw.SyncStatus, &cw.SyncError, &cw.CreatedAt, &cw.UpdatedAt, &cw.CreatedBy, &cw.DeletedAt,
+			&cw.CompanyName, &cw.CompanyCode)
+		if err != nil {
+			return nil, err
+		}
+		items = append(items, cw)
+	}
+	return items, rows.Err()
 }
 
 func (q *Queries) ListCampaignsByStatus(ctx context.Context, status string) ([]Campaign, error) {

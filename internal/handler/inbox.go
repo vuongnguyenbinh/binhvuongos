@@ -2,6 +2,7 @@ package handler
 
 import (
 	"database/sql"
+	"strings"
 
 	"binhvuongos/internal/db/generated"
 	"binhvuongos/internal/middleware"
@@ -65,6 +66,34 @@ func (h *Handler) TriageInbox(c *fiber.Ctx) error {
 		Destination: sql.NullString{String: destination, Valid: destination != ""},
 		TriageNotes: sql.NullString{String: triageNotes, Valid: triageNotes != ""},
 	})
+	return c.Redirect("/inbox")
+}
+
+// ArchiveInbox archives a single inbox item
+func (h *Handler) ArchiveInbox(c *fiber.Ctx) error {
+	id := c.Params("id")
+	_ = h.queries.ArchiveInboxItem(c.Context(), middleware.StringToUUID(id))
+	return c.Redirect("/inbox")
+}
+
+// BatchTriageInbox triages multiple inbox items at once
+func (h *Handler) BatchTriageInbox(c *fiber.Ctx) error {
+	destination := c.FormValue("destination")
+	// IDs come as comma-separated from hidden field
+	idsStr := c.FormValue("ids")
+	if idsStr == "" || destination == "" {
+		return c.Redirect("/inbox")
+	}
+	for _, idStr := range strings.Split(idsStr, ",") {
+		id := strings.TrimSpace(idStr)
+		if id == "" {
+			continue
+		}
+		_, _ = h.queries.TriageInboxItem(c.Context(), generated.TriageInboxItemParams{
+			ID:          middleware.StringToUUID(id),
+			Destination: sql.NullString{String: destination, Valid: true},
+		})
+	}
 	return c.Redirect("/inbox")
 }
 

@@ -12,18 +12,38 @@ import (
 )
 
 func (h *Handler) Campaigns(c *fiber.Ctx) error {
-	items, err := h.queries.ListCampaigns(c.Context(), 50, 0)
+	filterCompanyID := c.Query("company_id")
+	filterType := c.Query("campaign_type")
+
+	items, err := h.queries.ListCampaignsWithCompany(c.Context(),
+		middleware.StringToUUID(filterCompanyID), filterType, 50, 0)
 	if err != nil {
 		return render(c, pages.CampaignsListPage(pages.CampaignsPageData{}))
 	}
 	total, _ := h.queries.CountCampaigns(c.Context())
-
 	companies, _ := h.queries.ListCompanies(c.Context(), 50, 0)
 
+	var campViews []pages.CampaignItem
+	for _, cw := range items {
+		campViews = append(campViews, pages.CampaignItem{
+			ID:           middleware.UUIDToString(cw.ID),
+			Name:         cw.Name,
+			Description:  nullStr(cw.Description),
+			CampaignType: nullStr(cw.CampaignType),
+			Status:       cw.Status,
+			StartDate:    formatDate(cw.StartDate),
+			EndDate:      formatDate(cw.EndDate),
+			CompanyName:  cw.CompanyName,
+			CompanyCode:  cw.CompanyCode,
+		})
+	}
+
 	data := pages.CampaignsPageData{
-		Campaigns: toTemplCampaigns(items),
-		Total:     total,
-		Companies: toTemplCompanies(companies),
+		Campaigns:       campViews,
+		Total:           total,
+		Companies:       toTemplCompanies(companies),
+		FilterCompanyID: filterCompanyID,
+		FilterType:      filterType,
 	}
 	return render(c, pages.CampaignsListPage(data))
 }

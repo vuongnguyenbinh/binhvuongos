@@ -13,17 +13,30 @@ import (
 
 func (h *Handler) Bookmarks(c *fiber.Ctx) error {
 	page, limit, offset := getPage(c)
-	bookmarks, err := h.queries.ListBookmarks(c.Context(), limit, offset)
+	filterTag := c.Query("tag")
+	filterDomain := c.Query("domain")
+
+	var bookmarks []generated.Bookmark
+	var err error
+	if filterTag != "" {
+		bookmarks, err = h.queries.ListBookmarksByTag(c.Context(), filterTag, limit, offset)
+	} else if filterDomain != "" {
+		bookmarks, err = h.queries.SearchBookmarksByDomain(c.Context(), filterDomain, limit, offset)
+	} else {
+		bookmarks, err = h.queries.ListBookmarks(c.Context(), limit, offset)
+	}
 	if err != nil {
 		return render(c, pages.BookmarksListPage(pages.BookmarksPageData{}))
 	}
 	total, _ := h.queries.CountBookmarks(c.Context())
 
 	data := pages.BookmarksPageData{
-		Bookmarks:  toTemplBookmarks(bookmarks),
-		Total:      total,
-		Page:       page,
-		TotalPages: totalPages(total),
+		Bookmarks:    toTemplBookmarks(bookmarks),
+		Total:        total,
+		Page:         page,
+		TotalPages:   totalPages(total),
+		FilterTag:    filterTag,
+		FilterDomain: filterDomain,
 	}
 	return render(c, pages.BookmarksListPage(data))
 }

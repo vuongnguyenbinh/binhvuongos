@@ -16,10 +16,12 @@ type BookmarkItem struct {
 }
 
 type BookmarksPageData struct {
-	Bookmarks  []BookmarkItem
-	Total      int64
-	Page       int
-	TotalPages int
+	Bookmarks    []BookmarkItem
+	Total        int64
+	Page         int
+	TotalPages   int
+	FilterTag    string
+	FilterDomain string
 }
 
 templ BookmarksListPage(data BookmarksPageData) {
@@ -43,6 +45,15 @@ templ BookmarksListPage(data BookmarksPageData) {
 				<button onclick="document.getElementById('bm-modal').classList.remove('hidden')" class="px-6 py-3 bg-forest text-white rounded-md text-sm mono font-semibold">+ THÊM LINK ĐẦU TIÊN</button>
 			</div>
 		} else {
+			<!-- Filters -->
+			<div class="flex items-center gap-3 mb-6 flex-wrap text-xs">
+				<form method="GET" action="/bookmarks" class="flex items-center gap-2 flex-wrap">
+					<input type="text" name="tag" value={ data.FilterTag } placeholder="Lọc tag..." class="px-2 py-1 border border-hairline rounded bg-ivory dark:bg-dark-bg text-xs w-24"/>
+					<input type="text" name="domain" value={ data.FilterDomain } placeholder="Tìm domain..." class="px-2 py-1 border border-hairline rounded bg-ivory dark:bg-dark-bg text-xs w-32"/>
+					<button type="submit" class="px-3 py-1 bg-forest text-white rounded mono font-semibold">Lọc</button>
+					<a href="/bookmarks" class="text-muted hover:text-ink mono">Xoá lọc</a>
+				</form>
+			</div>
 			<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
 				for _, bm := range data.Bookmarks {
 					@bmCardDB(bm)
