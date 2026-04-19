@@ -72,8 +72,8 @@ templ Header(activeTab string) {
 			</div>
 			<!-- Desktop nav -->
 			<nav class="hidden md:flex items-center gap-5 lg:gap-7 h-12 text-sm flex-wrap">
-				@TabLink("/", "dashboard", "Tổng quan", "", activeTab)
-				@TabLink("/inbox", "inbox", "Hộp thư đến", "12", activeTab)
+				@TabLink("/inbox", "inbox", "📥 Hộp thư đến", "", activeTab)
+				@TabLink("/dashboard", "dashboard", "Tổng quan", "", activeTab)
 				@TabLink("/work-logs", "worklogs", "Nhật ký công việc", "5", activeTab)
 				@TabLink("/tasks", "tasks", "Công việc", "", activeTab)
 				@TabLink("/content", "content", "Nội dung", "", activeTab)

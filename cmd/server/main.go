@@ -93,8 +93,9 @@ func main() {
 	admin.Post("/admin/work-types/:id/delete", h.DeleteWorkType)
 	admin.Post("/users", h.CreateUser)
 
-	// Pages
-	app.Get("/", h.Dashboard)
+	// Pages — Inbox is home
+	app.Get("/", func(c *fiber.Ctx) error { return c.Redirect("/inbox") })
+	app.Get("/dashboard", h.Dashboard)
 	app.Get("/inbox", h.Inbox)
 	app.Get("/work-logs", h.WorkLogs)
 	app.Get("/tasks", h.Tasks)

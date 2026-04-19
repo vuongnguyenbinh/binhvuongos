@@ -12,8 +12,11 @@ type ContentItem struct {
 	Title       string
 	ContentType string
 	Status      string
+	StatusVi    string
 	PublishDate string
 	Body        string
+	AuthorName  string
+	Tags        string
 }
 
 type ContentPageData struct {
@@ -124,7 +127,9 @@ templ ContentListPage(data ContentPageData) {
 					<thead class="bg-cream/40 dark:bg-dark-cream/40 border-b border-hairline">
 						<tr class="text-left">
 							<th class="eyebrow px-4 py-3">Tiêu đề</th>
+							<th class="eyebrow px-4 py-3">Người viết</th>
 							<th class="eyebrow px-4 py-3">Loại</th>
+							<th class="eyebrow px-4 py-3">Tags</th>
 							<th class="eyebrow px-4 py-3">Trạng thái</th>
 							<th class="eyebrow px-4 py-3">Ngày đăng</th>
 						</tr>
@@ -165,7 +170,9 @@ templ cntStatTotal(total int64) {
 templ cRowDB(item ContentItem) {
 	<tr class="row-hover cursor-pointer">
 		<td class="px-4 py-4"><a href={ templ.SafeURL("/content/" + item.ID) } class="font-semibold hover:text-forest">{ item.Title }</a></td>
+		<td class="px-4 py-4 text-xs">{ item.AuthorName }</td>
 		<td class="px-4 py-4 text-sm">{ contentTypeLabel(item.ContentType) }</td>
+		<td class="px-4 py-4 text-xs text-muted">{ item.Tags }</td>
 		<td class="px-4 py-4"><span class={ "pill", contentStatusPill(item.Status) }>{ contentStatusLabel(item.Status) }</span></td>
 		<td class="px-4 py-4 text-xs mono">
 			if item.PublishDate != "" {

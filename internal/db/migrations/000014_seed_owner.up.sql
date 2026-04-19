@@ -1,7 +1,7 @@
--- Seed owner user: email=owner@binhvuong.vn password=BinhVuong2026!
+-- Seed owner user: email=vuongnguyenbinh@gmail.com password=BinhVuong2026!
 INSERT INTO users (email, password_hash, full_name, role, status)
 VALUES (
-    'owner@binhvuong.vn',
+    'vuongnguyenbinh@gmail.com',
     '$2b$12$jL4eHmMtHDs.Q/HaIQN9rO22yrCuDf5CKSuaDyI9Gba10I0e1Bn7G',
     'Bình Vương',
     'owner',

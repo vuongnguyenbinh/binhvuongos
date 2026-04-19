@@ -34,9 +34,10 @@ func (h *Handler) Content(c *fiber.Ctx) error {
 	}
 
 	companies, _ := h.queries.ListCompanies(c.Context(), 50, 0)
+	userNames := h.getUserNameMap(c)
 
 	data := pages.ContentPageData{
-		Items:        toTemplContents(items),
+		Items:        toTemplContentsWithNames(items, userNames),
 		Total:        total,
 		FilterStatus: filterStatus,
 		StatusCounts: counts,
@@ -129,14 +130,35 @@ func (h *Handler) PublishContent(c *fiber.Ctx) error {
 }
 
 func toTemplContents(items []generated.Content) []pages.ContentItem {
+	return toTemplContentsWithNames(items, nil)
+}
+
+func toTemplContentsWithNames(items []generated.Content, userNames map[string]string) []pages.ContentItem {
 	result := make([]pages.ContentItem, len(items))
 	for i, c := range items {
+		author := ""
+		if userNames != nil && c.AuthorID.Valid {
+			author = userNames[middleware.UUIDToString(c.AuthorID)]
+		}
+		// Collect topics as tags string
+		tags := ""
+		if len(c.Topics) > 0 {
+			for j, t := range c.Topics {
+				if j > 0 {
+					tags += ", "
+				}
+				tags += t
+			}
+		}
 		result[i] = pages.ContentItem{
 			ID:          middleware.UUIDToString(c.ID),
 			Title:       c.Title,
 			ContentType: c.ContentType,
 			Status:      c.Status,
+			StatusVi:    LabelVi("content_status", c.Status),
 			PublishDate: formatDate(c.PublishDate),
+			AuthorName:  author,
+			Tags:        tags,
 		}
 	}
 	return result

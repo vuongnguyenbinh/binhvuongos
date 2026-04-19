@@ -88,14 +88,7 @@ templ ownerDashContent(data DashboardPageData) {
 			@dashStat("Công việc", fmt.Sprintf("%d / %d", data.DoneTasks, data.OpenTasks+data.DoneTasks), "hoàn thành", false)
 			@dashStat("Inbox chưa xử lý", fmt.Sprintf("%d", data.RawInbox), "mục", data.RawInbox > 5)
 		</div>
-		<!-- Quick Notes (top position) -->
-		<div class="mb-8 bg-surface dark:bg-dark-surface border-2 border-forest/20 rounded-lg p-5">
-			<h3 class="display text-lg font-bold mb-3">📝 Ghi chú <span class="accent">nhanh</span></h3>
-			<form hx-post="/dashboard/notes" hx-trigger="keyup changed delay:3s" hx-swap="none">
-				<textarea id="dashboard-note" name="content" rows="3" class="w-full px-3 py-2 border border-hairline dark:border-dark-border rounded bg-ivory dark:bg-dark-bg text-sm focus:outline-none focus:border-forest mono" placeholder="Ghi chú bất kỳ... (tự lưu sau 3 giây)">{ data.NoteContent }</textarea>
-			</form>
-			<p class="text-[10px] text-muted mt-1 mono">Tự động lưu khi ngừng gõ 3 giây</p>
-		</div>
+		<!-- Notes moved to Inbox -->
 		<!-- Companies -->
 		<div class="grid grid-cols-1 xl:grid-cols-12 gap-6">
 			<div class="xl:col-span-12">
