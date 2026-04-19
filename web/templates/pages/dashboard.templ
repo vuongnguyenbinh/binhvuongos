@@ -13,8 +13,10 @@ type DashOutputItem struct {
 }
 
 type DashCampaignItem struct {
-	ID   string
-	Name string
+	ID          string
+	Name        string
+	CompanyName string
+	ProgressPct int
 }
 
 type DashboardPageData struct {
@@ -39,26 +41,15 @@ type DashboardPageData struct {
 
 templ DashboardDataPage(data DashboardPageData) {
 	@templates.Layout("Tổng quan", "dashboard") {
-		<!-- Hero greeting with background -->
-		if data.BgImage != "" {
-			<div class="mb-10 rounded-lg overflow-hidden relative" style="min-height:180px">
-				<img src={ data.BgImage } alt="" class="absolute inset-0 w-full h-full object-cover" loading="lazy"/>
-				<div class="absolute inset-0 bg-gradient-to-r from-ink/80 to-ink/40"></div>
-				<div class="relative p-8 text-white">
-					<p class="eyebrow text-white/60 mb-2">Tổng quan</p>
-					<h1 class="display text-5xl md:text-6xl font-bold leading-none">
-						{ data.Greeting }, <span class="text-sage">{ data.UserName }.</span>
-					</h1>
-				</div>
-			</div>
-		} else {
-			<div class="mb-10">
-				<p class="eyebrow mb-2">Tổng quan</p>
-				<h1 class="display text-6xl font-bold leading-none text-ink">
-					{ data.Greeting }, <span class="accent">{ data.UserName }.</span>
+		<!-- Hero greeting with gradient background -->
+		<div class="mb-10 rounded-xl overflow-hidden relative" { templates.StyleAttr("min-height:160px;" + data.BgImage)... }>
+			<div class="relative p-8">
+				<p class="eyebrow mb-2 text-white/70" style="text-shadow:0 1px 3px rgba(0,0,0,0.3)">Tổng quan</p>
+				<h1 class="display text-5xl md:text-6xl font-bold leading-none text-white" style="text-shadow:0 2px 8px rgba(0,0,0,0.4)">
+					{ data.Greeting }, <span style="color:#fde68a">{ data.UserName }.</span>
 				</h1>
 			</div>
-		}
+		</div>
 		<div class="mb-6">
 			<p class="mt-4 text-muted max-w-2xl text-base">
 				if data.PendingReviews > 0 || data.ContentReview > 0 || data.OverdueTasks > 0 {
@@ -94,6 +85,14 @@ templ ownerDashContent(data DashboardPageData) {
 			@dashStat("Nội dung cần review", fmt.Sprintf("%d", data.ContentReview), "nội dung", data.ContentReview > 0)
 			@dashStat("Công việc", fmt.Sprintf("%d / %d", data.DoneTasks, data.OpenTasks+data.DoneTasks), "hoàn thành", false)
 			@dashStat("Inbox chưa xử lý", fmt.Sprintf("%d", data.RawInbox), "mục", data.RawInbox > 5)
+		</div>
+		<!-- Quick Notes (top position) -->
+		<div class="mb-8 bg-surface dark:bg-dark-surface border-2 border-forest/20 rounded-lg p-5">
+			<h3 class="display text-lg font-bold mb-3">📝 Ghi chú <span class="accent">nhanh</span></h3>
+			<form hx-post="/dashboard/notes" hx-trigger="keyup changed delay:3s" hx-swap="none">
+				<textarea id="dashboard-note" name="content" rows="3" class="w-full px-3 py-2 border border-hairline dark:border-dark-border rounded bg-ivory dark:bg-dark-bg text-sm focus:outline-none focus:border-forest mono" placeholder="Ghi chú bất kỳ... (tự lưu sau 3 giây)">{ data.NoteContent }</textarea>
+			</form>
+			<p class="text-[10px] text-muted mt-1 mono">Tự động lưu khi ngừng gõ 3 giây</p>
 		</div>
 		<!-- Companies -->
 		<div class="grid grid-cols-1 xl:grid-cols-12 gap-6">
@@ -163,11 +162,19 @@ templ ownerDashContent(data DashboardPageData) {
 					<a href="/campaigns" class="text-xs text-muted hover:text-ink mono">xem tất cả →</a>
 				</div>
 				if len(data.RunCampaigns) > 0 {
-					<div class="space-y-2">
+					<div class="space-y-3">
 						for _, camp := range data.RunCampaigns {
-							<a href={ templ.SafeURL("/campaigns/" + camp.ID) } class="block p-2 rounded hover:bg-cream/40 dark:hover:bg-dark-cream/40 text-sm">
-								<span class="dot bg-forest inline-block mr-2"></span>
-								{ camp.Name }
+							<a href={ templ.SafeURL("/campaigns/" + camp.ID) } class="block p-3 rounded-lg hover:bg-cream/40 dark:hover:bg-dark-cream/40 border border-hairline">
+								<div class="flex items-center justify-between mb-1">
+									<span class="text-sm font-semibold">{ camp.Name }</span>
+									<span class="text-xs mono text-forest font-semibold">{ fmt.Sprintf("%d%%", camp.ProgressPct) }</span>
+								</div>
+								if camp.CompanyName != "" {
+									<div class="text-[10px] text-muted mono mb-1">{ camp.CompanyName }</div>
+								}
+								<div class="progress-track h-1.5">
+									<div class="progress-fill" { templates.WidthStyle(camp.ProgressPct)... }></div>
+								</div>
 							</a>
 						}
 					</div>
@@ -176,14 +183,7 @@ templ ownerDashContent(data DashboardPageData) {
 				}
 			</div>
 		</div>
-		<!-- Quick Notes -->
-		<div class="mt-8 bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-lg p-6">
-			<h3 class="display text-lg font-bold mb-4">Ghi chú <span class="accent">nhanh</span></h3>
-			<form hx-post="/dashboard/notes" hx-trigger="keyup changed delay:3s" hx-swap="none">
-				<textarea id="dashboard-note" name="content" rows="4" class="w-full px-3 py-2 border border-hairline dark:border-dark-border rounded bg-ivory dark:bg-dark-bg text-sm focus:outline-none focus:border-forest mono" placeholder="Ghi chú bất kỳ... (tự lưu sau 3 giây)">{ data.NoteContent }</textarea>
-			</form>
-			<p class="text-[10px] text-muted mt-1 mono">Tự động lưu khi ngừng gõ 3 giây</p>
-		</div>
+		<!-- Notes moved to top -->
 	}
 
 templ userDashContent(data DashboardPageData) {
