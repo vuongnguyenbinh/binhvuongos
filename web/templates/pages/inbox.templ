@@ -57,23 +57,37 @@ templ InboxListPage(data InboxPageData) {
 				<a href="/inbox/new" class="px-4 py-2 bg-forest text-white rounded-md text-sm mono font-semibold shrink-0">+ TẠO INBOX</a>
 			</div>
 		</div>
-		if len(data.Items) == 0 {
-			<div class="text-center py-20">
-				<div class="text-6xl mb-4">📥</div>
-				<h3 class="display text-2xl font-bold mb-2">Hộp thư trống</h3>
-				<p class="text-muted text-sm mb-6">Thêm mục mới từ Telegram, Zalo, Web hoặc thủ công.</p>
-				<a href="/inbox/new" class="px-6 py-3 bg-forest text-white rounded-md text-sm mono font-semibold">+ TẠO MỤC ĐẦU TIÊN</a>
-			</div>
-		} else {
-			<div class="bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-lg divide-y divide-hairline">
-				for _, item := range data.Items {
-					@inboxItemDB(item)
+		<div class="grid grid-cols-1 xl:grid-cols-12 gap-6">
+			<div class="xl:col-span-8">
+				if len(data.Items) == 0 {
+					<div class="text-center py-20">
+						<div class="text-6xl mb-4">📥</div>
+						<h3 class="display text-2xl font-bold mb-2">Hộp thư trống</h3>
+						<p class="text-muted text-sm mb-6">Thêm mục mới từ Telegram, Zalo, Web hoặc thủ công.</p>
+						<a href="/inbox/new" class="px-6 py-3 bg-forest text-white rounded-md text-sm mono font-semibold">+ TẠO MỤC ĐẦU TIÊN</a>
+					</div>
+				} else {
+					<div class="bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-lg divide-y divide-hairline">
+						for _, item := range data.Items {
+							@inboxItemDB(item)
+						}
+					</div>
+					if data.TotalPages > 1 {
+						@components.Pagination(data.Page, data.TotalPages)
+					}
 				}
 			</div>
-			if data.TotalPages > 1 {
-				@components.Pagination(data.Page, data.TotalPages)
-			}
-		}
+			<!-- Notes panel (right column) -->
+			<div class="xl:col-span-4">
+				<div class="bg-surface dark:bg-dark-surface border-2 border-forest/20 rounded-lg p-5 sticky top-24">
+					<h3 class="display text-lg font-bold mb-3">📝 Ghi chú nhanh</h3>
+					<form hx-post="/dashboard/notes" hx-trigger="keyup changed delay:3s" hx-swap="none">
+						<textarea id="inbox-note" name="content" rows="8" class="w-full px-3 py-2 border border-hairline dark:border-dark-border rounded bg-ivory dark:bg-dark-bg text-sm focus:outline-none focus:border-forest mono" placeholder="Ghi chú khi triage..."></textarea>
+					</form>
+					<p class="text-[10px] text-muted mt-1 mono">Tự lưu · đồng bộ với Dashboard</p>
+				</div>
+			</div>
+		</div>
 	}
 }
 

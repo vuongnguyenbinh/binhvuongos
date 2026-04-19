@@ -41,11 +41,13 @@ type DashboardPageData struct {
 
 templ DashboardDataPage(data DashboardPageData) {
 	@templates.Layout("Tổng quan", "dashboard") {
-		<!-- Hero greeting with gradient background -->
-		<div class="mb-10 rounded-xl overflow-hidden relative" { templates.StyleAttr("min-height:160px;" + data.BgImage)... }>
-			<div class="relative p-8">
-				<p class="eyebrow mb-2 text-white/70" style="text-shadow:0 1px 3px rgba(0,0,0,0.3)">Tổng quan</p>
-				<h1 class="display text-5xl md:text-6xl font-bold leading-none text-white" style="text-shadow:0 2px 8px rgba(0,0,0,0.4)">
+		<!-- Hero greeting with landscape photo -->
+		<div class="mb-10 rounded-xl overflow-hidden relative" style="min-height:180px">
+			<img src={ data.BgImage } alt="" class="absolute inset-0 w-full h-full object-cover"/>
+			<div class="absolute inset-0 bg-gradient-to-r from-black/70 to-black/30"></div>
+			<div class="relative p-8 md:p-10">
+				<p class="text-xs text-white/60 mb-2 tracking-widest uppercase">Tổng quan</p>
+				<h1 class="display text-4xl md:text-6xl font-bold leading-none text-white" style="text-shadow:0 2px 12px rgba(0,0,0,0.5)">
 					{ data.Greeting }, <span style="color:#fde68a">{ data.UserName }.</span>
 				</h1>
 			</div>

@@ -10,7 +10,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-// getGreeting returns Vietnamese greeting + CSS gradient style based on Hanoi time
+// getGreeting returns Vietnamese greeting + background image path based on Hanoi time
 func getGreeting() (string, string) {
 	loc, err := time.LoadLocation("Asia/Ho_Chi_Minh")
 	if err != nil {
@@ -20,15 +20,15 @@ func getGreeting() (string, string) {
 
 	switch {
 	case hour >= 5 && hour < 11:
-		return "Chào buổi sáng", "background:linear-gradient(135deg,#f6d365 0%,#fda085 100%)"
+		return "Chào buổi sáng", "/static/img/morning.jpg"
 	case hour >= 11 && hour < 13:
-		return "Chào buổi trưa", "background:linear-gradient(135deg,#89f7fe 0%,#66a6ff 100%)"
+		return "Chào buổi trưa", "/static/img/noon.jpg"
 	case hour >= 13 && hour < 18:
-		return "Chào buổi chiều", "background:linear-gradient(135deg,#a8edea 0%,#fed6e3 100%)"
+		return "Chào buổi chiều", "/static/img/afternoon.jpg"
 	case hour >= 18 && hour < 22:
-		return "Chào buổi tối", "background:linear-gradient(135deg,#667eea 0%,#764ba2 100%)"
+		return "Chào buổi tối", "/static/img/evening.jpg"
 	default:
-		return "Chào đêm muộn", "background:linear-gradient(135deg,#0c0c1d 0%,#1a1a3e 100%)"
+		return "Chào đêm muộn", "/static/img/night.jpg"
 	}
 }
 

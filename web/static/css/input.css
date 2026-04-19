@@ -58,7 +58,7 @@ html, body {
   letter-spacing: -0.01em;
 }
 
-.mono { font-family: 'JetBrains Mono', monospace; }
+.mono { font-family: 'JetBrains Mono', monospace; font-weight: 500; font-size: 0.85em; }
 
 .tnum {
   font-variant-numeric: tabular-nums;
