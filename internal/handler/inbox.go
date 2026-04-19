@@ -56,6 +56,26 @@ func (h *Handler) CreateInboxItem(c *fiber.Ctx) error {
 	return c.Redirect("/inbox")
 }
 
+// UpdateInboxItem updates all fields of an inbox item
+func (h *Handler) UpdateInboxItem(c *fiber.Ctx) error {
+	id := c.Params("id")
+	content := c.FormValue("content")
+	url := c.FormValue("url")
+	itemType := c.FormValue("item_type")
+
+	if content == "" {
+		return c.Redirect("/inbox/" + id)
+	}
+
+	_, _ = h.queries.UpdateInboxItem(c.Context(), generated.UpdateInboxItemParams{
+		ID:       middleware.StringToUUID(id),
+		Content:  content,
+		URL:      sql.NullString{String: url, Valid: url != ""},
+		ItemType: sql.NullString{String: itemType, Valid: itemType != ""},
+	})
+	return c.Redirect("/inbox/" + id)
+}
+
 func (h *Handler) TriageInbox(c *fiber.Ctx) error {
 	id := c.Params("id")
 	destination := c.FormValue("destination")

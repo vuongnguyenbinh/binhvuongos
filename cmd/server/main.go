@@ -126,6 +126,7 @@ func main() {
 	app.Post("/assignments/:id/delete", h.RemoveAssignment)
 	app.Post("/inbox", h.CreateInboxItem)
 	app.Post("/inbox/batch-triage", h.BatchTriageInbox)
+	app.Post("/inbox/:id/update", h.UpdateInboxItem)
 	app.Post("/inbox/:id/triage", h.TriageInbox)
 	app.Post("/inbox/:id/archive", h.ArchiveInbox)
 	app.Post("/tasks", h.CreateTask)

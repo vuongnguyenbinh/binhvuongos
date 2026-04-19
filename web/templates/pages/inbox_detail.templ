@@ -2,6 +2,7 @@ package pages
 
 import (
 	"binhvuongos/web/templates"
+	"binhvuongos/web/templates/components"
 	"strings"
 )
 
@@ -9,41 +10,90 @@ templ InboxDetailDataPage(item InboxItemData) {
 	@templates.Layout("Chi tiết Inbox", "inbox") {
 		<div class="mb-8">
 			<a href="/inbox" class="text-xs text-muted hover:text-ink mono">← Quay lại Hộp thư</a>
-			<div class="mt-4">
-				<div class="flex items-center gap-2 mb-2">
+			<div class="flex items-end justify-between mt-4">
+				<div class="flex items-center gap-2">
 					<span class={ "pill", sourcePill(item.Source) }>{ strings.ToUpper(item.Source) }</span>
 					<span class="text-xs text-muted mono">{ item.TimeAgo }</span>
 					if item.Status != "raw" {
 						<span class="pill bg-sage/20 text-forest">{ strings.ToUpper(item.Status) }</span>
 					}
 				</div>
-				if item.URL != "" {
-					<a href={ templ.SafeURL(item.URL) } target="_blank" class="text-forest mono underline decoration-dotted text-sm block mb-2">{ item.URL }</a>
-				}
-				<p class="text-base leading-relaxed mt-4">{ item.Content }</p>
-			</div>
-		</div>
-		if item.Status == "raw" {
-			<div class="bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-lg p-6 max-w-lg">
-				<h3 class="display text-lg font-bold mb-4">Triage</h3>
-				<form method="POST" action={ templ.SafeURL("/inbox/" + item.ID + "/triage") } class="space-y-4">
-					<div>
-						<label class="block text-sm font-medium mb-1">Chuyển sang</label>
-						<select name="destination" class="w-full px-3 py-2 border border-hairline rounded bg-ivory dark:bg-dark-bg text-sm">
-							<option value="knowledge">Kho kiến thức</option>
-							<option value="tasks">Công việc</option>
-							<option value="content">Nội dung</option>
-							<option value="archive">Lưu trữ</option>
-						</select>
-					</div>
-					<div>
-						<label class="block text-sm font-medium mb-1">Ghi chú triage</label>
-						<textarea name="triage_notes" rows="2" class="w-full px-3 py-2 border border-hairline rounded bg-ivory dark:bg-dark-bg text-sm"></textarea>
-					</div>
-					<button type="submit" class="w-full py-2.5 bg-forest text-white font-semibold rounded mono">CHUYỂN</button>
+				<form method="POST" action={ templ.SafeURL("/inbox/" + item.ID + "/archive") }>
+					<button type="submit" class="px-3 py-1.5 bg-rust text-white rounded text-xs mono" onclick="return confirm('Lưu trữ?')">🗑 Lưu trữ</button>
 				</form>
 			</div>
-		}
+		</div>
+		<div class="grid grid-cols-1 xl:grid-cols-12 gap-6">
+			<div class="xl:col-span-8 space-y-6">
+				<!-- Edit form — all fields editable -->
+				<div class="bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-lg p-6">
+					<h3 class="display text-lg font-bold mb-4">Chỉnh sửa</h3>
+					<form method="POST" action={ templ.SafeURL("/inbox/" + item.ID + "/update") } class="space-y-4">
+						<div>
+							<label class="block text-sm font-medium mb-1">Nội dung *</label>
+							<textarea name="content" rows="4" required class="w-full px-3 py-2 border border-hairline rounded bg-ivory dark:bg-dark-bg text-ink text-sm focus:outline-none focus:border-forest">{ item.Content }</textarea>
+						</div>
+						<div>
+							<label class="block text-sm font-medium mb-1">URL</label>
+							<input type="url" name="url" value={ item.URL } class="w-full px-3 py-2 border border-hairline rounded bg-ivory dark:bg-dark-bg text-ink text-sm focus:outline-none focus:border-forest"/>
+						</div>
+						<div class="grid grid-cols-2 gap-4">
+							<div>
+								<label class="block text-sm font-medium mb-1">Nguồn</label>
+								<select name="source" class="w-full px-3 py-2 border border-hairline rounded bg-ivory dark:bg-dark-bg text-ink text-sm">
+									<option value="manual" selected?={ item.Source == "manual" }>Thủ công</option>
+									<option value="telegram" selected?={ item.Source == "telegram" }>Telegram</option>
+									<option value="zalo" selected?={ item.Source == "zalo" }>Zalo</option>
+									<option value="web" selected?={ item.Source == "web" }>Web</option>
+									<option value="email" selected?={ item.Source == "email" }>Email</option>
+									<option value="tiktok" selected?={ item.Source == "tiktok" }>TikTok</option>
+									<option value="facebook" selected?={ item.Source == "facebook" }>Facebook</option>
+								</select>
+							</div>
+							<div>
+								<label class="block text-sm font-medium mb-1">Loại</label>
+								<select name="item_type" class="w-full px-3 py-2 border border-hairline rounded bg-ivory dark:bg-dark-bg text-ink text-sm">
+									<option value="" selected?={ item.ItemType == "" }>— Chưa phân loại —</option>
+									<option value="idea" selected?={ item.ItemType == "idea" }>Ý tưởng</option>
+									<option value="task" selected?={ item.ItemType == "task" }>Công việc</option>
+									<option value="link" selected?={ item.ItemType == "link" }>Link</option>
+									<option value="note" selected?={ item.ItemType == "note" }>Ghi chú</option>
+								</select>
+							</div>
+						</div>
+						<button type="submit" class="px-6 py-2.5 bg-forest text-white font-semibold rounded mono text-sm">LƯU THAY ĐỔI</button>
+					</form>
+				</div>
+				<!-- Triage (if raw) -->
+				if item.Status == "raw" {
+					<div class="bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-lg p-6">
+						<h3 class="display text-lg font-bold mb-4">Triage — chuyển sang</h3>
+						<form method="POST" action={ templ.SafeURL("/inbox/" + item.ID + "/triage") } class="space-y-4">
+							<select name="destination" class="w-full px-3 py-2 border border-hairline rounded bg-ivory dark:bg-dark-bg text-sm">
+								<option value="knowledge">Kho kiến thức</option>
+								<option value="tasks">Công việc</option>
+								<option value="content">Nội dung</option>
+								<option value="archive">Lưu trữ</option>
+							</select>
+							<textarea name="triage_notes" rows="2" class="w-full px-3 py-2 border border-hairline rounded bg-ivory dark:bg-dark-bg text-sm" placeholder="Ghi chú triage..."></textarea>
+							<button type="submit" class="w-full py-2.5 bg-forest text-white font-semibold rounded mono">CHUYỂN</button>
+						</form>
+					</div>
+				}
+				@components.CommentSection("inbox", item.ID)
+			</div>
+			<div class="xl:col-span-4">
+				<div class="bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-lg p-5">
+					<h3 class="eyebrow mb-3">Thông tin</h3>
+					<div class="space-y-3 text-xs">
+						<div class="flex justify-between"><span class="text-muted">Nguồn</span><span class="mono">{ item.Source }</span></div>
+						<div class="flex justify-between"><span class="text-muted">Loại</span><span>{ item.ItemType }</span></div>
+						<div class="flex justify-between"><span class="text-muted">Trạng thái</span><span>{ item.Status }</span></div>
+						<div class="flex justify-between"><span class="text-muted">Tạo lúc</span><span class="mono">{ item.CreatedAt }</span></div>
+					</div>
+				</div>
+			</div>
+		</div>
 	}
 }
 

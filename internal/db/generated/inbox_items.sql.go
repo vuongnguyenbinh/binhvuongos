@@ -85,6 +85,19 @@ func (q *Queries) CreateInboxItem(ctx context.Context, arg CreateInboxItemParams
 		arg.Content, arg.URL, arg.Source, arg.ItemType, arg.CompanyID, arg.SubmittedBy).Scan)
 }
 
+type UpdateInboxItemParams struct {
+	ID       pgtype.UUID    `json:"id"`
+	Content  string         `json:"content"`
+	URL      sql.NullString `json:"url"`
+	ItemType sql.NullString `json:"item_type"`
+}
+
+func (q *Queries) UpdateInboxItem(ctx context.Context, arg UpdateInboxItemParams) (InboxItem, error) {
+	return scanInbox(q.pool.QueryRow(ctx,
+		`UPDATE inbox_items SET content=$2, url=$3, item_type=$4 WHERE id=$1 RETURNING `+inboxCols,
+		arg.ID, arg.Content, arg.URL, arg.ItemType).Scan)
+}
+
 type TriageInboxItemParams struct {
 	ID              pgtype.UUID    `json:"id"`
 	Destination     sql.NullString `json:"destination"`

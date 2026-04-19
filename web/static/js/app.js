@@ -65,6 +65,20 @@ function updateBulkActions(containerSelector) {
   }
 }
 
+// Inbox batch checkboxes
+function updateInboxBatch() {
+  var checks = document.querySelectorAll('.inbox-check:checked');
+  var bar = document.getElementById('inbox-batch-bar');
+  var countEl = document.getElementById('inbox-selected-count');
+  var idsEl = document.getElementById('inbox-batch-ids');
+  if (!bar) return;
+  var ids = [];
+  checks.forEach(function(c) { ids.push(c.getAttribute('data-id')); });
+  bar.classList.toggle('hidden', ids.length === 0);
+  if (countEl) countEl.textContent = ids.length;
+  if (idsEl) idsEl.value = ids.join(',');
+}
+
 // Init SortableJS on kanban columns
 document.addEventListener('DOMContentLoaded', function() {
   document.querySelectorAll('[data-kanban-column]').forEach(function(col) {
