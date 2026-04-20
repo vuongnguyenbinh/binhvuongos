@@ -60,6 +60,48 @@ Telegram Bot → Bình Vương Inbox.
 
 ---
 
+### `zalo-bot-to-inbox.json`
+
+Zalo **personal bot** (bot.zapps.me) → Bình Vương Inbox.
+
+Spec: <https://bot.zapps.me/docs/webhook/>
+
+**Nodes:**
+1. **Zalo Webhook** (path `/zalo-bot`, POST, responseMode: responseNode) — public URL: `https://auto.binhvuong.vn/webhook/zalo-bot`
+2. **Verify + Transform** (Code node) — check `X-Bot-Api-Secret-Token`, parse `event_name` (text/image/sticker/unsupported), build inbox payload
+3. **POST to Inbox** — HTTP POST → `os.binhvuong.vn/api/v1/inbox`
+4. **ACK Zalo** — return `200 ok` sớm để Zalo không retry
+
+**Setup:**
+1. Tạo Zalo personal bot qua <https://bot.zapps.me> → lấy `BOT_TOKEN`
+2. n8n **Settings → Variables**: thêm
+   - `ZALO_BOT_SECRET` = secret token bạn tự sinh (`openssl rand -hex 16`)
+3. Import `zalo-bot-to-inbox.json` → Save → Activate
+4. Lấy webhook URL production từ node **Zalo Webhook** (dạng `https://auto.binhvuong.vn/webhook/zalo-bot`)
+5. Đăng ký webhook với Zalo:
+   ```bash
+   curl -X POST "https://bot-api.zapps.me/bot<BOT_TOKEN>/setWebhook" \
+     -H "Content-Type: application/json" \
+     -d '{
+       "url": "https://auto.binhvuong.vn/webhook/zalo-bot",
+       "secret_token": "<same-value-as-ZALO_BOT_SECRET>"
+     }'
+   ```
+
+**Idempotency:** `external_ref = zalo:<chat_id>:<message_id>` → Zalo retry không tạo dup.
+
+**item_type classification:**
+- `message.text.received` → `note`, hoặc `link` nếu content bắt đầu `http(s)://`
+- `message.image.received` → `image`, URL ảnh vào `attachment_urls`
+- `message.sticker.received` → `image` (sticker URL → attachments)
+- `message.unsupported.received` / khác → `file`
+
+**Lưu ý:**
+- **Image URL từ Zalo** thường có thời hạn (signed URL) — cân nhắc extend flow để download + upload lên Drive ngay nếu cần lưu lâu dài.
+- Nếu `ZALO_BOT_SECRET` không set → signature verify bị skip (dev mode). Production **bắt buộc** set.
+
+---
+
 ## Thêm flow mới
 
 Khuôn mẫu chung:

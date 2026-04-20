@@ -1,0 +1,101 @@
+{
+  "name": "Zalo Bot → Bình Vương Inbox",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "zalo-bot",
+        "responseMode": "responseNode",
+        "options": {
+          "rawBody": false
+        }
+      },
+      "id": "b1000000-0000-0000-0000-000000000001",
+      "name": "Zalo Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [240, 300],
+      "webhookId": "zalo-bot-inbox"
+    },
+    {
+      "parameters": {
+        "jsCode": "// n8n Code node — Zalo Personal Bot → Bình Vương Inbox\n// Source spec: https://bot.zapps.me/docs/webhook/\n// Verifies X-Bot-Api-Secret-Token, classifies item_type, emits inbox payload.\n\nconst ZALO_BOT_SECRET = $env.ZALO_BOT_SECRET;\nconst req = $input.first().json;\n\nconst incomingSecret =\n  req.headers?.['x-bot-api-secret-token'] ??\n  req.headers?.['X-Bot-Api-Secret-Token'];\n\nif (ZALO_BOT_SECRET && incomingSecret !== ZALO_BOT_SECRET) {\n  throw new Error(`Invalid X-Bot-Api-Secret-Token (got=${incomingSecret ?? 'none'})`);\n}\n\nconst payload = req.body ?? req;\nconst result = payload.result ?? {};\nconst msg = result.message ?? {};\nconst eventName = result.event_name ?? '';\n\nif (!msg.message_id) {\n  throw new Error(`Zalo payload missing message_id; event=${eventName}`);\n}\n\nlet itemType = 'note';\nlet content = msg.text || msg.caption || '';\nlet url = '';\nconst attachmentURLs = [];\n\nswitch (eventName) {\n  case 'message.text.received': {\n    const t = (msg.text || '').trim();\n    if (/^https?:\\/\\//i.test((t.split(/\\s+/)[0] || ''))) {\n      itemType = 'link';\n      url = t.split(/\\s+/)[0];\n    } else {\n      itemType = 'note';\n    }\n    content = msg.text || '';\n    break;\n  }\n  case 'message.image.received': {\n    itemType = 'image';\n    if (typeof msg.photo === 'string') attachmentURLs.push(msg.photo);\n    else if (Array.isArray(msg.photo)) {\n      for (const p of msg.photo) {\n        const pu = typeof p === 'string' ? p : (p?.url || p?.file_url);\n        if (pu) attachmentURLs.push(pu);\n      }\n    }\n    content = msg.caption || '[Zalo image]';\n    break;\n  }\n  case 'message.sticker.received': {\n    itemType = 'image';\n    const sticker = msg.sticker?.url || msg.sticker?.thumbnail_url || msg.sticker;\n    if (typeof sticker === 'string') attachmentURLs.push(sticker);\n    content = '[Zalo sticker]';\n    break;\n  }\n  default: {\n    itemType = 'file';\n    content = msg.text || msg.caption || `[Zalo ${eventName || 'unsupported'}]`;\n  }\n}\n\nconst out = {\n  content: content || `[Zalo ${eventName}]`,\n  source: 'zalo',\n  item_type: itemType,\n  external_ref: `zalo:${msg.chat?.id ?? 'unknown'}:${msg.message_id}`,\n};\nif (url) out.url = url;\nif (attachmentURLs.length) out.attachment_urls = attachmentURLs.slice(0, 10);\n\nreturn [{ json: out }];"
+      },
+      "id": "b2000000-0000-0000-0000-000000000002",
+      "name": "Verify + Transform",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [480, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://os.binhvuong.vn/api/v1/inbox",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "X-API-Key", "value": "={{ $env.BVOS_API_KEY }}" },
+            { "name": "Content-Type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json) }}",
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true,
+              "responseFormat": "json"
+            }
+          },
+          "timeout": 10000
+        }
+      },
+      "id": "b3000000-0000-0000-0000-000000000003",
+      "name": "POST to Inbox",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [720, 300]
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "ok",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "id": "b4000000-0000-0000-0000-000000000004",
+      "name": "ACK Zalo",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [960, 300]
+    }
+  ],
+  "connections": {
+    "Zalo Webhook": {
+      "main": [[{ "node": "Verify + Transform", "type": "main", "index": 0 }]]
+    },
+    "Verify + Transform": {
+      "main": [[{ "node": "POST to Inbox", "type": "main", "index": 0 }]]
+    },
+    "POST to Inbox": {
+      "main": [[{ "node": "ACK Zalo", "type": "main", "index": 0 }]]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "saveDataErrorExecution": "all",
+    "saveDataSuccessExecution": "all"
+  },
+  "versionId": "1",
+  "meta": {
+    "instanceId": "bvos-inbox"
+  },
+  "tags": [
+    { "name": "bvos" },
+    { "name": "inbox" },
+    { "name": "zalo" }
+  ]
+}
