@@ -94,6 +94,7 @@ type InboxItem struct {
 	ProcessedAt       pgtype.Timestamptz `json:"processed_at"`
 	ConvertedToType   sql.NullString     `json:"converted_to_type"`
 	ConvertedToID     pgtype.UUID        `json:"converted_to_id"`
+	ExternalRef       sql.NullString     `json:"external_ref"`
 	CreatedAt         time.Time          `json:"created_at"`
 	UpdatedAt         time.Time          `json:"updated_at"`
 }

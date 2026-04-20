@@ -2,6 +2,8 @@ package handler
 
 import (
 	"database/sql"
+	"encoding/json"
+	"strings"
 
 	"binhvuongos/internal/db/generated"
 	"binhvuongos/internal/middleware"
@@ -37,32 +39,113 @@ func (h *Handler) APIListTasks(c *fiber.Ctx) error {
 	return c.JSON(APISuccess(tasks))
 }
 
-// APICreateInbox creates an inbox item via JSON API
+// APICreateInbox is the unified inbox webhook endpoint.
+// Accepts application/json (text + pre-uploaded attachment URLs) or multipart/form-data (file upload).
+// Idempotency: when external_ref is provided, retries with the same (source, external_ref) return the
+// existing row instead of inserting a duplicate.
+// Attribution: submitted_by is always set to the configured owner user (single-tenant by design).
 func (h *Handler) APICreateInbox(c *fiber.Ctx) error {
-	var input struct {
-		Content string `json:"content"`
-		URL     string `json:"url"`
-		Source  string `json:"source"`
+	var (
+		content, url, source, itemType, externalRef string
+		attachments                                  []map[string]any
+	)
+
+	contentType := c.Get("Content-Type")
+	if strings.HasPrefix(contentType, "multipart/form-data") {
+		content = c.FormValue("content")
+		url = c.FormValue("url")
+		source = c.FormValue("source")
+		itemType = c.FormValue("item_type")
+		externalRef = c.FormValue("external_ref")
+		if source == "" {
+			source = "api"
+		}
+
+		// Optional file → Google Drive
+		if file, err := c.FormFile("file"); err == nil && file != nil {
+			att, uerr := h.uploadAttachmentToDrive(c, file)
+			if uerr != nil {
+				return c.Status(400).JSON(APIError("UPLOAD_ERROR", uerr.Error()))
+			}
+			attachments = append(attachments, att)
+		}
+
+		// Pre-uploaded attachment URLs via repeatable form field
+		if mf, err := c.MultipartForm(); err == nil && mf != nil {
+			for _, u := range mf.Value["attachment_urls"] {
+				attachments = append(attachments, map[string]any{"url": u})
+			}
+		}
+	} else {
+		var input struct {
+			Content        string   `json:"content"`
+			URL            string   `json:"url"`
+			Source         string   `json:"source"`
+			ItemType       string   `json:"item_type"`
+			AttachmentURLs []string `json:"attachment_urls"`
+			ExternalRef    string   `json:"external_ref"`
+		}
+		if err := c.BodyParser(&input); err != nil {
+			return c.Status(400).JSON(APIError("VALIDATION_ERROR", err.Error()))
+		}
+		content, url, source, itemType, externalRef = input.Content, input.URL, input.Source, input.ItemType, input.ExternalRef
+		if source == "" {
+			source = "api"
+		}
+		for _, u := range input.AttachmentURLs {
+			attachments = append(attachments, map[string]any{"url": u})
+		}
 	}
-	if err := c.BodyParser(&input); err != nil {
+
+	// Collect attachment URLs for validation
+	attachURLs := make([]string, 0, len(attachments))
+	for _, a := range attachments {
+		if u, ok := a["url"].(string); ok {
+			attachURLs = append(attachURLs, u)
+		}
+	}
+	if err := validateInboxInput(content, source, itemType, externalRef, attachURLs); err != nil {
 		return c.Status(400).JSON(APIError("VALIDATION_ERROR", err.Error()))
 	}
-	if input.Content == "" {
-		return c.Status(400).JSON(APIError("VALIDATION_ERROR", "content is required"))
+
+	if itemType == "" {
+		itemType = detectItemType(content, url, attachments)
 	}
 
-	source := "manual"
-	if input.Source != "" {
-		source = input.Source
+	attachJSON, _ := json.Marshal(attachments)
+	if attachments == nil {
+		attachJSON = []byte("[]")
 	}
 
-	item, err := h.queries.CreateInboxItem(c.Context(), generated.CreateInboxItemParams{
-		Content: input.Content,
-		URL:     sql.NullString{String: input.URL, Valid: input.URL != ""},
-		Source:  sql.NullString{String: source, Valid: true},
-	})
+	params := generated.CreateInboxItemParams{
+		Content:     content,
+		URL:         sql.NullString{String: url, Valid: url != ""},
+		Source:      sql.NullString{String: source, Valid: true},
+		ItemType:    sql.NullString{String: itemType, Valid: true},
+		SubmittedBy: h.ownerUserID,
+		Attachments: attachJSON,
+		ExternalRef: sql.NullString{String: externalRef, Valid: externalRef != ""},
+	}
+
+	// Atomic idempotent insert when external_ref supplied; regular insert otherwise.
+	if externalRef != "" {
+		item, inserted, err := h.queries.UpsertInboxItemByExternalRef(c.Context(), params)
+		if err != nil {
+			return c.Status(500).JSON(APIError("DB_ERROR", "failed to persist inbox item"))
+		}
+		if !inserted {
+			return c.Status(200).JSON(fiber.Map{
+				"success":   true,
+				"duplicate": true,
+				"data":      item,
+			})
+		}
+		return c.Status(201).JSON(APISuccess(item))
+	}
+
+	item, err := h.queries.CreateInboxItem(c.Context(), params)
 	if err != nil {
-		return c.Status(500).JSON(APIError("DB_ERROR", err.Error()))
+		return c.Status(500).JSON(APIError("DB_ERROR", "failed to persist inbox item"))
 	}
 	return c.Status(201).JSON(APISuccess(item))
 }

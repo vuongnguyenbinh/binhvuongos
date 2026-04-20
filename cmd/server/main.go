@@ -55,7 +55,6 @@ func main() {
 	// Integration endpoints
 	api.Get("/notion/status", h.NotionSyncStatus)
 	api.Post("/notion/sync", h.NotionSyncTrigger)
-	api.Post("/telegram/webhook", h.TelegramWebhook)
 
 	// Protected routes (require authentication)
 	app.Use(middleware.AuthRequired(queries, cfg))

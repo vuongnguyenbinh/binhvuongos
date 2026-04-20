@@ -14,8 +14,13 @@ SELECT COUNT(*) FROM inbox_items;
 SELECT COUNT(*) FROM inbox_items WHERE status = $1;
 
 -- name: CreateInboxItem :one
-INSERT INTO inbox_items (content, url, source, item_type, company_id, submitted_by)
-VALUES ($1, $2, $3, $4, $5, $6) RETURNING *;
+INSERT INTO inbox_items (content, url, source, item_type, company_id, submitted_by, attachments, external_ref)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *;
+
+-- name: GetInboxByExternalRef :one
+SELECT * FROM inbox_items
+WHERE source = $1 AND external_ref = $2
+LIMIT 1;
 
 -- name: UpdateInboxItem :one
 UPDATE inbox_items SET content = $2, url = $3, item_type = $4, company_id = $5
