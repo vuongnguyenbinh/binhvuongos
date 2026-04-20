@@ -62,15 +62,35 @@ Telegram Bot → Bình Vương Inbox.
 
 ### `zalo-bot-to-inbox.json`
 
-Zalo **personal bot** (bot.zapps.me) → Bình Vương Inbox.
+Zalo **personal bot** (bot.zapps.me) → Bình Vương Inbox (có auto-download media lên Drive).
 
 Spec: <https://bot.zapps.me/docs/webhook/>
 
-**Nodes:**
-1. **Zalo Webhook** (path `/zalo-bot`, POST, responseMode: responseNode) — public URL: `https://auto.binhvuong.vn/webhook/zalo-bot`
-2. **Verify + Transform** (Code node) — check `X-Bot-Api-Secret-Token`, parse `event_name` (text/image/sticker/unsupported), build inbox payload
-3. **POST to Inbox** — HTTP POST → `os.binhvuong.vn/api/v1/inbox`
-4. **ACK Zalo** — return `200 ok` sớm để Zalo không retry
+**Nodes (7):**
+
+```
+Zalo Webhook
+   ↓
+Verify + Classify   ← check secret, decide item_type, flag _has_file
+   ↓
+IF has file
+ ├─ TRUE → Download from Zalo (HTTP GET binary)
+ │         ↓
+ │       POST Multipart (Drive upload)   — /api/v1/inbox handler tự upload lên Drive
+ │         ↓
+ │       ACK Zalo
+ └─ FALSE → POST JSON (text)
+             ↓
+           ACK Zalo
+```
+
+1. **Zalo Webhook** (path `/zalo-bot`, POST, responseMode: responseNode) — URL: `https://auto.binhvuong.vn/webhook/zalo-bot`
+2. **Verify + Classify** (Code) — check `X-Bot-Api-Secret-Token`, parse event, build payload, set `_has_file` + `_download_url`
+3. **IF has file** — route image/sticker to Drive path
+4. **Download from Zalo** (HTTP GET, responseFormat=file) — GET signed Zalo URL, binary vào field `data`
+5. **POST Multipart (Drive upload)** (HTTP POST) — `multipart/form-data` với `file` binary + text fields, backend upload lên Drive và trả về stable URL
+6. **POST JSON (text)** (HTTP POST) — với text/link không có media
+7. **ACK Zalo** — trả `200 ok` ngay
 
 **Setup:**
 1. Tạo Zalo personal bot qua <https://bot.zapps.me> → lấy `BOT_TOKEN`
@@ -97,8 +117,10 @@ Spec: <https://bot.zapps.me/docs/webhook/>
 - `message.unsupported.received` / khác → `file`
 
 **Lưu ý:**
-- **Image URL từ Zalo** thường có thời hạn (signed URL) — cân nhắc extend flow để download + upload lên Drive ngay nếu cần lưu lâu dài.
+- **Image URL từ Zalo expire** sau vài giờ — flow này auto-download và upload lên Drive qua backend để URL vĩnh viễn (`attachments[].url` = Drive link).
 - Nếu `ZALO_BOT_SECRET` không set → signature verify bị skip (dev mode). Production **bắt buộc** set.
+- Tối đa 50MB / file; image thường <5MB nên OK.
+- Chi phí Drive: mỗi ảnh Zalo tốn 1 round-trip Drive API. Cân nhắc limit nếu spam.
 
 ---
 
