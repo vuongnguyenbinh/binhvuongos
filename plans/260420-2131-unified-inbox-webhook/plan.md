@@ -1,14 +1,15 @@
 ---
 title: "Unified Inbox Webhook API"
 description: "Single /api/v1/inbox endpoint — JSON + multipart, idempotency, Drive upload, replace Telegram handler"
-status: in_progress
+status: completed
 priority: P1
 effort: 3h
-completed_effort: 2h
+completed_effort: 3h
 tags: [api, webhook, inbox, integrations, n8n]
 blockedBy: []
 blocks: []
 created: 2026-04-20
+completed: 2026-04-20
 ---
 
 # Unified Inbox Webhook API
@@ -51,7 +52,7 @@ Xoá hẳn `TelegramWebhook` handler cũ (bị broken do APIKeyAuth wrap).
 | 2 | [Handler refactor — JSON + multipart + idempotency](phase-02-handler-refactor.md) | 90m | ✅ done |
 | 3 | [Cleanup old Telegram handler](phase-03-cleanup-telegram.md) | 20m | ✅ done |
 | 4 | [Docs + n8n flow templates](phase-04-docs-n8n-flows.md) | 45m | ✅ done (main docs; n8n JSON templates deferred pending n8n URL) |
-| 5 | [Deploy + E2E test](phase-05-deploy-test.md) | 30m | ⏳ pending (waiting for deploy approval) |
+| 5 | [Deploy + E2E test](phase-05-deploy-test.md) | 30m | ✅ done (deployed, 8 E2E tests pass, test data cleaned) |
 
 ## Key dependencies
 

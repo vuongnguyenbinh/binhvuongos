@@ -2,6 +2,10 @@
 
 > Gửi bất kỳ tin nhắn, link, ảnh, file từ mọi nền tảng (Zalo, Telegram, Zapier, iOS Shortcut, browser extension…) vào `inbox_items` của Bình Vương OS qua **1 endpoint duy nhất**.
 
+**Core infra:**
+- App: <https://os.binhvuong.vn>
+- Bridge (n8n): <https://auto.binhvuong.vn>
+
 ## Endpoint
 
 ```
@@ -174,7 +178,8 @@ curl -X POST $URL -H "X-API-Key: $API_KEY" \
 
 ### 3. Telegram Bot (qua n8n)
 
-**Yêu cầu:** n8n đã chạy (self-host hoặc cloud), Telegram Bot token từ [@BotFather](https://t.me/BotFather).
+**n8n instance:** <https://auto.binhvuong.vn>
+**Yêu cầu:** Telegram Bot token từ [@BotFather](https://t.me/BotFather).
 
 1. n8n → New workflow → **Telegram Trigger** node
    - Credential: nhập BOT_TOKEN
@@ -203,6 +208,7 @@ curl -X POST $URL -H "X-API-Key: $API_KEY" \
 
 ### 4. Zalo OA (qua n8n)
 
+**n8n instance:** <https://auto.binhvuong.vn>
 **Yêu cầu:** Zalo Official Account đã có, OA secret + app_id, webhook URL trỏ về n8n.
 
 1. n8n → **Webhook Trigger** node
