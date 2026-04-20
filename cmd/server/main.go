@@ -19,6 +19,11 @@ func main() {
 
 	app := fiber.New(fiber.Config{
 		AppName: "Bình Vương OS v2.0",
+		// Default fasthttp header buffer is 4KB — HTMX + Cloudflare + JWT cookies
+		// can push a browser request past that ceiling and trigger 431.
+		ReadBufferSize: 32 * 1024,
+		// Allow multipart uploads up to 60MB (webhook file cap is 50MB + form overhead).
+		BodyLimit: 60 * 1024 * 1024,
 	})
 
 	app.Use(logger.New())
