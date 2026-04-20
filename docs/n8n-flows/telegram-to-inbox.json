@@ -1,0 +1,108 @@
+{
+  "name": "Telegram → Bình Vương Inbox",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": ["message"],
+        "additionalFields": {}
+      },
+      "id": "a1000000-0000-0000-0000-000000000001",
+      "name": "Telegram Trigger",
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.1,
+      "position": [240, 300],
+      "webhookId": "telegram-bvos-inbox",
+      "credentials": {
+        "telegramApi": {
+          "id": "REPLACE_WITH_TELEGRAM_CREDENTIAL_ID",
+          "name": "Telegram Bot (BVOS)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Transform Telegram message → Bình Vương inbox payload.\n// Handles text messages + captioned media. File attachments (photo/voice/document)\n// currently send text-only; extend with Telegram getFile API if you need binaries.\n\nconst msg = $input.first().json.message || {};\nconst text = msg.text || msg.caption || '';\n\n// Classify item_type from media kind; text URL falls through to auto-detect on server.\nlet itemType;\nif (msg.photo)    itemType = 'image';\nelse if (msg.voice || msg.audio) itemType = 'voice';\nelse if (msg.document || msg.video) itemType = 'file';\nelse if (text.startsWith('http://') || text.startsWith('https://')) itemType = 'link';\nelse itemType = 'note';\n\n// Build url field for pure-link messages\nlet url = '';\nif (itemType === 'link') url = text.trim().split(/\\s+/)[0];\n\nreturn [{\n  json: {\n    content: text || `[${itemType}]`,\n    url,\n    source: 'telegram',\n    item_type: itemType,\n    external_ref: `tg:${msg.chat?.id}:${msg.message_id}`\n  }\n}];"
+      },
+      "id": "a2000000-0000-0000-0000-000000000002",
+      "name": "Transform Payload",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [480, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://os.binhvuong.vn/api/v1/inbox",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-API-Key",
+              "value": "={{ $env.BVOS_API_KEY }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json) }}",
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true,
+              "responseFormat": "json"
+            }
+          },
+          "timeout": 10000
+        }
+      },
+      "id": "a3000000-0000-0000-0000-000000000003",
+      "name": "POST to Inbox",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [720, 300]
+    }
+  ],
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "Transform Payload",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Transform Payload": {
+      "main": [
+        [
+          {
+            "node": "POST to Inbox",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "saveDataErrorExecution": "all",
+    "saveDataSuccessExecution": "all"
+  },
+  "versionId": "1",
+  "meta": {
+    "instanceId": "bvos-inbox"
+  },
+  "tags": [
+    { "name": "bvos" },
+    { "name": "inbox" },
+    { "name": "telegram" }
+  ]
+}
