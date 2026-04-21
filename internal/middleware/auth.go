@@ -64,6 +64,11 @@ func AuthRequired(queries *generated.Queries, cfg *config.Config) fiber.Handler 
 			c.ClearCookie("token")
 			return c.Redirect("/login")
 		}
+		// Reject sessions for soft-deleted or inactive users so admin actions take effect immediately.
+		if user.Status != "active" {
+			c.ClearCookie("token")
+			return c.Redirect("/login?reason=inactive")
+		}
 
 		c.Locals("user", user)
 		return c.Next()

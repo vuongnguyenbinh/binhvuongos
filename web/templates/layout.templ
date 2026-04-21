@@ -20,6 +20,8 @@ templ Layout(title string, activeTab string) {
 		<main class="max-w-[1440px] mx-auto px-4 md:px-8 py-6 md:py-10">
 			{ children... }
 		</main>
+		<!-- HTMX modal target: triage modals + future overlays land here -->
+		<div id="modal-root"></div>
 		@Footer()
 		<script src="https://unpkg.com/htmx.org@2.0.4"></script>
 		<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.3/Sortable.min.js"></script>

@@ -56,11 +56,22 @@ var companyHealthVi = map[string]string{
 }
 
 var roleVi = map[string]string{
-	"owner":        "Chủ sở hữu",
+	"owner":   "Chủ sở hữu",
+	"manager": "Quản lý",
+	"staff":   "Nhân sự",
+	// Legacy values kept so history rows render nicely until migration fully rolled.
 	"core_staff":   "Nhân viên",
 	"ctv":          "Cộng tác viên",
 	"client_staff": "NV khách hàng",
 	"intern":       "Thực tập",
+}
+
+// RoleLabel returns the Vietnamese display label for a user role.
+func RoleLabel(role string) string {
+	if v, ok := roleVi[role]; ok {
+		return v
+	}
+	return role
 }
 
 var inboxSourceVi = map[string]string{

@@ -106,6 +106,28 @@ func (q *Queries) UpdatePassword(ctx context.Context, id pgtype.UUID, passwordHa
 	return err
 }
 
+type UpdateUserParams struct {
+	ID       pgtype.UUID `json:"id"`
+	FullName string      `json:"full_name"`
+	Role     string      `json:"role"`
+	Phone    string      `json:"phone"`
+	Status   string      `json:"status"`
+}
+
+func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) (User, error) {
+	row := q.pool.QueryRow(ctx,
+		`UPDATE users SET full_name=$2, role=$3, phone=$4, status=$5
+		 WHERE id=$1 AND deleted_at IS NULL RETURNING *`,
+		arg.ID, arg.FullName, arg.Role, arg.Phone, arg.Status)
+	var u User
+	err := row.Scan(&u.ID, &u.Email, &u.PasswordHash, &u.FullName, &u.Role,
+		&u.AvatarURL, &u.Phone, &u.TelegramID, &u.ZaloContact, &u.Specialties,
+		&u.RateNote, &u.Status, &u.StartDate, &u.LastLoginAt, &u.InternalNotes,
+		&u.NotionPageID, &u.SyncedAt, &u.SyncStatus, &u.SyncError,
+		&u.CreatedAt, &u.UpdatedAt, &u.DeletedAt)
+	return u, err
+}
+
 func (q *Queries) SoftDeleteUser(ctx context.Context, id pgtype.UUID) error {
 	_, err := q.pool.Exec(ctx, "UPDATE users SET deleted_at = NOW() WHERE id = $1", id)
 	return err

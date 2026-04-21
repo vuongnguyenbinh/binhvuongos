@@ -16,6 +16,12 @@ func New(pool *pgxpool.Pool) *Queries {
 	return &Queries{pool: pool}
 }
 
+// Pool exposes the underlying pgxpool for handlers that need ad-hoc transactions
+// not covered by generated query methods (e.g. multi-table inserts).
+func (q *Queries) Pool() *pgxpool.Pool {
+	return q.pool
+}
+
 // queryRow executes a query that returns a single row
 func (q *Queries) queryRow(ctx context.Context, sql string, args ...interface{}) pgx.Row {
 	return q.pool.QueryRow(ctx, sql, args...)

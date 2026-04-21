@@ -150,14 +150,18 @@ templ inboxItemWithActions(item InboxItemData) {
 		<!-- Quick actions -->
 		<div class="flex items-center gap-1 shrink-0">
 			if item.Status == "raw" {
-				<form method="POST" action={ templ.SafeURL("/inbox/" + item.ID + "/triage") } class="inline">
-					<input type="hidden" name="destination" value="knowledge"/>
-					<button type="submit" class="w-7 h-7 rounded border border-hairline text-muted hover:bg-sage hover:text-white hover:border-sage flex items-center justify-center transition-all text-xs" title="→ Kiến thức">📚</button>
-				</form>
-				<form method="POST" action={ templ.SafeURL("/inbox/" + item.ID + "/triage") } class="inline">
-					<input type="hidden" name="destination" value="tasks"/>
-					<button type="submit" class="w-7 h-7 rounded border border-hairline text-muted hover:bg-ember hover:text-white hover:border-ember flex items-center justify-center transition-all text-xs" title="→ Công việc">✅</button>
-				</form>
+				<button type="button"
+					hx-get={ "/inbox/" + item.ID + "/triage-modal?target=knowledge" }
+					hx-target="#modal-root" hx-swap="innerHTML"
+					class="w-7 h-7 rounded border border-hairline text-muted hover:bg-sage hover:text-white hover:border-sage flex items-center justify-center transition-all text-xs" title="→ Kiến thức">📚</button>
+				<button type="button"
+					hx-get={ "/inbox/" + item.ID + "/triage-modal?target=task" }
+					hx-target="#modal-root" hx-swap="innerHTML"
+					class="w-7 h-7 rounded border border-hairline text-muted hover:bg-ember hover:text-white hover:border-ember flex items-center justify-center transition-all text-xs" title="→ Công việc">✅</button>
+				<button type="button"
+					hx-get={ "/inbox/" + item.ID + "/triage-modal?target=content" }
+					hx-target="#modal-root" hx-swap="innerHTML"
+					class="w-7 h-7 rounded border border-hairline text-muted hover:bg-forest hover:text-white hover:border-forest flex items-center justify-center transition-all text-xs" title="→ Nội dung">📝</button>
 			}
 			<form method="POST" action={ templ.SafeURL("/inbox/" + item.ID + "/archive") } class="inline">
 				<button type="submit" class="w-7 h-7 rounded border border-hairline text-muted hover:bg-rust hover:text-white hover:border-rust flex items-center justify-center transition-all text-xs" title="Lưu trữ">🗑</button>

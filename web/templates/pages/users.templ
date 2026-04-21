@@ -14,25 +14,26 @@ type UserItem struct {
 	Role     string
 	Status   string
 	Phone    string
+	CanEdit  bool
 }
 
 type UsersPageData struct {
-	Users      []UserItem
-	Total      int64
-	Page       int
-	TotalPages int
+	Users         []UserItem
+	Total         int64
+	Page          int
+	TotalPages    int
+	ActorRole     string
+	AllowedRoles  []string
 }
 
 func rolePill(r string) string {
 	switch strings.ToLower(r) {
 	case "owner":
 		return "bg-forest text-white"
-	case "core_staff":
+	case "manager":
 		return "bg-ember/10 text-ember"
-	case "ctv":
+	case "staff":
 		return "bg-sage/20 text-forest"
-	case "intern":
-		return "bg-muted/10 text-muted"
 	default:
 		return "bg-muted/10 text-muted"
 	}
@@ -41,15 +42,16 @@ func rolePill(r string) string {
 func roleLabel(r string) string {
 	switch strings.ToLower(r) {
 	case "owner":
-		return "Owner"
+		return "Chủ sở hữu"
+	case "manager":
+		return "Quản lý"
+	case "staff":
+		return "Nhân sự"
+	// Legacy fallbacks until migration fully rolled.
 	case "core_staff":
-		return "Staff"
+		return "Quản lý (cũ)"
 	case "ctv":
-		return "CTV"
-	case "client_staff":
-		return "Client"
-	case "intern":
-		return "Intern"
+		return "Nhân sự (cũ)"
 	default:
 		return r
 	}
@@ -68,11 +70,11 @@ templ UsersListPage(data UsersPageData) {
 			<div class="text-center py-20">
 				<div class="text-6xl mb-4">👥</div>
 				<h3 class="display text-2xl font-bold mb-2">Chưa có người dùng nào</h3>
-				<p class="text-muted text-sm mb-6">Thêm nhân sự, CTV đầu tiên.</p>
+				<p class="text-muted text-sm mb-6">Thêm nhân sự, quản lý đầu tiên.</p>
 			</div>
 		} else {
 			<div class="bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-lg overflow-x-auto">
-				<table class="w-full text-sm min-w-[600px]">
+				<table class="w-full text-sm min-w-[700px]">
 					<thead class="bg-cream/40 dark:bg-dark-cream/40 border-b border-hairline">
 						<tr class="text-left">
 							<th class="eyebrow px-4 py-3">Tên</th>
@@ -80,6 +82,7 @@ templ UsersListPage(data UsersPageData) {
 							<th class="eyebrow px-4 py-3">Vai trò</th>
 							<th class="eyebrow px-4 py-3">SĐT</th>
 							<th class="eyebrow px-4 py-3">Trạng thái</th>
+							<th class="eyebrow px-4 py-3 text-right">Thao tác</th>
 						</tr>
 					</thead>
 					<tbody class="divide-y divide-hairline">
@@ -90,6 +93,19 @@ templ UsersListPage(data UsersPageData) {
 								<td class="px-4 py-4"><span class={ "pill", rolePill(u.Role) }>{ roleLabel(u.Role) }</span></td>
 								<td class="px-4 py-4 text-xs mono">{ u.Phone }</td>
 								<td class="px-4 py-4"><span class="text-xs text-sage mono">{ u.Status }</span></td>
+								<td class="px-4 py-4 text-right">
+									if u.CanEdit {
+										<a href={ templ.SafeURL("/users/" + u.ID + "/edit") } class="text-xs mono text-forest hover:underline mr-3" title="Sửa">Sửa</a>
+										<form method="POST" action={ templ.SafeURL("/users/" + u.ID + "/reset-password") } class="inline mr-3">
+											<button type="submit" class="text-xs mono text-ember hover:underline" title="Tạo link đặt lại mật khẩu">Reset PW</button>
+										</form>
+										<form method="POST" action={ templ.SafeURL("/users/" + u.ID + "/delete") } class="inline" onsubmit="return confirm('Xoá user này?');">
+											<button type="submit" class="text-xs mono text-rust hover:underline" title="Xoá">Xoá</button>
+										</form>
+									} else {
+										<span class="text-xs text-muted">—</span>
+									}
+								</td>
 							</tr>
 						}
 					</tbody>
@@ -99,11 +115,11 @@ templ UsersListPage(data UsersPageData) {
 				@components.Pagination(data.Page, data.TotalPages)
 			}
 		}
-		@userFormModal()
+		@userFormModal(data.AllowedRoles)
 	}
 }
 
-templ userFormModal() {
+templ userFormModal(allowedRoles []string) {
 	<div id="user-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-ink/40 dark:bg-black/60" onclick="if(event.target===this)this.classList.add('hidden')">
 		<div class="bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-lg p-8 w-full max-w-lg mx-4">
 			<h2 class="display text-2xl font-bold mb-6">Thêm Người dùng</h2>
@@ -118,16 +134,15 @@ templ userFormModal() {
 				</div>
 				<div>
 					<label class="block text-sm font-medium mb-1">Mật khẩu *</label>
-					<input type="password" name="password" required minlength="6" class="w-full px-3 py-2 border border-hairline dark:border-dark-border rounded bg-ivory dark:bg-dark-bg text-ink focus:outline-none focus:border-forest"/>
+					<input type="password" name="password" required minlength="8" class="w-full px-3 py-2 border border-hairline dark:border-dark-border rounded bg-ivory dark:bg-dark-bg text-ink focus:outline-none focus:border-forest"/>
 				</div>
 				<div class="grid grid-cols-2 gap-4">
 					<div>
 						<label class="block text-sm font-medium mb-1">Vai trò</label>
 						<select name="role" class="w-full px-3 py-2 border border-hairline dark:border-dark-border rounded bg-ivory dark:bg-dark-bg text-ink">
-							<option value="ctv">CTV</option>
-							<option value="core_staff">Staff cốt lõi</option>
-							<option value="client_staff">Nhân sự client</option>
-							<option value="intern">Intern</option>
+							for _, r := range allowedRoles {
+								<option value={ r }>{ roleLabel(r) }</option>
+							}
 						</select>
 					</div>
 					<div>

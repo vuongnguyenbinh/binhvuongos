@@ -1,0 +1,69 @@
+package pages
+
+import "binhvuongos/web/templates"
+
+type UserEditData struct {
+	ID           string
+	Email        string
+	FullName     string
+	Role         string
+	Phone        string
+	Status       string
+	AllowedRoles []string
+}
+
+templ UserEditPage(d UserEditData) {
+	@templates.Layout("Sửa người dùng", "dashboard") {
+		<div class="max-w-2xl">
+			<p class="eyebrow mb-2">Người dùng · sửa</p>
+			<h1 class="display text-3xl md:text-4xl font-bold mb-8">{ d.FullName }</h1>
+			<div class="bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-lg p-6">
+				<form method="POST" action={ templ.SafeURL("/users/" + d.ID) } class="space-y-4">
+					<div>
+						<label class="block text-sm font-medium mb-1">Email</label>
+						<input type="email" value={ d.Email } disabled class="w-full px-3 py-2 border border-hairline rounded bg-cream/50 text-muted text-sm mono"/>
+						<p class="text-xs text-muted mt-1">Email không đổi được.</p>
+					</div>
+					<div>
+						<label class="block text-sm font-medium mb-1">Họ tên *</label>
+						<input type="text" name="full_name" value={ d.FullName } required class="w-full px-3 py-2 border border-hairline dark:border-dark-border rounded bg-ivory dark:bg-dark-bg text-ink"/>
+					</div>
+					<div class="grid grid-cols-2 gap-4">
+						<div>
+							<label class="block text-sm font-medium mb-1">Vai trò</label>
+							<select name="role" class="w-full px-3 py-2 border border-hairline dark:border-dark-border rounded bg-ivory dark:bg-dark-bg text-ink">
+								for _, r := range d.AllowedRoles {
+									if r == d.Role {
+										<option value={ r } selected>{ roleLabel(r) }</option>
+									} else {
+										<option value={ r }>{ roleLabel(r) }</option>
+									}
+								}
+							</select>
+						</div>
+						<div>
+							<label class="block text-sm font-medium mb-1">SĐT</label>
+							<input type="tel" name="phone" value={ d.Phone } class="w-full px-3 py-2 border border-hairline dark:border-dark-border rounded bg-ivory dark:bg-dark-bg text-ink"/>
+						</div>
+					</div>
+					<div>
+						<label class="block text-sm font-medium mb-1">Trạng thái</label>
+						<select name="status" class="w-full px-3 py-2 border border-hairline dark:border-dark-border rounded bg-ivory dark:bg-dark-bg text-ink">
+							if d.Status == "active" {
+								<option value="active" selected>Hoạt động</option>
+								<option value="inactive">Tạm khoá</option>
+							} else {
+								<option value="active">Hoạt động</option>
+								<option value="inactive" selected>Tạm khoá</option>
+							}
+						</select>
+					</div>
+					<div class="flex gap-2 pt-4">
+						<button type="submit" class="px-6 py-2.5 bg-forest text-white font-semibold rounded mono text-sm">LƯU</button>
+						<a href="/users" class="px-4 py-2.5 border border-hairline rounded text-muted hover:text-ink text-sm">Huỷ</a>
+					</div>
+				</form>
+			</div>
+		</div>
+	}
+}

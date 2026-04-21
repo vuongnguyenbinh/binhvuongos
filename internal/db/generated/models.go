@@ -280,3 +280,12 @@ type Bookmark struct {
 	UpdatedAt   time.Time          `json:"updated_at"`
 	DeletedAt   pgtype.Timestamptz `json:"deleted_at"`
 }
+
+type PasswordResetToken struct {
+	ID        pgtype.UUID        `json:"id"`
+	UserID    pgtype.UUID        `json:"user_id"`
+	Token     string             `json:"token"`
+	ExpiresAt time.Time          `json:"expires_at"`
+	UsedAt    pgtype.Timestamptz `json:"used_at"`
+	CreatedAt time.Time          `json:"created_at"`
+}

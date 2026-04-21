@@ -47,6 +47,9 @@ func main() {
 	app.Get("/login", h.LoginPage)
 	app.Post("/auth/login", middleware.LoginRateLimit(), h.Login)
 	app.Post("/auth/logout", h.Logout)
+	// Public password reset (token-gated, no auth required)
+	app.Get("/reset/:token", h.ResetPasswordPage)
+	app.Post("/reset/:token", h.ResetPassword)
 
 	// JSON API routes (API key auth — must be before protected group)
 	api := app.Group("/api/v1", middleware.APIKeyAuth(cfg.APIKey))
@@ -87,7 +90,7 @@ func main() {
 	app.Get("/search", h.Search)
 
 	// Admin-only routes (owner + core_staff)
-	admin := app.Group("", middleware.RequireRole("owner", "core_staff"))
+	admin := app.Group("", middleware.RequireRole("owner", "manager"))
 	admin.Get("/users", h.Users)
 	admin.Get("/admin/settings", h.AdminSettings)
 	admin.Post("/admin/settings", h.SaveSettings)
@@ -96,6 +99,10 @@ func main() {
 	admin.Post("/admin/work-types/:id", h.UpdateWorkType)
 	admin.Post("/admin/work-types/:id/delete", h.DeleteWorkType)
 	admin.Post("/users", h.CreateUser)
+	admin.Get("/users/:id/edit", h.EditUserPage)
+	admin.Post("/users/:id", h.UpdateUser)
+	admin.Post("/users/:id/delete", h.DeleteUser)
+	admin.Post("/users/:id/reset-password", h.GenerateResetLink)
 
 	// Pages — Inbox is home
 	app.Get("/", func(c *fiber.Ctx) error { return c.Redirect("/inbox") })
@@ -129,6 +136,8 @@ func main() {
 	app.Post("/companies/:id/assign", h.AssignUserToCompany)
 	app.Post("/assignments/:id/delete", h.RemoveAssignment)
 	app.Post("/inbox", h.CreateInboxItem)
+	app.Get("/inbox/:id/triage-modal", h.TriageModalPartial)
+	app.Post("/inbox/:id/convert", h.ConvertInbox)
 	app.Post("/inbox/batch-triage", h.BatchTriageInbox)
 	app.Post("/inbox/:id/update", h.UpdateInboxItem)
 	app.Post("/inbox/:id/triage", h.TriageInbox)

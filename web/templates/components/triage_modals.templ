@@ -1,0 +1,119 @@
+package components
+
+// CompanyOpt is the dropdown option model for triage modals.
+type CompanyOpt struct {
+	ID   string
+	Name string
+}
+
+// TriageTaskModal — quick-form to convert an inbox item into a Task.
+templ TriageTaskModal(inboxID, prefill string, companies []CompanyOpt) {
+	@triageModalShell("→ Tạo Công việc", inboxID, "task") {
+		<label class="block text-sm font-medium mb-1">Tiêu đề</label>
+		<input type="text" name="title" required value={ prefill } maxlength="500"
+			class="w-full px-3 py-2 border border-hairline dark:border-dark-border rounded bg-ivory dark:bg-dark-bg text-ink mb-3"/>
+
+		<label class="block text-sm font-medium mb-1">Mô tả</label>
+		<textarea name="description" rows="2"
+			class="w-full px-3 py-2 border border-hairline dark:border-dark-border rounded bg-ivory dark:bg-dark-bg text-ink mb-3"></textarea>
+
+		<div class="grid grid-cols-2 gap-3 mb-3">
+			<div>
+				<label class="block text-sm font-medium mb-1">Công ty</label>
+				<select name="company_id" class="w-full px-3 py-2 border border-hairline rounded bg-ivory dark:bg-dark-bg text-sm">
+					<option value="">— Không —</option>
+					for _, co := range companies {
+						<option value={ co.ID }>{ co.Name }</option>
+					}
+				</select>
+			</div>
+			<div>
+				<label class="block text-sm font-medium mb-1">Ưu tiên</label>
+				<select name="priority" class="w-full px-3 py-2 border border-hairline rounded bg-ivory dark:bg-dark-bg text-sm">
+					<option value="normal">Trung bình</option>
+					<option value="high">Cao</option>
+					<option value="urgent">Gấp</option>
+					<option value="low">Thấp</option>
+				</select>
+			</div>
+		</div>
+
+		<label class="block text-sm font-medium mb-1">Hạn</label>
+		<input type="date" name="due_date" class="w-full px-3 py-2 border border-hairline rounded bg-ivory dark:bg-dark-bg text-sm mb-3"/>
+
+		<label class="block text-sm font-medium mb-1">Ghi chú triage</label>
+		<textarea name="triage_notes" rows="2" class="w-full px-3 py-2 border border-hairline rounded bg-ivory dark:bg-dark-bg text-sm"></textarea>
+	}
+}
+
+// TriageContentModal — convert into Content. Company is REQUIRED at DB level.
+templ TriageContentModal(inboxID, prefill string, companies []CompanyOpt) {
+	@triageModalShell("→ Tạo Nội dung", inboxID, "content") {
+		<label class="block text-sm font-medium mb-1">Tiêu đề</label>
+		<input type="text" name="title" required value={ prefill } maxlength="500"
+			class="w-full px-3 py-2 border border-hairline rounded bg-ivory dark:bg-dark-bg text-ink mb-3"/>
+
+		<div class="grid grid-cols-2 gap-3 mb-3">
+			<div>
+				<label class="block text-sm font-medium mb-1">Công ty *</label>
+				<select name="company_id" required class="w-full px-3 py-2 border border-hairline rounded bg-ivory dark:bg-dark-bg text-sm">
+					<option value="">— Chọn công ty —</option>
+					for _, co := range companies {
+						<option value={ co.ID }>{ co.Name }</option>
+					}
+				</select>
+			</div>
+			<div>
+				<label class="block text-sm font-medium mb-1">Loại</label>
+				<select name="content_type" class="w-full px-3 py-2 border border-hairline rounded bg-ivory dark:bg-dark-bg text-sm">
+					<option value="blog">Blog</option>
+					<option value="social">Social</option>
+					<option value="video">Video</option>
+					<option value="email">Email</option>
+					<option value="ad">Quảng cáo</option>
+				</select>
+			</div>
+		</div>
+
+		<label class="block text-sm font-medium mb-1">Ghi chú triage</label>
+		<textarea name="triage_notes" rows="2" class="w-full px-3 py-2 border border-hairline rounded bg-ivory dark:bg-dark-bg text-sm"></textarea>
+	}
+}
+
+// TriageKnowledgeModal — convert into Knowledge item. Body prefilled from inbox content.
+templ TriageKnowledgeModal(inboxID, titlePrefill, bodyPrefill string) {
+	@triageModalShell("→ Lưu Kiến thức", inboxID, "knowledge") {
+		<label class="block text-sm font-medium mb-1">Tiêu đề</label>
+		<input type="text" name="title" required value={ titlePrefill } maxlength="500"
+			class="w-full px-3 py-2 border border-hairline rounded bg-ivory dark:bg-dark-bg text-ink mb-3"/>
+
+		<label class="block text-sm font-medium mb-1">Nội dung</label>
+		<textarea name="body" rows="4" class="w-full px-3 py-2 border border-hairline rounded bg-ivory dark:bg-dark-bg text-sm mb-3">{ bodyPrefill }</textarea>
+
+		<label class="block text-sm font-medium mb-1">Phân loại</label>
+		<input type="text" name="category" placeholder="note, tip, reference..." value="note"
+			class="w-full px-3 py-2 border border-hairline rounded bg-ivory dark:bg-dark-bg text-sm mb-3"/>
+
+		<label class="block text-sm font-medium mb-1">Ghi chú triage</label>
+		<textarea name="triage_notes" rows="2" class="w-full px-3 py-2 border border-hairline rounded bg-ivory dark:bg-dark-bg text-sm"></textarea>
+	}
+}
+
+// triageModalShell renders the overlay/header/footer; children inject form fields.
+templ triageModalShell(heading, inboxID, target string) {
+	<div class="fixed inset-0 z-50 flex items-center justify-center bg-ink/40 dark:bg-black/60"
+		onclick="if(event.target===this)document.getElementById('modal-root').innerHTML=''">
+		<div class="bg-surface dark:bg-dark-surface border border-hairline rounded-lg p-6 w-full max-w-lg mx-4">
+			<h3 class="display text-lg font-bold mb-4">{ heading }</h3>
+			<form method="POST" action={ templ.SafeURL("/inbox/" + inboxID + "/convert?target=" + target) }>
+				{ children... }
+				<div class="flex gap-2 justify-end mt-5">
+					<button type="button" onclick="document.getElementById('modal-root').innerHTML=''"
+						class="px-4 py-2 text-muted text-sm">Hủy</button>
+					<button type="submit"
+						class="px-4 py-2 bg-forest text-white rounded text-sm mono font-semibold">TẠO &amp; XONG</button>
+				</div>
+			</form>
+		</div>
+	</div>
+}
