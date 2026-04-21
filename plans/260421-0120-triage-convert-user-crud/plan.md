@@ -1,13 +1,15 @@
 ---
 title: "Triage Convert + User CRUD + Role Simplification"
 description: "Fix inbox triage to actually create target rows; consolidate 4 roles → 3; complete user CRUD with perms + password reset"
-status: pending
+status: completed
 priority: P1
 effort: 5h
+completed_effort: 4h
 tags: [inbox, triage, users, roles, auth, crud]
 blockedBy: []
 blocks: []
 created: 2026-04-21
+completed: 2026-04-21
 ---
 
 # Triage Convert + User CRUD + Role Simplification
