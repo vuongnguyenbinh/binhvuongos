@@ -190,7 +190,7 @@ func (q *Queries) ListCompaniesDueSoon(ctx context.Context, days int32) ([]Compa
 	rows, err := q.pool.Query(ctx,
 		`SELECT `+companyCols+` FROM companies
 		 WHERE status = 'active' AND deleted_at IS NULL
-		   AND end_date IS NOT NULL AND end_date <= CURRENT_DATE + ($1 || ' days')::interval
+		   AND end_date IS NOT NULL AND end_date <= CURRENT_DATE + ($1::int * INTERVAL '1 day')
 		 ORDER BY end_date ASC`, days)
 	if err != nil {
 		return nil, err
@@ -214,7 +214,7 @@ func (q *Queries) ListCompaniesDueSoonForUser(ctx context.Context, userID pgtype
 		 JOIN user_company_assignments uca ON uca.company_id = c.id
 		 WHERE uca.user_id = $1
 		   AND c.status = 'active' AND c.deleted_at IS NULL
-		   AND c.end_date IS NOT NULL AND c.end_date <= CURRENT_DATE + ($2 || ' days')::interval
+		   AND c.end_date IS NOT NULL AND c.end_date <= CURRENT_DATE + ($2::int * INTERVAL '1 day')
 		   AND (uca.end_date IS NULL OR uca.end_date > CURRENT_DATE)
 		 ORDER BY c.end_date ASC`, userID, days)
 	if err != nil {
