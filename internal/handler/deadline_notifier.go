@@ -20,6 +20,7 @@ const deadlineCheckInterval = 24 * time.Hour
 // Runs once on startup, then every 24h. Panics in the loop are recovered so a single
 // bad cycle cannot crash the server.
 func StartDeadlineNotifier(q *generated.Queries) {
+	log.Printf("deadline notifier: scheduled (initial run in 30s, then every %v)", deadlineCheckInterval)
 	go func() {
 		defer func() {
 			if r := recover(); r != nil {
@@ -28,6 +29,7 @@ func StartDeadlineNotifier(q *generated.Queries) {
 		}()
 		// Slight delay so the notifier doesn't slam DB during boot while migrations run.
 		time.Sleep(30 * time.Second)
+		log.Printf("deadline notifier: first run starting")
 		runDeadlineCheck(q)
 		ticker := time.NewTicker(deadlineCheckInterval)
 		defer ticker.Stop()
