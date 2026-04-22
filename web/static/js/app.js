@@ -101,17 +101,23 @@ document.addEventListener('DOMContentLoaded', function() {
     icon.textContent = document.documentElement.classList.contains('dark') ? '☀️' : '🌙';
   }
 
-  // Populate header avatar from /auth/me
+  // Populate header avatar + unhide admin menu section based on role from /auth/me.
   var slot = document.getElementById('avatar-slot');
-  if (slot) {
+  var adminSection = document.getElementById('admin-menu-section');
+  if (slot || adminSection) {
     fetch('/auth/me').then(function(r) { return r.ok ? r.json() : null; }).then(function(me) {
       if (!me) return;
-      if (me.avatar_url) {
-        slot.innerHTML = '<img src="' + me.avatar_url + '" alt="Avatar" class="w-8 h-8 object-cover rounded-full"/>';
-      } else if (me.full_name) {
-        var parts = me.full_name.trim().split(/\s+/);
-        var init = parts.length === 1 ? parts[0][0] : (parts[0][0] + parts[parts.length-1][0]);
-        slot.textContent = init.toUpperCase();
+      if (slot) {
+        if (me.avatar_url) {
+          slot.innerHTML = '<img src="' + me.avatar_url + '" alt="Avatar" class="w-8 h-8 object-cover rounded-full"/>';
+        } else if (me.full_name) {
+          var parts = me.full_name.trim().split(/\s+/);
+          var init = parts.length === 1 ? parts[0][0] : (parts[0][0] + parts[parts.length-1][0]);
+          slot.textContent = init.toUpperCase();
+        }
+      }
+      if (adminSection && (me.role === 'owner' || me.role === 'manager')) {
+        adminSection.classList.remove('hidden');
       }
     }).catch(function() {});
   }

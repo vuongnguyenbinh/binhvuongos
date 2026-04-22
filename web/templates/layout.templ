@@ -26,7 +26,7 @@ templ Layout(title string, activeTab string) {
 		<script src="https://unpkg.com/htmx.org@2.0.4"></script>
 		<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.3/Sortable.min.js"></script>
 		<script src="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.js"></script>
-		<script src="/static/js/app.js?v=20260422"></script>
+		<script src="/static/js/app.js?v=20260422b"></script>
 	</body>
 	</html>
 }
@@ -71,11 +71,36 @@ templ Header(activeTab string) {
 							</span>
 							<span class="hidden md:inline text-xs text-muted">▾</span>
 						</button>
-						<div id="avatar-menu" class="hidden absolute right-0 top-10 bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded shadow-lg py-2 min-w-[160px] z-50">
-							<a href="/profile" class="block px-4 py-2 text-sm hover:bg-cream/50 dark:hover:bg-dark-cream/30">Profile</a>
+						<!-- Avatar menu: mobile becomes a bottom sheet (full-width), desktop stays a dropdown -->
+						<div id="avatar-menu" class="hidden fixed inset-x-0 bottom-0 md:inset-auto md:absolute md:right-0 md:top-10 bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-t-lg md:rounded shadow-lg py-2 md:min-w-[220px] z-50">
+							<a href="/profile" class="flex items-center gap-2 px-4 py-3 md:py-2 text-sm hover:bg-cream/50 dark:hover:bg-dark-cream/30">
+								<span>👤</span><span>Profile</span>
+							</a>
+							<a href="/notifications" class="flex items-center gap-2 px-4 py-3 md:py-2 text-sm hover:bg-cream/50 dark:hover:bg-dark-cream/30">
+								<span>🔔</span><span>Thông báo</span>
+							</a>
+							<!-- Admin section — unhidden by app.js when /auth/me returns owner or manager -->
+							<div id="admin-menu-section" class="hidden">
+								<div class="mt-1 mb-1 border-t border-hairline dark:border-dark-border"></div>
+								<div class="px-4 py-1 eyebrow text-muted">Quản trị</div>
+								<a href="/users" class="flex items-center gap-2 px-4 py-3 md:py-2 text-sm hover:bg-cream/50 dark:hover:bg-dark-cream/30">
+									<span>👥</span><span>Nhân sự</span>
+								</a>
+								<a href="/admin/settings" class="flex items-center gap-2 px-4 py-3 md:py-2 text-sm hover:bg-cream/50 dark:hover:bg-dark-cream/30">
+									<span>⚙️</span><span>Cài đặt hệ thống</span>
+								</a>
+								<a href="/admin/work-types" class="flex items-center gap-2 px-4 py-3 md:py-2 text-sm hover:bg-cream/50 dark:hover:bg-dark-cream/30">
+									<span>🏷️</span><span>Loại công việc</span>
+								</a>
+							</div>
+							<div class="mt-1 mb-1 border-t border-hairline dark:border-dark-border"></div>
 							<form method="POST" action="/auth/logout" class="block">
-								<button type="submit" class="w-full text-left px-4 py-2 text-sm text-rust hover:bg-rust/10">Logout</button>
+								<button type="submit" class="w-full text-left flex items-center gap-2 px-4 py-3 md:py-2 text-sm text-rust hover:bg-rust/10">
+									<span>🚪</span><span>Đăng xuất</span>
+								</button>
 							</form>
+							<button type="button" onclick="document.getElementById('avatar-menu').classList.add('hidden')"
+								class="md:hidden w-full mt-2 px-4 py-3 text-sm text-muted border-t border-hairline">Đóng</button>
 						</div>
 					</div>
 				</div>
