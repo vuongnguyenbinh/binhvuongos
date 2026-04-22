@@ -37,6 +37,7 @@ type DashboardPageData struct {
 	RunCampaigns     []DashCampaignItem
 	MyWorkLogs       []WorkLogItem
 	NoteContent      string
+	DueSoonCompanies []CompanyItem
 }
 
 templ DashboardDataPage(data DashboardPageData) {
@@ -89,6 +90,27 @@ templ ownerDashContent(data DashboardPageData) {
 			@dashStat("Inbox chưa xử lý", fmt.Sprintf("%d", data.RawInbox), "mục", data.RawInbox > 5)
 		</div>
 		<!-- Notes moved to Inbox -->
+		<!-- Deadline warnings -->
+		if len(data.DueSoonCompanies) > 0 {
+			<div class="mb-8 bg-ember/5 border border-ember/30 rounded-lg p-5">
+				<h2 class="display text-xl font-bold mb-3">⏰ Công ty sắp hết hạn</h2>
+				<ul class="divide-y divide-hairline">
+					for _, comp := range data.DueSoonCompanies {
+						<li class="py-2 flex items-center justify-between gap-3">
+							<a href={ templ.SafeURL("/companies/" + comp.ID) } class="text-sm font-semibold hover:text-forest">{ comp.Name }</a>
+							<div class="flex items-center gap-3">
+								if comp.EndDate != "" {
+									<span class="text-xs mono text-muted">{ comp.EndDate }</span>
+								}
+								if comp.DeadlineLabel != "" {
+									<span class={ "pill text-xs", comp.DeadlineClass }>{ comp.DeadlineLabel }</span>
+								}
+							</div>
+						</li>
+					}
+				</ul>
+			</div>
+		}
 		<!-- Companies -->
 		<div class="grid grid-cols-1 xl:grid-cols-12 gap-6">
 			<div class="xl:col-span-12">

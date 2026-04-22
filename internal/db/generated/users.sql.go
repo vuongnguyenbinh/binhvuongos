@@ -114,6 +114,31 @@ type UpdateUserParams struct {
 	Status   string      `json:"status"`
 }
 
+// ListUsersByRole returns active non-deleted users with the given role.
+// Used by the deadline notifier to notify every owner regardless of assignments.
+func (q *Queries) ListUsersByRole(ctx context.Context, role string) ([]User, error) {
+	rows, err := q.pool.Query(ctx,
+		`SELECT * FROM users WHERE role = $1 AND status = 'active' AND deleted_at IS NULL`,
+		role)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []User
+	for rows.Next() {
+		var u User
+		if err := rows.Scan(&u.ID, &u.Email, &u.PasswordHash, &u.FullName, &u.Role,
+			&u.AvatarURL, &u.Phone, &u.TelegramID, &u.ZaloContact, &u.Specialties,
+			&u.RateNote, &u.Status, &u.StartDate, &u.LastLoginAt, &u.InternalNotes,
+			&u.NotionPageID, &u.SyncedAt, &u.SyncStatus, &u.SyncError,
+			&u.CreatedAt, &u.UpdatedAt, &u.DeletedAt); err != nil {
+			return nil, err
+		}
+		items = append(items, u)
+	}
+	return items, rows.Err()
+}
+
 func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) (User, error) {
 	row := q.pool.QueryRow(ctx,
 		`UPDATE users SET full_name=$2, role=$3, phone=$4, status=$5

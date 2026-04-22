@@ -43,6 +43,9 @@ func main() {
 	queries := generated.New(pool)
 	h := handler.NewHandler(queries, cfg)
 
+	// Background: scan companies with deadline within 10 days, insert dedup'd notifications every 24h.
+	handler.StartDeadlineNotifier(queries)
+
 	// Public routes
 	app.Get("/login", h.LoginPage)
 	app.Post("/auth/login", middleware.LoginRateLimit(), h.Login)
@@ -142,6 +145,9 @@ func main() {
 	app.Post("/companies", h.CreateCompany)
 	app.Post("/companies/:id", h.UpdateCompanyForm)
 	app.Post("/companies/:id/assign", h.AssignUserToCompany)
+	app.Post("/companies/:id/archive", h.ArchiveCompany)
+	app.Post("/companies/:id/unarchive", h.UnarchiveCompany)
+	app.Post("/companies/:id/logo", h.UploadCompanyLogo)
 	app.Post("/assignments/:id/delete", h.RemoveAssignment)
 	app.Post("/inbox", h.CreateInboxItem)
 	app.Get("/inbox/:id/triage-modal", h.TriageModalPartial)

@@ -37,6 +37,16 @@ const companyCols = `id, name, short_code, slug, logo_url, industry, my_role, sc
 	start_date, end_date, description, internal_notes, notion_page_id, synced_at, sync_status, sync_error,
 	created_at, updated_at, created_by, deleted_at`
 
+// companyColsAliased returns companyCols with the given table alias prefix for JOIN queries.
+func companyColsAliased(alias string) string {
+	return alias + ".id, " + alias + ".name, " + alias + ".short_code, " + alias + ".slug, " + alias + ".logo_url, " +
+		alias + ".industry, " + alias + ".my_role, " + alias + ".scope, " + alias + ".status, " + alias + ".health, " +
+		alias + ".primary_contact_name, " + alias + ".primary_contact_phone, " + alias + ".primary_contact_zalo, " + alias + ".primary_contact_email, " +
+		alias + ".start_date, " + alias + ".end_date, " + alias + ".description, " + alias + ".internal_notes, " +
+		alias + ".notion_page_id, " + alias + ".synced_at, " + alias + ".sync_status, " + alias + ".sync_error, " +
+		alias + ".created_at, " + alias + ".updated_at, " + alias + ".created_by, " + alias + ".deleted_at"
+}
+
 func (q *Queries) ListCompanies(ctx context.Context, limit, offset int32) ([]Company, error) {
 	rows, err := q.pool.Query(ctx,
 		`SELECT `+companyCols+` FROM companies WHERE deleted_at IS NULL ORDER BY name LIMIT $1 OFFSET $2`, limit, offset)
@@ -124,6 +134,102 @@ func (q *Queries) UpdateCompany(ctx context.Context, arg UpdateCompanyParams) (C
 		arg.ID, arg.Name, arg.ShortCode, arg.Industry, arg.MyRole, arg.Scope, arg.Status, arg.Health,
 		arg.Description, arg.PrimaryContactName, arg.PrimaryContactPhone, arg.PrimaryContactEmail)
 	return scanCompany(row.Scan)
+}
+
+// UpdateCompanyStatus changes only the status column — used by Archive/Unarchive.
+func (q *Queries) UpdateCompanyStatus(ctx context.Context, id pgtype.UUID, status string) error {
+	_, err := q.pool.Exec(ctx,
+		"UPDATE companies SET status = $2 WHERE id = $1 AND deleted_at IS NULL",
+		id, status)
+	return err
+}
+
+// UpdateCompanyLogo sets companies.logo_url — used by the logo upload handler.
+func (q *Queries) UpdateCompanyLogo(ctx context.Context, id pgtype.UUID, logoURL string) error {
+	_, err := q.pool.Exec(ctx,
+		"UPDATE companies SET logo_url = $2 WHERE id = $1",
+		id, logoURL)
+	return err
+}
+
+// UpdateCompanyEndDate sets companies.end_date — admins use this to set triage deadline.
+func (q *Queries) UpdateCompanyEndDate(ctx context.Context, id pgtype.UUID, endDate pgtype.Date) error {
+	_, err := q.pool.Exec(ctx,
+		"UPDATE companies SET end_date = $2 WHERE id = $1",
+		id, endDate)
+	return err
+}
+
+// ListCompaniesForUser returns companies the user is assigned to (for staff filter on dashboard).
+func (q *Queries) ListCompaniesForUser(ctx context.Context, userID pgtype.UUID) ([]Company, error) {
+	rows, err := q.pool.Query(ctx,
+		`SELECT `+companyColsAliased("c")+`
+		 FROM companies c
+		 JOIN user_company_assignments uca ON uca.company_id = c.id
+		 WHERE uca.user_id = $1 AND c.deleted_at IS NULL
+		   AND (uca.end_date IS NULL OR uca.end_date > CURRENT_DATE)
+		 ORDER BY c.name`, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []Company{}
+	for rows.Next() {
+		c, err := scanCompany(rows.Scan)
+		if err != nil {
+			return nil, err
+		}
+		items = append(items, c)
+	}
+	return items, rows.Err()
+}
+
+// ListCompaniesDueSoon returns companies with end_date within `days` days, active only.
+// Used by dashboard widget (owner/manager) and deadline notifier.
+func (q *Queries) ListCompaniesDueSoon(ctx context.Context, days int32) ([]Company, error) {
+	rows, err := q.pool.Query(ctx,
+		`SELECT `+companyCols+` FROM companies
+		 WHERE status = 'active' AND deleted_at IS NULL
+		   AND end_date IS NOT NULL AND end_date <= CURRENT_DATE + ($1 || ' days')::interval
+		 ORDER BY end_date ASC`, days)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []Company{}
+	for rows.Next() {
+		c, err := scanCompany(rows.Scan)
+		if err != nil {
+			return nil, err
+		}
+		items = append(items, c)
+	}
+	return items, rows.Err()
+}
+
+// ListCompaniesDueSoonForUser is the staff-scoped variant of ListCompaniesDueSoon.
+func (q *Queries) ListCompaniesDueSoonForUser(ctx context.Context, userID pgtype.UUID, days int32) ([]Company, error) {
+	rows, err := q.pool.Query(ctx,
+		`SELECT `+companyColsAliased("c")+` FROM companies c
+		 JOIN user_company_assignments uca ON uca.company_id = c.id
+		 WHERE uca.user_id = $1
+		   AND c.status = 'active' AND c.deleted_at IS NULL
+		   AND c.end_date IS NOT NULL AND c.end_date <= CURRENT_DATE + ($2 || ' days')::interval
+		   AND (uca.end_date IS NULL OR uca.end_date > CURRENT_DATE)
+		 ORDER BY c.end_date ASC`, userID, days)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []Company{}
+	for rows.Next() {
+		c, err := scanCompany(rows.Scan)
+		if err != nil {
+			return nil, err
+		}
+		items = append(items, c)
+	}
+	return items, rows.Err()
 }
 
 func (q *Queries) UpdateCompanyHealth(ctx context.Context, id pgtype.UUID, health string) error {

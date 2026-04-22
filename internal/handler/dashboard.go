@@ -37,7 +37,7 @@ func (h *Handler) Dashboard(c *fiber.Ctx) error {
 
 	// Role-based dashboard
 	switch user.Role {
-	case "owner", "core_staff":
+	case "owner", "manager":
 		return h.ownerDashboard(c)
 	default:
 		return h.userDashboard(c)
@@ -108,6 +108,11 @@ func (h *Handler) ownerDashboard(c *fiber.Ctx) error {
 	}
 	noteContent, _ := h.queries.GetUserNote(c.Context(), u.ID)
 	data.NoteContent = noteContent
+
+	// Companies with deadline within 10 days (owner/manager sees all).
+	dueSoon, _ := h.queries.ListCompaniesDueSoon(c.Context(), deadlineWarningDays)
+	data.DueSoonCompanies = toTemplCompanies(dueSoon)
+
 	return render(c, pages.DashboardDataPage(data))
 }
 
@@ -138,5 +143,9 @@ func (h *Handler) userDashboard(c *fiber.Ctx) error {
 		TodayTasks: toTemplTasks(myTasks),
 		MyWorkLogs: toTemplWorkLogs(myWorkLogs, workTypes),
 	}
+	// Deadline warnings — scoped to companies the staff is assigned to.
+	dueSoon, _ := h.queries.ListCompaniesDueSoonForUser(c.Context(), u.ID, deadlineWarningDays)
+	data.DueSoonCompanies = toTemplCompanies(dueSoon)
+
 	return render(c, pages.DashboardDataPage(data))
 }

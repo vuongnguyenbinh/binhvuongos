@@ -182,14 +182,19 @@ func (h *Handler) BookmarkDetail(c *fiber.Ctx) error {
 }
 
 func companyToDetail(c generated.Company) pages.CompanyItem {
+	label, class := deadlineBadge(c.EndDate)
 	return pages.CompanyItem{
-		ID:        middleware.UUIDToString(c.ID),
-		Name:      c.Name,
-		ShortCode: nullStr(c.ShortCode),
-		Industry:  nullStr(c.Industry),
-		MyRole:    c.MyRole,
-		Status:    c.Status,
-		Health:    nullStr(c.Health),
+		ID:            middleware.UUIDToString(c.ID),
+		Name:          c.Name,
+		ShortCode:     nullStr(c.ShortCode),
+		Industry:      nullStr(c.Industry),
+		MyRole:        c.MyRole,
+		Status:        c.Status,
+		Health:        nullStr(c.Health),
+		LogoURL:       nullStr(c.LogoURL),
+		DeadlineLabel: label,
+		DeadlineClass: class,
+		EndDate:       formatDate(c.EndDate),
 	}
 }
 

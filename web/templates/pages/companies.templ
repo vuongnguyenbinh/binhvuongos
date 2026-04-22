@@ -12,20 +12,25 @@ type CompanyStats struct {
 }
 
 type CompanyItem struct {
-	ID            string
-	Name          string
-	ShortCode     string
-	Industry      string
-	MyRole        string
-	Status        string
-	Health        string
-	OpenTasks     int64
-	CompletionPct int
+	ID                string
+	Name              string
+	ShortCode         string
+	Industry          string
+	MyRole            string
+	Status            string
+	Health            string
+	LogoURL           string
+	OpenTasks         int64
+	CompletionPct     int
+	DeadlineLabel     string // e.g. "⏰ Còn 5 ngày" or "⚠️ Quá hạn", empty = hide
+	DeadlineClass     string // Tailwind class pill e.g. "bg-ember/10 text-ember"
+	EndDate           string // human-readable "2026-05-01"
 }
 
 type CompaniesPageData struct {
 	Companies []CompanyItem
 	Total     int64
+	Show      string // active | all | archived
 }
 
 func healthPill(h string) string {
@@ -76,6 +81,12 @@ templ CompaniesListPage(data CompaniesPageData) {
 			</div>
 			<button onclick="document.getElementById('comp-modal').classList.remove('hidden')" class="px-4 py-2 bg-forest text-white rounded-md text-sm mono font-semibold">+ THÊM CÔNG TY</button>
 		</div>
+		<!-- Filter tabs: active (default) | all | archived -->
+		<div class="mb-6 inline-flex border border-hairline dark:border-dark-border rounded overflow-hidden text-sm mono">
+			@filterTab("/companies?show=active",   "Đang hoạt động", data.Show == "active")
+			@filterTab("/companies?show=all",      "Tất cả",          data.Show == "all")
+			@filterTab("/companies?show=archived", "Đã lưu trữ",      data.Show == "archived")
+		</div>
 		if len(data.Companies) == 0 {
 			<div class="text-center py-20">
 				<div class="text-6xl mb-4">🏢</div>
@@ -101,22 +112,36 @@ templ CompaniesListPage(data CompaniesPageData) {
 templ compCardDB(comp CompanyItem) {
 	<a href={ templ.SafeURL("/companies/" + comp.ID) } class="block bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-lg p-6 hover:border-forest transition-colors cursor-pointer relative overflow-hidden">
 		<div class="flex items-start justify-between mb-4">
-			<div class={ "w-12 h-12 rounded text-white flex items-center justify-center mono font-bold", codeBg(comp.Status) }>
-				if comp.ShortCode != "" {
-					{ comp.ShortCode }
-				} else {
-					{ string([]rune(comp.Name)[:1]) }
+			if comp.LogoURL != "" {
+				<img src={ comp.LogoURL } alt={ comp.Name } class="w-12 h-12 rounded object-cover border border-hairline"/>
+			} else {
+				<div class={ "w-12 h-12 rounded text-white flex items-center justify-center mono font-bold", codeBg(comp.Status) }>
+					if comp.ShortCode != "" {
+						{ comp.ShortCode }
+					} else {
+						{ string([]rune(comp.Name)[:1]) }
+					}
+				</div>
+			}
+			<div class="flex flex-col gap-1 items-end">
+				<span class={ "pill", healthPill(comp.Health) }>{ healthLabel(comp.Health) }</span>
+				if comp.Status == "archived" {
+					<span class="pill bg-muted/15 text-muted">📦 Lưu trữ</span>
 				}
 			</div>
-			<span class={ "pill", healthPill(comp.Health) }>{ healthLabel(comp.Health) }</span>
 		</div>
 		<h3 class="display text-2xl font-bold mb-1">{ comp.Name }</h3>
-		<p class="text-sm text-muted mb-5 mono">
+		<p class="text-sm text-muted mb-3 mono">
 			if comp.Industry != "" {
 				{ comp.Industry }
 			}
 			{ " · " + comp.MyRole }
 		</p>
+		if comp.DeadlineLabel != "" {
+			<div class="mb-3">
+				<span class={ "pill text-xs", comp.DeadlineClass }>{ comp.DeadlineLabel }</span>
+			</div>
+		}
 		if comp.OpenTasks > 0 || comp.CompletionPct > 0 {
 			<div class="flex items-center gap-4 text-xs mono">
 				<div><span class="text-ember font-semibold">{ fmt.Sprintf("%d", comp.OpenTasks) }</span> <span class="text-muted">việc mở</span></div>
@@ -124,6 +149,14 @@ templ compCardDB(comp CompanyItem) {
 			</div>
 		}
 	</a>
+}
+
+templ filterTab(href, label string, active bool) {
+	if active {
+		<a href={ templ.SafeURL(href) } class="px-4 py-2 bg-forest text-white">{ label }</a>
+	} else {
+		<a href={ templ.SafeURL(href) } class="px-4 py-2 text-muted hover:text-ink">{ label }</a>
+	}
 }
 
 templ companyFormModal() {

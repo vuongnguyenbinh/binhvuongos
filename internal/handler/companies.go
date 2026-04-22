@@ -4,6 +4,7 @@ import (
 	"database/sql"
 
 	"binhvuongos/internal/db/generated"
+	"binhvuongos/internal/drive"
 	"binhvuongos/internal/middleware"
 	"binhvuongos/web/templates/pages"
 
@@ -11,7 +12,19 @@ import (
 )
 
 func (h *Handler) Companies(c *fiber.Ctx) error {
-	companies, err := h.queries.ListCompanies(c.Context(), 50, 0)
+	// Filter: show=active (default) | all | archived
+	show := c.Query("show", "active")
+	var companies []generated.Company
+	var err error
+	switch show {
+	case "all":
+		companies, err = h.queries.ListCompanies(c.Context(), 200, 0)
+	case "archived":
+		companies, err = h.queries.ListCompaniesByStatus(c.Context(), "archived")
+	default:
+		show = "active"
+		companies, err = h.queries.ListCompaniesByStatus(c.Context(), "active")
+	}
 	if err != nil {
 		return render(c, pages.CompaniesListPage(pages.CompaniesPageData{}))
 	}
@@ -43,8 +56,93 @@ func (h *Handler) Companies(c *fiber.Ctx) error {
 	data := pages.CompaniesPageData{
 		Companies: compViews,
 		Total:     total,
+		Show:      show,
 	}
 	return render(c, pages.CompaniesListPage(data))
+}
+
+// ArchiveCompany soft-archives a company by flipping status; data liên kết giữ nguyên.
+// Owner + manager only.
+func (h *Handler) ArchiveCompany(c *fiber.Ctx) error {
+	actor := GetUser(c)
+	if actor.Role != "owner" && actor.Role != "manager" {
+		return c.Status(403).SendString("Forbidden")
+	}
+	id := middleware.StringToUUID(c.Params("id"))
+	if err := h.queries.UpdateCompanyStatus(c.Context(), id, "archived"); err != nil {
+		return c.Status(500).SendString("Lỗi lưu trữ")
+	}
+	return c.Redirect("/companies")
+}
+
+// UnarchiveCompany restores status='active'.
+func (h *Handler) UnarchiveCompany(c *fiber.Ctx) error {
+	actor := GetUser(c)
+	if actor.Role != "owner" && actor.Role != "manager" {
+		return c.Status(403).SendString("Forbidden")
+	}
+	id := middleware.StringToUUID(c.Params("id"))
+	if err := h.queries.UpdateCompanyStatus(c.Context(), id, "active"); err != nil {
+		return c.Status(500).SendString("Lỗi khôi phục")
+	}
+	return c.Redirect("/companies?show=archived")
+}
+
+// allowedLogoMimes is the closed whitelist for company logo uploads.
+// SVG renders via <img> (not <object>/<iframe>), so XSS risk is negligible.
+var allowedLogoMimes = map[string]bool{
+	"image/png":     true,
+	"image/jpeg":    true,
+	"image/svg+xml": true,
+}
+
+// UploadCompanyLogo uploads an image to Drive and stores the URL in companies.logo_url.
+// Owner + manager only. PNG/JPEG/SVG accepted, max 5MB.
+func (h *Handler) UploadCompanyLogo(c *fiber.Ctx) error {
+	actor := GetUser(c)
+	if actor.Role != "owner" && actor.Role != "manager" {
+		return c.Status(403).SendString("Forbidden")
+	}
+	idStr := c.Params("id")
+	id := middleware.StringToUUID(idStr)
+	file, err := c.FormFile("logo")
+	if err != nil {
+		return c.Status(400).SendString("Thiếu file logo")
+	}
+	if file.Size > 5*1024*1024 {
+		return c.Status(400).SendString("Logo quá lớn (tối đa 5MB)")
+	}
+	mime := file.Header.Get("Content-Type")
+	if !allowedLogoMimes[mime] {
+		return c.Status(400).SendString("Định dạng không hỗ trợ. Chỉ nhận PNG, JPEG, SVG.")
+	}
+	if h.config.GoogleRefreshToken == "" {
+		return c.Status(503).SendString("Drive chưa được cấu hình")
+	}
+	src, err := file.Open()
+	if err != nil {
+		return c.Status(500).SendString("Không mở được file")
+	}
+	defer src.Close()
+
+	cfg := &drive.Config{
+		ClientID:     h.config.GoogleClientID,
+		ClientSecret: h.config.GoogleClientSecret,
+		RefreshToken: h.config.GoogleRefreshToken,
+		FolderID:     h.config.GoogleDriveFolderID,
+	}
+	result, err := drive.UploadFile(c.Context(), cfg, file.Filename, mime, src)
+	if err != nil {
+		return c.Status(500).SendString("Upload fail: " + err.Error())
+	}
+	logoURL := result.WebViewLink
+	if logoURL == "" {
+		logoURL = "https://drive.google.com/file/d/" + result.FileID + "/view"
+	}
+	if err := h.queries.UpdateCompanyLogo(c.Context(), id, logoURL); err != nil {
+		return c.Status(500).SendString("Lỗi lưu URL")
+	}
+	return c.Redirect("/companies/" + idStr)
 }
 
 func (h *Handler) CreateCompany(c *fiber.Ctx) error {
@@ -98,14 +196,19 @@ func (h *Handler) UpdateCompanyForm(c *fiber.Ctx) error {
 func toTemplCompanies(companies []generated.Company) []pages.CompanyItem {
 	items := make([]pages.CompanyItem, len(companies))
 	for i, c := range companies {
+		label, class := deadlineBadge(c.EndDate)
 		items[i] = pages.CompanyItem{
-			ID:        middleware.UUIDToString(c.ID),
-			Name:      c.Name,
-			ShortCode: nullStr(c.ShortCode),
-			Industry:  nullStr(c.Industry),
-			MyRole:    c.MyRole,
-			Status:    c.Status,
-			Health:    nullStr(c.Health),
+			ID:            middleware.UUIDToString(c.ID),
+			Name:          c.Name,
+			ShortCode:     nullStr(c.ShortCode),
+			Industry:      nullStr(c.Industry),
+			MyRole:        c.MyRole,
+			Status:        c.Status,
+			Health:        nullStr(c.Health),
+			LogoURL:       nullStr(c.LogoURL),
+			DeadlineLabel: label,
+			DeadlineClass: class,
+			EndDate:       formatDate(c.EndDate),
 		}
 	}
 	return items

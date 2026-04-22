@@ -58,3 +58,23 @@ func (q *Queries) CreateNotification(ctx context.Context, userID pgtype.UUID, ti
 		userID, title, body, link)
 	return err
 }
+
+// CreateNotificationRef inserts a referenced notification, deduped per (user,ref,day).
+// Returns ErrNoRows from underlying pgx if the dedup index rejected the insert — callers can ignore.
+type CreateNotificationRefParams struct {
+	UserID  pgtype.UUID
+	Title   string
+	Body    *string
+	Link    *string
+	RefType string
+	RefID   pgtype.UUID
+}
+
+func (q *Queries) CreateNotificationRef(ctx context.Context, arg CreateNotificationRefParams) error {
+	_, err := q.pool.Exec(ctx,
+		`INSERT INTO notifications (user_id, title, body, link, ref_type, ref_id)
+		 VALUES ($1, $2, $3, $4, $5, $6)
+		 ON CONFLICT (user_id, ref_type, ref_id, notif_date) WHERE ref_type IS NOT NULL DO NOTHING`,
+		arg.UserID, arg.Title, arg.Body, arg.Link, arg.RefType, arg.RefID)
+	return err
+}

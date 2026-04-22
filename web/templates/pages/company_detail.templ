@@ -29,15 +29,19 @@ templ CompanyDetailDataPage(data CompanyDetailData) {
 	@templates.Layout(data.Company.Name, "companies") {
 		<div class="mb-8">
 			<a href="/companies" class="text-xs text-muted hover:text-ink mono">← Quay lại danh sách</a>
-			<div class="flex items-end justify-between mt-4">
+			<div class="flex items-end justify-between mt-4 flex-wrap gap-4">
 				<div class="flex items-center gap-4">
-					<div class={ "w-16 h-16 rounded-lg text-white flex items-center justify-center mono text-xl font-bold", codeBg(data.Company.Status) }>
-						if data.Company.ShortCode != "" {
-							{ data.Company.ShortCode }
-						} else {
-							{ string([]rune(data.Company.Name)[:1]) }
-						}
-					</div>
+					if data.Company.LogoURL != "" {
+						<img src={ data.Company.LogoURL } alt={ data.Company.Name } class="w-16 h-16 rounded-lg object-cover border border-hairline"/>
+					} else {
+						<div class={ "w-16 h-16 rounded-lg text-white flex items-center justify-center mono text-xl font-bold", codeBg(data.Company.Status) }>
+							if data.Company.ShortCode != "" {
+								{ data.Company.ShortCode }
+							} else {
+								{ string([]rune(data.Company.Name)[:1]) }
+							}
+						</div>
+					}
 					<div>
 						<p class="eyebrow mb-1">
 							Công ty
@@ -47,11 +51,33 @@ templ CompanyDetailDataPage(data CompanyDetailData) {
 							{ " · " + data.Company.MyRole }
 						</p>
 						<h1 class="display text-4xl md:text-5xl font-bold leading-none">{ data.Company.Name }</h1>
-						<div class="flex items-center gap-2 mt-2">
+						<div class="flex items-center gap-2 mt-2 flex-wrap">
 							<span class={ "pill", healthPill(data.Company.Health) }>{ healthLabel(data.Company.Health) }</span>
 							<span class="text-xs text-muted mono">{ strings.ToUpper(data.Company.Status) }</span>
+							if data.Company.DeadlineLabel != "" {
+								<span class={ "pill text-xs", data.Company.DeadlineClass }>{ data.Company.DeadlineLabel }</span>
+							}
+							if data.Company.EndDate != "" {
+								<span class="text-xs text-muted mono">Hạn: { data.Company.EndDate }</span>
+							}
 						</div>
 					</div>
+				</div>
+				<!-- Admin actions -->
+				<div class="flex gap-2 flex-wrap">
+					<form method="POST" action={ templ.SafeURL("/companies/" + data.Company.ID + "/logo") } enctype="multipart/form-data" class="flex items-center gap-2">
+						<input type="file" name="logo" accept="image/png,image/jpeg,image/svg+xml" required class="text-xs w-40"/>
+						<button type="submit" class="px-3 py-1.5 bg-forest text-white rounded text-xs mono">UPLOAD LOGO</button>
+					</form>
+					if data.Company.Status == "archived" {
+						<form method="POST" action={ templ.SafeURL("/companies/" + data.Company.ID + "/unarchive") }>
+							<button type="submit" class="px-3 py-1.5 border border-hairline rounded text-xs mono hover:bg-sage hover:text-white">↩ KHÔI PHỤC</button>
+						</form>
+					} else {
+						<form method="POST" action={ templ.SafeURL("/companies/" + data.Company.ID + "/archive") } onsubmit="return confirm('Lưu trữ công ty này?');">
+							<button type="submit" class="px-3 py-1.5 border border-hairline rounded text-xs mono hover:bg-rust hover:text-white">📦 LƯU TRỮ</button>
+						</form>
+					}
 				</div>
 			</div>
 		</div>
