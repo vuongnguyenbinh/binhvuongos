@@ -18,17 +18,19 @@ const stateCookieName = "gstate"
 // sessionTTL mirrors the non-remember JWT window used by email/password login.
 const googleSessionTTL = 24 * time.Hour
 
+// newGoogleOAuth returns the OAuth client for interactive Login.
+// Uses GOOGLE_LOGIN_CLIENT_ID/SECRET if set, falls back to the Drive credentials.
 func (h *Handler) newGoogleOAuth() *oauth.Config {
 	return &oauth.Config{
-		ClientID:     h.config.GoogleClientID,
-		ClientSecret: h.config.GoogleClientSecret,
+		ClientID:     h.config.GoogleLoginClientID,
+		ClientSecret: h.config.GoogleLoginClientSecret,
 		RedirectURI:  h.config.GoogleRedirectURI,
 	}
 }
 
 // GoogleLoginRedirect generates a CSRF state cookie and redirects to Google consent.
 func (h *Handler) GoogleLoginRedirect(c *fiber.Ctx) error {
-	if h.config.GoogleClientID == "" || h.config.GoogleClientSecret == "" {
+	if h.config.GoogleLoginClientID == "" || h.config.GoogleLoginClientSecret == "" {
 		return c.Status(503).SendString("Google OAuth chưa được cấu hình")
 	}
 	buf := make([]byte, 16)
