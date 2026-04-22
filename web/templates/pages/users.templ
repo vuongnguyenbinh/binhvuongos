@@ -88,7 +88,7 @@ templ UsersListPage(data UsersPageData) {
 					<tbody class="divide-y divide-hairline">
 						for _, u := range data.Users {
 							<tr class="row-hover">
-								<td class="px-4 py-4 font-semibold">{ u.FullName }</td>
+								<td class="px-4 py-4 font-semibold"><a href={ templ.SafeURL("/users/" + u.ID) } class="hover:text-forest">{ u.FullName }</a></td>
 								<td class="px-4 py-4 text-xs mono">{ u.Email }</td>
 								<td class="px-4 py-4"><span class={ "pill", rolePill(u.Role) }>{ roleLabel(u.Role) }</span></td>
 								<td class="px-4 py-4 text-xs mono">{ u.Phone }</td>

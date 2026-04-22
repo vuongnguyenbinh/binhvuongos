@@ -1,6 +1,8 @@
 package handler
 
 import (
+	"fmt"
+
 	"binhvuongos/internal/db/generated"
 	"binhvuongos/internal/middleware"
 	"binhvuongos/web/templates/pages"
@@ -62,6 +64,67 @@ func (h *Handler) UpdateUser(c *fiber.Ctx) error {
 		return c.Status(500).SendString("Lỗi cập nhật")
 	}
 	return c.Redirect("/users")
+}
+
+// UserDetail renders the admin-facing user detail page (profile + recent activity).
+// Only owner + manager can view; edit button is further gated by CanManageUser.
+func (h *Handler) UserDetail(c *fiber.Ctx) error {
+	actor := GetUser(c)
+	if actor.Role != "owner" && actor.Role != "manager" {
+		return c.Status(403).SendString("Forbidden")
+	}
+	target, err := h.queries.GetUserByID(c.Context(), middleware.StringToUUID(c.Params("id")))
+	if err != nil {
+		return c.Status(404).SendString("Không tìm thấy user")
+	}
+
+	// Recent activity — cap slices to 10 rows even if query returns more.
+	tasks, _ := h.queries.ListTasksByAssignee(c.Context(), target.ID)
+	if len(tasks) > 10 {
+		tasks = tasks[:10]
+	}
+	logs, _ := h.queries.ListWorkLogsByUser(c.Context(), target.ID, 10, 0)
+	assignments, _ := h.queries.ListAssignmentsByUser(c.Context(), target.ID)
+
+	data := pages.UserDetailData{
+		ID:        middleware.UUIDToString(target.ID),
+		Email:     target.Email,
+		FullName:  target.FullName,
+		Role:      target.Role,
+		Status:    target.Status,
+		Phone:     nullStr(target.Phone),
+		AvatarURL: nullStr(target.AvatarURL),
+		CanEdit:   middleware.CanManageUser(actor, target),
+	}
+	for _, co := range assignments {
+		data.Companies = append(data.Companies, pages.UserDetailCompany{
+			Name:      co.CompanyName,
+			ShortCode: co.ShortCode,
+			Role:      nullStr(co.RoleInCompany),
+		})
+	}
+	for _, t := range tasks {
+		data.Tasks = append(data.Tasks, pages.UserDetailTask{
+			ID:       middleware.UUIDToString(t.ID),
+			Title:    t.Title,
+			Status:   t.Status,
+			Priority: t.Priority,
+			DueDate:  formatDate(t.DueDate),
+		})
+	}
+	for _, l := range logs {
+		var qty string
+		if l.Quantity.Valid {
+			f, _ := l.Quantity.Float64Value()
+			qty = fmt.Sprintf("%.0f", f.Float64)
+		}
+		data.WorkLogs = append(data.WorkLogs, pages.UserDetailWorkLog{
+			Date:     formatDate(l.WorkDate),
+			Quantity: qty,
+			Notes:    nullStr(l.Notes),
+		})
+	}
+	return render(c, pages.UserDetailPage(data))
 }
 
 // DeleteUser soft-deletes a user (sets deleted_at). Self-delete is blocked.

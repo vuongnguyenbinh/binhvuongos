@@ -132,3 +132,24 @@ func (q *Queries) SoftDeleteUser(ctx context.Context, id pgtype.UUID) error {
 	_, err := q.pool.Exec(ctx, "UPDATE users SET deleted_at = NOW() WHERE id = $1", id)
 	return err
 }
+
+// UpdateUserAvatar sets users.avatar_url for a user. Used by Google login auto-populate
+// and by the self-service avatar upload handler.
+func (q *Queries) UpdateUserAvatar(ctx context.Context, id pgtype.UUID, url string) error {
+	_, err := q.pool.Exec(ctx, "UPDATE users SET avatar_url = $2 WHERE id = $1", id, url)
+	return err
+}
+
+// UpdateOwnProfile lets a user edit their own name + phone. Role/email/status stay immutable.
+type UpdateOwnProfileParams struct {
+	ID       pgtype.UUID
+	FullName string
+	Phone    string
+}
+
+func (q *Queries) UpdateOwnProfile(ctx context.Context, arg UpdateOwnProfileParams) error {
+	_, err := q.pool.Exec(ctx,
+		"UPDATE users SET full_name = $2, phone = $3 WHERE id = $1",
+		arg.ID, arg.FullName, arg.Phone)
+	return err
+}

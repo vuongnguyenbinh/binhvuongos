@@ -1,0 +1,124 @@
+package pages
+
+import "binhvuongos/web/templates"
+
+type UserDetailCompany struct {
+	Name      string
+	ShortCode string
+	Role      string
+}
+
+type UserDetailTask struct {
+	ID       string
+	Title    string
+	Status   string
+	Priority string
+	DueDate  string
+}
+
+type UserDetailWorkLog struct {
+	Date     string
+	Quantity string
+	Notes    string
+}
+
+type UserDetailData struct {
+	ID         string
+	Email      string
+	FullName   string
+	Role       string
+	Status     string
+	Phone      string
+	AvatarURL  string
+	CanEdit    bool
+	Companies  []UserDetailCompany
+	Tasks      []UserDetailTask
+	WorkLogs   []UserDetailWorkLog
+}
+
+templ UserDetailPage(d UserDetailData) {
+	@templates.Layout("Chi tiết — "+d.FullName, "dashboard") {
+		<div class="mb-6">
+			<a href="/users" class="text-sm text-muted hover:text-ink">← Danh sách user</a>
+		</div>
+		<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+			<!-- Profile card -->
+			<div class="lg:col-span-1">
+				<div class="bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-lg p-6">
+					<div class="flex flex-col items-center text-center">
+						if d.AvatarURL != "" {
+							<img src={ d.AvatarURL } class="w-24 h-24 rounded-full object-cover border border-hairline mb-3" alt={ d.FullName }/>
+						} else {
+							<div class="w-24 h-24 rounded-full bg-forest text-white flex items-center justify-center text-3xl font-bold mb-3">
+								{ initialsOf(d.FullName) }
+							</div>
+						}
+						<h2 class="display text-xl font-bold">{ d.FullName }</h2>
+						<p class="text-xs text-muted mono">{ d.Email }</p>
+					</div>
+					<div class="mt-5 space-y-2 text-sm">
+						<div class="flex justify-between"><span class="text-muted">Vai trò</span><span class="font-semibold">{ roleLabel(d.Role) }</span></div>
+						<div class="flex justify-between"><span class="text-muted">SĐT</span><span class="mono text-xs">{ d.Phone }</span></div>
+						<div class="flex justify-between"><span class="text-muted">Trạng thái</span><span>{ d.Status }</span></div>
+					</div>
+					if d.CanEdit {
+						<div class="mt-5 flex gap-2">
+							<a href={ templ.SafeURL("/users/" + d.ID + "/edit") } class="flex-1 text-center px-4 py-2 bg-forest text-white rounded text-sm mono">SỬA</a>
+						</div>
+					}
+				</div>
+			</div>
+			<!-- Activity -->
+			<div class="lg:col-span-2 space-y-6">
+				<div class="bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-lg p-6">
+					<h3 class="eyebrow mb-3">Công ty phụ trách</h3>
+					if len(d.Companies) == 0 {
+						<p class="text-xs text-muted">Chưa gán công ty nào.</p>
+					} else {
+						<ul class="space-y-2">
+							for _, co := range d.Companies {
+								<li class="flex justify-between items-center text-sm border-b border-hairline pb-2">
+									<span class="font-semibold">{ co.Name }</span>
+									if co.ShortCode != "" {
+										<span class="text-xs mono text-muted">{ co.ShortCode }</span>
+									}
+								</li>
+							}
+						</ul>
+					}
+				</div>
+				<div class="bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-lg p-6">
+					<h3 class="eyebrow mb-3">Công việc gần đây</h3>
+					if len(d.Tasks) == 0 {
+						<p class="text-xs text-muted">Chưa có task nào.</p>
+					} else {
+						<ul class="divide-y divide-hairline">
+							for _, t := range d.Tasks {
+								<li class="py-2 flex justify-between items-center text-sm">
+									<a href={ templ.SafeURL("/tasks/" + t.ID) } class="hover:text-forest">{ t.Title }</a>
+									<span class="text-xs mono text-muted">{ t.Status } · { t.Priority } · { t.DueDate }</span>
+								</li>
+							}
+						</ul>
+					}
+				</div>
+				<div class="bg-surface dark:bg-dark-surface border border-hairline dark:border-dark-border rounded-lg p-6">
+					<h3 class="eyebrow mb-3">Nhật ký công việc</h3>
+					if len(d.WorkLogs) == 0 {
+						<p class="text-xs text-muted">Chưa có work log nào.</p>
+					} else {
+						<ul class="divide-y divide-hairline">
+							for _, l := range d.WorkLogs {
+								<li class="py-2 text-sm flex justify-between">
+									<span class="mono text-xs">{ l.Date }</span>
+									<span>{ l.Quantity }</span>
+									<span class="text-muted truncate max-w-[280px]">{ l.Notes }</span>
+								</li>
+							}
+						</ul>
+					}
+				</div>
+			</div>
+		</div>
+	}
+}

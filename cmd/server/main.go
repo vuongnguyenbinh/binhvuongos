@@ -50,6 +50,9 @@ func main() {
 	// Public password reset (token-gated, no auth required)
 	app.Get("/reset/:token", h.ResetPasswordPage)
 	app.Post("/reset/:token", h.ResetPassword)
+	// Google OAuth login (public: anyone can initiate; callback enforces email whitelist)
+	app.Get("/auth/google", h.GoogleLoginRedirect)
+	app.Get("/auth/google/callback", h.GoogleCallback)
 
 	// JSON API routes (API key auth — must be before protected group)
 	api := app.Group("/api/v1", middleware.APIKeyAuth(cfg.APIKey))
@@ -71,6 +74,8 @@ func main() {
 	app.Get("/auth/me", h.AuthMe)
 	app.Get("/profile", h.ProfilePageHandler)
 	app.Post("/profile/password", h.ChangePassword)
+	app.Post("/profile/update", h.ProfileUpdate)
+	app.Post("/profile/avatar", h.ProfileAvatar)
 
 	// Dashboard notes
 	app.Post("/dashboard/notes", h.SaveDashboardNotes)
@@ -103,6 +108,9 @@ func main() {
 	admin.Post("/users/:id", h.UpdateUser)
 	admin.Post("/users/:id/delete", h.DeleteUser)
 	admin.Post("/users/:id/reset-password", h.GenerateResetLink)
+	// User detail MUST register AFTER the more-specific /users/:id/* routes so the
+	// router does not match /users/edit via `:id`.
+	admin.Get("/users/:id", h.UserDetail)
 
 	// Pages — Inbox is home
 	app.Get("/", func(c *fiber.Ctx) error { return c.Redirect("/inbox") })

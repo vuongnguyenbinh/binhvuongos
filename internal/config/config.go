@@ -16,6 +16,7 @@ type Config struct {
 	GoogleClientSecret  string
 	GoogleRefreshToken  string
 	GoogleDriveFolderID string
+	GoogleRedirectURI   string
 }
 
 func Load() *Config {
@@ -31,6 +32,7 @@ func Load() *Config {
 		GoogleClientSecret:  os.Getenv("GOOGLE_CLIENT_SECRET"),
 		GoogleRefreshToken:  os.Getenv("GOOGLE_REFRESH_TOKEN"),
 		GoogleDriveFolderID: os.Getenv("GOOGLE_DRIVE_FOLDER_ID"),
+		GoogleRedirectURI:   os.Getenv("GOOGLE_REDIRECT_URI"),
 	}
 
 	if cfg.Port == "" {
@@ -38,6 +40,9 @@ func Load() *Config {
 	}
 	if cfg.OwnerEmail == "" {
 		cfg.OwnerEmail = "vuongnguyenbinh@gmail.com"
+	}
+	if cfg.GoogleRedirectURI == "" {
+		cfg.GoogleRedirectURI = "https://os.binhvuong.vn/auth/google/callback"
 	}
 
 	return cfg

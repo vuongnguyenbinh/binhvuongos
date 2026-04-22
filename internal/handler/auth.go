@@ -3,6 +3,7 @@ package handler
 import (
 	"time"
 
+	"binhvuongos/internal/db/generated"
 	"binhvuongos/internal/middleware"
 	"binhvuongos/web/templates/pages"
 
@@ -79,10 +80,11 @@ func (h *Handler) Logout(c *fiber.Ctx) error {
 func (h *Handler) AuthMe(c *fiber.Ctx) error {
 	user := GetUser(c)
 	return c.JSON(fiber.Map{
-		"id":        middleware.UUIDToString(user.ID),
-		"email":     user.Email,
-		"full_name": user.FullName,
-		"role":      user.Role,
+		"id":         middleware.UUIDToString(user.ID),
+		"email":      user.Email,
+		"full_name":  user.FullName,
+		"role":       user.Role,
+		"avatar_url": nullStr(user.AvatarURL),
 	})
 }
 
@@ -93,30 +95,42 @@ func (h *Handler) ChangePassword(c *fiber.Ctx) error {
 	newPw := c.FormValue("new_password")
 
 	if currentPw == "" || newPw == "" || len(newPw) < 8 {
-		return render(c, pages.ProfilePage(user.FullName, user.Email, "Mật khẩu mới cần ít nhất 8 ký tự"))
+		return render(c, pages.ProfilePage(h.profileData(user, "Mật khẩu mới cần ít nhất 8 ký tự")))
 	}
 
 	// Verify current password
 	dbUser, err := h.queries.GetUserByID(c.Context(), user.ID)
 	if err != nil {
-		return render(c, pages.ProfilePage(user.FullName, user.Email, "Lỗi hệ thống"))
+		return render(c, pages.ProfilePage(h.profileData(user, "Lỗi hệ thống")))
 	}
 	if err := bcrypt.CompareHashAndPassword([]byte(dbUser.PasswordHash), []byte(currentPw)); err != nil {
-		return render(c, pages.ProfilePage(user.FullName, user.Email, "Mật khẩu hiện tại không đúng"))
+		return render(c, pages.ProfilePage(h.profileData(user, "Mật khẩu hiện tại không đúng")))
 	}
 
 	hash, err := bcrypt.GenerateFromPassword([]byte(newPw), 12)
 	if err != nil {
-		return render(c, pages.ProfilePage(user.FullName, user.Email, "Lỗi hệ thống"))
+		return render(c, pages.ProfilePage(h.profileData(user, "Lỗi hệ thống")))
 	}
 
 	// Update password in DB
 	_ = h.queries.UpdatePassword(c.Context(), user.ID, string(hash))
-	return render(c, pages.ProfilePage(user.FullName, user.Email, "Đổi mật khẩu thành công!"))
+	return render(c, pages.ProfilePage(h.profileData(user, "Đổi mật khẩu thành công!")))
 }
 
 // ProfilePage shows profile with change password form
 func (h *Handler) ProfilePageHandler(c *fiber.Ctx) error {
 	user := GetUser(c)
-	return render(c, pages.ProfilePage(user.FullName, user.Email, ""))
+	return render(c, pages.ProfilePage(h.profileData(user, "")))
+}
+
+// profileData maps a DB user + message to the templ ProfileData struct.
+func (h *Handler) profileData(user generated.User, message string) pages.ProfileData {
+	return pages.ProfileData{
+		FullName:  user.FullName,
+		Email:     user.Email,
+		Phone:     nullStr(user.Phone),
+		AvatarURL: nullStr(user.AvatarURL),
+		Role:      RoleLabel(user.Role),
+		Message:   message,
+	}
 }
