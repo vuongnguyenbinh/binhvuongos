@@ -107,3 +107,34 @@ func UploadFile(ctx context.Context, cfg *Config, fileName string, mimeType stri
 	result.FileName = fileName
 	return &result, nil
 }
+
+// DownloadFile streams a Drive file's bytes using the stored refresh_token.
+// Returns the body (caller closes), detected MIME type, and an error. Used by
+// the /drive/:file_id proxy to serve images + other uploaded files through the
+// app's own auth layer without having to make Drive files publicly readable.
+func DownloadFile(ctx context.Context, cfg *Config, fileID string) (io.ReadCloser, string, error) {
+	token, err := getAccessToken(cfg)
+	if err != nil {
+		return nil, "", fmt.Errorf("get token: %w", err)
+	}
+	req, err := http.NewRequestWithContext(ctx, "GET",
+		"https://www.googleapis.com/drive/v3/files/"+url.PathEscape(fileID)+"?alt=media", nil)
+	if err != nil {
+		return nil, "", err
+	}
+	req.Header.Set("Authorization", "Bearer "+token)
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return nil, "", err
+	}
+	if resp.StatusCode != 200 {
+		respBody, _ := io.ReadAll(resp.Body)
+		_ = resp.Body.Close()
+		return nil, "", fmt.Errorf("download failed (%d): %s", resp.StatusCode, string(respBody))
+	}
+	mimeType := resp.Header.Get("Content-Type")
+	if mimeType == "" {
+		mimeType = "application/octet-stream"
+	}
+	return resp.Body, mimeType, nil
+}

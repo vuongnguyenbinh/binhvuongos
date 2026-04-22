@@ -80,6 +80,9 @@ func main() {
 	app.Post("/profile/update", h.ProfileUpdate)
 	app.Post("/profile/avatar", h.ProfileAvatar)
 
+	// Drive proxy — stream Drive files (logos, avatars) through our auth layer.
+	app.Get("/drive/:file_id", h.DriveProxy)
+
 	// Dashboard notes
 	app.Post("/dashboard/notes", h.SaveDashboardNotes)
 

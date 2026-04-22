@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"fmt"
 	"strings"
 
 	"binhvuongos/internal/db/generated"
@@ -61,10 +60,8 @@ func (h *Handler) ProfileAvatar(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(500).SendString("Upload fail: " + err.Error())
 	}
-	avatarURL := result.WebViewLink
-	if avatarURL == "" {
-		avatarURL = fmt.Sprintf("https://drive.google.com/file/d/%s/view", result.FileID)
-	}
+	// Store internal proxy path so <img src> renders through our server.
+	avatarURL := "/drive/" + result.FileID
 	if err := h.queries.UpdateUserAvatar(c.Context(), user.ID, avatarURL); err != nil {
 		return c.Status(500).SendString("Lỗi lưu URL")
 	}

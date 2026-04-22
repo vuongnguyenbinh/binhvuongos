@@ -135,10 +135,8 @@ func (h *Handler) UploadCompanyLogo(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(500).SendString("Upload fail: " + err.Error())
 	}
-	logoURL := result.WebViewLink
-	if logoURL == "" {
-		logoURL = "https://drive.google.com/file/d/" + result.FileID + "/view"
-	}
+	// Store internal proxy path instead of Drive WebViewLink so <img src> renders directly.
+	logoURL := "/drive/" + result.FileID
 	if err := h.queries.UpdateCompanyLogo(c.Context(), id, logoURL); err != nil {
 		return c.Status(500).SendString("Lỗi lưu URL")
 	}
