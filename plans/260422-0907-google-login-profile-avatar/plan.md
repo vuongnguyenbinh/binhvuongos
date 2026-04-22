@@ -1,7 +1,8 @@
 ---
 title: "Google Login + Self-Profile Edit + Avatar + User Detail"
 description: "OAuth Google login (admin-gated), user self-edit profile + avatar upload, admin user detail page, header avatar dropdown"
-status: pending
+status: completed
+completed: 2026-04-22
 priority: P1
 effort: 3h30m
 tags: [auth, oauth, google, profile, avatar, users]

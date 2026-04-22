@@ -92,6 +92,10 @@ Tổng hợp các câu hỏi/đề xuất chưa xử lý từ các plan + report
 - ✅ Auto-logout soft-deleted user: implemented via `status='active'` check trong AuthRequired
 - ✅ Triage race: atomic `WHERE status != 'done'` + 409 response
 - ✅ Templ files gitignored + Dockerfile rebuild
+- ✅ Google login (admin-gated, email whitelist) — 2026-04-22 plan `260422-0907-google-login-profile-avatar`
+- ✅ Self-profile edit + avatar upload (Drive) — 2026-04-22
+- ✅ User detail admin page `/users/:id` — 2026-04-22
+- ✅ Header avatar dropdown (Profile + Logout) — 2026-04-22
 
 ## Cách dùng file này
 
